@@ -16,29 +16,30 @@
 
 ## First run
 
-| Step | Command | Note |
+| # | Command | What it does |
 |---|---|---|
-| 1. Clone | `git clone https://github.com/DAMHONGDUC/private-jet.git && cd private-jet` | |
-| 2. Install JS deps | `npm ci` | Uses `package-lock.json` |
-| 3. Install CocoaPods (iOS) | `bundle install` | Run at repo root, once |
-| 4. Install pods (iOS) | `cd ios && bundle exec pod install && cd ..` | Re-run after adding a native dependency |
-| 5. Start Metro | `npm start` | Keep this terminal open |
-| 6a. Run Android | `npm run android` | In a second terminal, with an emulator or device connected |
-| 6b. Run iOS | `npm run ios` | In a second terminal, macOS only |
+| 1 | `npm run setup` | `npm ci`, then on macOS `bundle install` + `pod install` ([scripts/setup.js](../scripts/setup.js)) |
+| 2 | `npm run android` | Build, install and open the app on an emulator or device; starts Metro if it is not running |
+| 3 | `npm run ios` | Build and open the app in the iOS Simulator (macOS only); starts Metro if it is not running |
 
 ```mermaid
 flowchart LR
-  A[npm ci] --> B{Platform}
-  B -->|iOS| C[bundle install] --> D[bundle exec pod install] --> E[npm start]
-  B -->|Android| E
-  E --> F[npm run ios / npm run android]
+  A[npm run setup] --> B[npm run android]
+  A --> C[npm run ios]
 ```
+
+| When to re-run `npm run setup` |
+|---|
+| After cloning or pulling changes to `package-lock.json` |
+| After adding a native dependency |
+| After switching branches |
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `npm start` | Start the Metro bundler |
+| `npm run setup` | Install JS deps and iOS pods |
+| `npm start` | Start the Metro bundler on its own |
 | `npm start -- --reset-cache` | Start Metro with a clean cache |
 | `npm run android` | Build and install the debug app on Android |
 | `npm run ios` | Build and launch the debug app in the iOS Simulator |
@@ -61,6 +62,6 @@ flowchart LR
 |---|---|
 | Reanimated / worklets error after editing `babel.config.js` | `npm start -- --reset-cache` (`react-native-worklets/plugin` must stay last in `plugins`) |
 | `@/...` import cannot be resolved | `npm start -- --reset-cache` |
-| iOS build fails on missing pods | `cd ios && bundle exec pod install` |
+| iOS build fails on missing pods | `npm run setup` |
 | Android build cannot find SDK | Set `ANDROID_HOME`, or add `sdk.dir` to `android/local.properties` |
-| Wrong app after switching branch | Stop Metro, `npm ci`, then `npm start -- --reset-cache` |
+| Wrong app after switching branch | Stop Metro, `npm run setup`, then `npm start -- --reset-cache` |

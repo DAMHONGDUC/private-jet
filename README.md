@@ -12,8 +12,7 @@ A private jet booking app: a dashboard, a flight search and a booking flow, on m
 
 | Task | Command |
 |---|---|
-| Install | `npm ci` (then `bundle install && cd ios && bundle exec pod install` for iOS) |
-| Metro | `npm start` |
+| Setup | `npm run setup` |
 | Run | `npm run android` / `npm run ios` |
 | Checks | `npm run lint && npm run typecheck && npm test` |
 | Full run guide | [docs/setup.md](docs/setup.md) |
