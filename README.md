@@ -1,97 +1,88 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# BackJet
 
-# Getting Started
+A private jet booking app: a dashboard, a flight search and a booking flow, on mock data.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+| | |
+|---|---|
+| Stack | React Native 0.88 (New Architecture), Redux Toolkit, RTK Query, Reanimated 4, Clean Architecture |
+| Navigation | React Navigation 7: bottom tabs + native stack |
+| Tests | Jest + React Native Testing Library 14 |
 
-## Step 1: Start Metro
+## Commands
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+| Task | Command |
+|---|---|
+| Install | `npm install` (then `cd ios && bundle install && bundle exec pod install` for iOS) |
+| Metro | `npm start` |
+| Run | `npm run android` / `npm run ios` |
+| Checks | `npm run lint && npm run typecheck && npm test` |
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Architecture
 
-```sh
-# Using npm
-npm start
+Feature-first Clean Architecture. Each feature has three layers; dependencies point inward.
 
-# OR using Yarn
-yarn start
+```mermaid
+flowchart LR
+  subgraph presentation
+    Screen -->|hook| API[RTK Query endpoint]
+    Screen -->|useSelector| Slice[Redux slice: UI state]
+  end
+  subgraph domain
+    UseCase[Use case] --> RepoI[Repository interface]
+  end
+  subgraph data
+    RepoImpl[Repository impl] --> DS[Data source: mock]
+    RepoImpl --> Mapper[DTO → entity mapper]
+  end
+  API -->|queryFn| UseCase
+  RepoImpl -. implements .-> RepoI
 ```
 
-## Step 2: Build and run your app
+| Layer | Holds | Knows Redux / React? |
+|---|---|---|
+| `domain/` | Entities, repository interfaces, use cases, business rules | No |
+| `data/` | DTOs, mappers, data sources (mock today), repository implementations | No |
+| `presentation/` | RTK Query endpoints, slices, screens, components | Yes |
+| `src/app/` | Composition root (`di/container.ts`), store, navigation | Yes |
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### How RTK Query fits
 
-### Android
+- One `createApi` with `fakeBaseQuery` (`src/core/store/base-api.ts`): no endpoint calls HTTP itself.
+- Every endpoint's `queryFn` calls a use case, which it receives as the thunk `extra` (`createAppStore` injects the use cases).
+- RTK Query still owns caching, request de-duplication, tags, refetching and the `useXxxQuery` / `useXxxMutation` hooks.
+- Errors thrown below are mapped to a serializable `AppError` by `runQuery` (`src/core/query/run-query.ts`).
+- Slices hold UI state only (the flight filters); server data lives in the RTK Query cache.
 
-```sh
-# Using npm
-npm run android
+### Cache invalidation
 
-# OR using Yarn
-yarn android
+| Mutation | Invalidates | Refetches |
+|---|---|---|
+| `bookFlight` | `Flight:<id>`, `Flight:LIST`, `Booking` | The flight's seats, the flight list, Trips, and the Dashboard (it provides `Booking` too) |
+
+### Mock data
+
+Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` builds DTOs dated from "now", and `*MockDataSource` serves them in memory with a fake network delay. Bookings and seat counts change in memory for the session. To use a real backend, write an HTTP data source with the same interface and swap it in `src/app/di/container.ts`; nothing above the data layer changes.
+
+## Features
+
+| Feature | Screens | Reanimated |
+|---|---|---|
+| Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, stretch/parallax loyalty card, animated tier progress, bars that grow in turn, staggered cards |
+| Flights | List with filters, detail | Staggered list entry, press-scale cards, plane flying the route |
+| Booking | Form, confirmation, Trips | Animated passenger fields (enter/exit/layout), animated total, success mark (spring disc, tick, pulse ring) |
+
+## Folder layout
+
+```
+src/
+  app/            App.tsx, di/container.ts, store/, navigation/
+  core/           error/, query/, store/base-api.ts, theme/, ui/, utils/
+  features/
+    <feature>/
+      domain/       entities/, repositories/, usecases/
+      data/         datasources/ (+ mock/), models/, mappers/, repositories/
+      presentation/ <feature>-api.ts, slices, screens/, components/
+  test-utils/     test store with zero latency and a fixed clock
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Screens take callbacks (`onOpenFlight`, `onBooked`) instead of a navigation prop; `src/app/navigation` adapts routes to them.
