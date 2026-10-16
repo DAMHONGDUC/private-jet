@@ -1,8 +1,8 @@
 import type { Booking } from '@/features/booking/domain/entities/booking';
 import type { BookingRepository } from '@/features/booking/domain/repositories/booking-repository';
-import type { Membership } from '../entities/dashboard';
-import type { DashboardRepository } from '../repositories/dashboard-repository';
-import { GetDashboardSummary } from './get-dashboard-summary';
+import type { Membership } from '@/features/dashboard/domain/entities/dashboard';
+import type { DashboardRepository } from '@/features/dashboard/domain/repositories/dashboard-repository';
+import { GetDashboardSummary } from '@/features/dashboard/domain/usecases/get-dashboard-summary';
 
 const NOW = new Date('2026-10-16T08:00:00.000Z');
 

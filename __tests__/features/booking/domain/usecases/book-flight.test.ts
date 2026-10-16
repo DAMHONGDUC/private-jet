@@ -1,8 +1,8 @@
 import type { Flight } from '@/features/flights/domain/entities/flight';
 import type { FlightRepository } from '@/features/flights/domain/repositories/flight-repository';
-import type { Booking, NewBooking } from '../entities/booking';
-import type { BookingRepository } from '../repositories/booking-repository';
-import { BookFlight } from './book-flight';
+import type { Booking, NewBooking } from '@/features/booking/domain/entities/booking';
+import type { BookingRepository } from '@/features/booking/domain/repositories/booking-repository';
+import { BookFlight } from '@/features/booking/domain/usecases/book-flight';
 
 const NOW = new Date('2026-10-16T08:00:00.000Z');
 

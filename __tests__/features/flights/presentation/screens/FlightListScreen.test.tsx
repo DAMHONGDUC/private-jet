@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react-native';
-import { renderWithStore } from '@/test-utils/test-store';
-import { FlightListScreen } from './FlightListScreen';
+import { renderWithStore } from '@test-utils/test-store';
+import { FlightListScreen } from '@/features/flights/presentation/screens/FlightListScreen';
 
 test('lists upcoming flights and filters them through the slice', async () => {
   const onOpenFlight = jest.fn();

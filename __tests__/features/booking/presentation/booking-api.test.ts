@@ -1,7 +1,7 @@
 import { dashboardApi } from '@/features/dashboard/presentation/dashboard-api';
 import { flightsApi } from '@/features/flights/presentation/flights-api';
-import { createTestStore } from '@/test-utils/test-store';
-import { bookingApi } from './booking-api';
+import { createTestStore } from '@test-utils/test-store';
+import { bookingApi } from '@/features/booking/presentation/booking-api';
 
 const request = {
   flightId: 'BJ-101',

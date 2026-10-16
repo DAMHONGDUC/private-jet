@@ -1,5 +1,5 @@
 import { DomainError } from '@/core/error/app-error';
-import { runQuery } from './run-query';
+import { runQuery } from '@/core/query/run-query';
 
 test('wraps a value as data', async () => {
   await expect(runQuery(async () => 42)).resolves.toEqual({ data: 42 });

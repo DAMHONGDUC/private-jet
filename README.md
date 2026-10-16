@@ -82,7 +82,8 @@ src/
       domain/       entities/, repositories/, usecases/
       data/         datasources/ (+ mock/), models/, mappers/, repositories/
       presentation/ <feature>-api.ts, slices, screens/, components/
-  test-utils/     test store with zero latency and a fixed clock
+__tests__/        same tree as src/ (core/, features/<feature>/...), plus smoke.test.tsx
+  test-utils/     test store with zero latency and a fixed clock (import as @test-utils/...)
 ```
 
 Screens take callbacks (`onOpenFlight`, `onBooked`) instead of a navigation prop; `src/app/navigation` adapts routes to them.

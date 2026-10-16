@@ -1,5 +1,5 @@
-import type { NewBooking } from '../../domain/entities/booking';
-import { toBooking, toCreateBookingDto } from './booking-mapper';
+import type { NewBooking } from '@/features/booking/domain/entities/booking';
+import { toBooking, toCreateBookingDto } from '@/features/booking/data/mappers/booking-mapper';
 
 test('round-trips a booking through the DTO, money in cents', () => {
   const booking: NewBooking = {

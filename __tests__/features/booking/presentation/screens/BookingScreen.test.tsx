@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { renderWithStore } from '@/test-utils/test-store';
-import { BookingScreen } from './BookingScreen';
+import { renderWithStore } from '@test-utils/test-store';
+import { BookingScreen } from '@/features/booking/presentation/screens/BookingScreen';
 
 describe('BookingScreen', () => {
   it('shows the domain validation message and does not book', async () => {

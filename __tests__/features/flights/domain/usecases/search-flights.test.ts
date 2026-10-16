@@ -1,6 +1,6 @@
-import type { Flight } from '../entities/flight';
-import type { FlightRepository } from '../repositories/flight-repository';
-import { SearchFlights } from './search-flights';
+import type { Flight } from '@/features/flights/domain/entities/flight';
+import type { FlightRepository } from '@/features/flights/domain/repositories/flight-repository';
+import { SearchFlights } from '@/features/flights/domain/usecases/search-flights';
 
 const NOW = new Date('2026-10-16T08:00:00.000Z');
 

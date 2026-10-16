@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react-native';
-import { renderWithStore } from '@/test-utils/test-store';
-import { DashboardScreen } from './DashboardScreen';
+import { renderWithStore } from '@test-utils/test-store';
+import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 
 test('shows the summary and routes its actions', async () => {
   const onOpenTrips = jest.fn();

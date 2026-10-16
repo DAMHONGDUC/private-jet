@@ -1,5 +1,5 @@
-import { FlightMockDataSource } from '../datasources/flight-mock-data-source';
-import { FlightRepositoryImpl } from './flight-repository-impl';
+import { FlightMockDataSource } from '@/features/flights/data/datasources/flight-mock-data-source';
+import { FlightRepositoryImpl } from '@/features/flights/data/repositories/flight-repository-impl';
 
 const NOW = new Date('2026-10-16T08:00:00.000Z');
 

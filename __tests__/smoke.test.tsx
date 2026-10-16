@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import App from '@/app/App';
-import { createTestStore } from '@/test-utils/test-store';
+import { createTestStore } from '@test-utils/test-store';
 
 test('books a flight from the dashboard to the confirmation', async () => {
   await render(<App store={createTestStore()} />);

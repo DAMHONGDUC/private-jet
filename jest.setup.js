@@ -17,7 +17,7 @@ jest.mock('react-native-safe-area-context', () => {
 
 // Required at top level: RNTL registers its own cleanup hooks on import.
 const { cleanup } = require('@testing-library/react-native');
-const { resetTestStores } = require('./src/test-utils/test-store');
+const { resetTestStores } = require('./__tests__/test-utils/test-store');
 
 // Unmount first, then drop the cached queries and their removal timers.
 afterEach(async () => {
