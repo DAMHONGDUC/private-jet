@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { BJText } from '@/core/ui/BJText';
 import { useGetNewsQuery } from '../dashboard-api';
-import { imageFor } from '../images';
+import { imageFor } from '@/core/ui/images';
 import { PhotoPager } from './PhotoPager';
 import { NewsSkeleton } from './Skeletons';
 

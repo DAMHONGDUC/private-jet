@@ -10,6 +10,13 @@ export type FlightsStackParamList = {
   BookingConfirmation: { bookingId: string };
 };
 
+/** The top level: one of these at a time, by session status. */
+export type AppStackParamList = {
+  Splash: undefined;
+  Login: undefined;
+  Main: NavigatorScreenParams<RootTabParamList>;
+};
+
 export type RootTabParamList = {
   DashboardTab: undefined;
   FlightsTab: NavigatorScreenParams<FlightsStackParamList>;

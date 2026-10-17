@@ -4,7 +4,7 @@ import { BJText } from '@/core/ui/BJText';
 import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { useGetInboxQuery } from '../dashboard-api';
-import { LOGO } from '../images';
+import { LOGO } from '@/core/ui/images';
 
 type AppBarProps = { onOpenMessages?: () => void; onOpenNotifications?: () => void };
 

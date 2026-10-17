@@ -5,7 +5,7 @@ import { BJText } from '@/core/ui/BJText';
 import { formatDuration, formatMoney } from '@/core/utils/format';
 import { CATEGORY_LABELS } from '@/features/flights/presentation/components/CategoryChips';
 import type { JetQuote } from '../../domain/entities/charter';
-import { imageFor } from '../images';
+import { imageFor } from '@/core/ui/images';
 import { PhotoPager } from './PhotoPager';
 
 export const JET_CARD_HEIGHT = 250;

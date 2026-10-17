@@ -1,3 +1,7 @@
+import { AuthMockDataSource } from '@/features/auth/data/datasources/auth-mock-data-source';
+import { AuthRepositoryImpl } from '@/features/auth/data/repositories/auth-repository-impl';
+import { RestoreSession, SignIn, SignOut, UpdateProfile } from '@/features/auth/domain/usecases/auth';
+import type { AuthDependencies } from '@/features/auth/presentation/auth-api';
 import { BookingMockDataSource } from '@/features/booking/data/datasources/booking-mock-data-source';
 import { BookingRepositoryImpl } from '@/features/booking/data/repositories/booking-repository-impl';
 import { BookFlight } from '@/features/booking/domain/usecases/book-flight';
@@ -18,7 +22,10 @@ import { GetFlightById } from '@/features/flights/domain/usecases/get-flight-by-
 import { SearchFlights } from '@/features/flights/domain/usecases/search-flights';
 import type { FlightsDependencies } from '@/features/flights/presentation/flights-api';
 
-export type AppDependencies = FlightsDependencies & BookingDependencies & DashboardDependencies;
+export type AppDependencies = FlightsDependencies &
+  BookingDependencies &
+  DashboardDependencies &
+  AuthDependencies;
 
 export type DependencyOptions = {
   /** Fake network delay of every mock data source; 0 in tests. */
@@ -43,6 +50,7 @@ export function createDependencies({
   );
   const dashboardRepository = new DashboardRepositoryImpl(new DashboardMockDataSource(latencyMs));
   const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
+  const authRepository = new AuthRepositoryImpl(new AuthMockDataSource(latencyMs));
 
   return {
     searchFlights: new SearchFlights(flightRepository, now),
@@ -53,5 +61,9 @@ export function createDependencies({
     searchCharters: new SearchCharters(charterRepository, now),
     getNews: new GetNews(dashboardRepository),
     getInbox: new GetInbox(dashboardRepository),
+    restoreSession: new RestoreSession(authRepository),
+    signIn: new SignIn(authRepository),
+    signOut: new SignOut(authRepository),
+    updateProfile: new UpdateProfile(authRepository),
   };
 }

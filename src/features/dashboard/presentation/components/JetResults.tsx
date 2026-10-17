@@ -5,7 +5,7 @@ import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { errorMessage } from '@/core/ui/StateViews';
 import type { CharterRequest, LegQuotes } from '../../domain/entities/charter';
-import { NO_PLANE_FOUND } from '../images';
+import { NO_PLANE_FOUND } from '@/core/ui/images';
 import { formatShortDay } from '../search-labels';
 import { JetCard } from './JetCard';
 import { JetCardSkeleton } from './Skeletons';

@@ -2,6 +2,7 @@ export type AppErrorCode =
   | 'NOT_FOUND'
   | 'VALIDATION'
   | 'SOLD_OUT'
+  | 'UNAUTHORIZED'
   | 'NETWORK'
   | 'UNKNOWN';
 

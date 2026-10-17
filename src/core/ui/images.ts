@@ -21,6 +21,11 @@ export const LOGO = {
   dark: require('@/assets/images/logo-dark.png') as ImageSourcePropType,
 };
 
+export const BRAND_ICONS = {
+  apple: require('@/assets/images/apple.png') as ImageSourcePropType,
+  google: require('@/assets/images/google.png') as ImageSourcePropType,
+};
+
 export const NO_PLANE_FOUND = {
   light: require('@/assets/lottie/no_plane_found_light.json'),
   dark: require('@/assets/lottie/no_plane_found_dark.json'),
