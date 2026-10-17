@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { formatDate, formatDuration, formatMoney, formatTime } from '@/core/utils/format';
@@ -9,6 +10,7 @@ type Props = { flight: Flight; onPress: () => void };
 
 /** Operator on top, then times and price on one line, then date and seats. */
 export function FlightCard({ flight, onPress }: Props) {
+  const styles = useStyles();
   const soldOut = isSoldOut(flight);
 
   return (
@@ -43,7 +45,7 @@ export function FlightCard({ flight, onPress }: Props) {
           </AppText>
         </View>
         <View style={styles.price}>
-          <AppText variant="subtitle" gold>
+          <AppText variant="subtitle" accent>
             {formatMoney(flight.pricePerSeat, flight.currency)}
           </AppText>
           <AppText variant="caption" muted>
@@ -59,16 +61,16 @@ export function FlightCard({ flight, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: palette.primaryBackground,
     borderRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.md,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   path: { flex: 1, alignItems: 'center', gap: spacing.xs },
-  line: { alignSelf: 'stretch', height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  line: { alignSelf: 'stretch', height: StyleSheet.hairlineWidth, backgroundColor: palette.iron },
   price: { alignItems: 'flex-end', marginLeft: spacing.sm },
-  soldOut: { color: colors.danger },
-});
+  soldOut: { color: palette.error },
+}));

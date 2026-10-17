@@ -1,16 +1,3 @@
-export const colors = {
-  background: '#0B1120',
-  surface: '#131C31',
-  surfaceRaised: '#1B2640',
-  border: '#24314F',
-  gold: '#D4AF37',
-  goldSoft: 'rgba(212, 175, 55, 0.14)',
-  text: '#F8FAFC',
-  textMuted: '#94A3B8',
-  success: '#34D399',
-  danger: '#F87171',
-} as const;
-
 export const spacing = {
   xs: 4,
   sm: 8,

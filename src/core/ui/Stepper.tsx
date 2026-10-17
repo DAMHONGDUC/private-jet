@@ -1,5 +1,7 @@
-import { StyleSheet, View } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { View } from 'react-native';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
+import { Icon } from './Icon';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
@@ -13,18 +15,21 @@ type Props = {
 };
 
 export function Stepper({ value, min, max, onChange, testID }: Props) {
+  const styles = useStyles();
   return (
     <View style={styles.row}>
-      <StepButton label="−" testID={`${testID}-decrement`} disabled={value <= min} onPress={() => onChange(value - 1)} />
+      <StepButton icon="minus" testID={`${testID}-decrement`} disabled={value <= min} onPress={() => onChange(value - 1)} />
       <AppText variant="title" testID={`${testID}-count`} style={styles.value}>
         {value}
       </AppText>
-      <StepButton label="+" testID={`${testID}-increment`} disabled={value >= max} onPress={() => onChange(value + 1)} />
+      <StepButton icon="plus" testID={`${testID}-increment`} disabled={value >= max} onPress={() => onChange(value + 1)} />
     </View>
   );
 }
 
-function StepButton(props: { label: string; testID: string; disabled: boolean; onPress: () => void }) {
+function StepButton(props: { icon: 'minus' | 'plus'; testID: string; disabled: boolean; onPress: () => void }) {
+  const styles = useStyles();
+  const palette = useBlackJetTheme();
   return (
     <PressableScale
       testID={props.testID}
@@ -35,24 +40,21 @@ function StepButton(props: { label: string; testID: string; disabled: boolean; o
       scaleTo={0.94}
       style={[styles.button, props.disabled && styles.disabled]}
     >
-      <AppText variant="title" gold>
-        {props.label}
-      </AppText>
+      <Icon name={props.icon} size={16} color={palette.primaryText} />
     </PressableScale>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   value: { minWidth: 24, textAlign: 'center' },
   button: {
     width: 40,
     height: 40,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.gold,
+    backgroundColor: palette.iron,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabled: { opacity: 0.35 },
-});
+}));

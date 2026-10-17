@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -7,8 +7,10 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { colors, spacing } from '@/core/theme/theme';
+import { spacing } from '@/core/theme/theme';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
+import { Icon } from '@/core/ui/Icon';
 import { formatDuration, formatTime } from '@/core/utils/format';
 import type { Flight } from '../../domain/entities/flight';
 
@@ -16,6 +18,8 @@ const PLANE_SIZE = 22;
 
 /** Origin and destination with a plane that flies the route once on open. */
 export function RouteHero({ flight }: { flight: Flight }) {
+  const palette = useBlackJetTheme();
+  const styles = useStyles();
   const [trackWidth, setTrackWidth] = useState(0);
   const progress = useSharedValue(0);
 
@@ -48,9 +52,7 @@ export function RouteHero({ flight }: { flight: Flight }) {
         <View style={styles.rail} />
         <Animated.View style={[styles.trail, trailStyle]} />
         <Animated.View style={[styles.plane, planeStyle]}>
-          <AppText gold style={styles.planeGlyph}>
-            ✈︎
-          </AppText>
+          <Icon name="plane" size={20} color={palette.jetBlack} />
         </Animated.View>
       </View>
 
@@ -65,13 +67,12 @@ export function RouteHero({ flight }: { flight: Flight }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   hero: { gap: spacing.lg },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   end: { alignItems: 'flex-end' },
   track: { height: PLANE_SIZE, justifyContent: 'center' },
-  rail: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: colors.border },
-  trail: { position: 'absolute', left: 0, height: 2, backgroundColor: colors.gold },
+  rail: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: palette.iron },
+  trail: { position: 'absolute', left: 0, height: 2, backgroundColor: palette.jetBlack },
   plane: { position: 'absolute', left: 0, width: PLANE_SIZE, alignItems: 'center' },
-  planeGlyph: { fontSize: 18 },
-});
+}));

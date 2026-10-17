@@ -32,7 +32,7 @@ export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Pr
         <View style={styles.center}>
           <AppText variant="display">You're booked</AppText>
           <AppText muted>Reference</AppText>
-          <AppText variant="title" gold testID="booking-reference">
+          <AppText variant="title" accent testID="booking-reference">
             {booking.reference}
           </AppText>
         </View>

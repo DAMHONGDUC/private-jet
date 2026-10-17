@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
@@ -10,6 +11,7 @@ type Props = { visible: boolean; title: string; onClose: () => void; children: R
 /** A panel that slides up from the bottom; tapping outside closes it. */
 export function BottomSheet({ visible, title, onClose, children, testID }: Props) {
   const insets = useSafeAreaInsets();
+  const styles = useStyles();
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -17,7 +19,7 @@ export function BottomSheet({ visible, title, onClose, children, testID }: Props
         <Pressable testID={testID && `${testID}-backdrop`} style={styles.backdrop} onPress={onClose} />
         <View testID={testID} style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
           <View style={styles.handle} />
-          <AppText variant="subtitle" style={styles.title}>
+          <AppText variant="title" style={styles.title}>
             {title}
           </AppText>
           {children}
@@ -31,6 +33,7 @@ type OptionProps = { label: string; selected: boolean; onPress: () => void; test
 
 /** One choice in a sheet: a plain row with a check when selected. */
 export function SheetOption({ label, selected, onPress, testID }: OptionProps) {
+  const styles = useStyles();
   return (
     <PressableScale
       testID={testID}
@@ -39,19 +42,19 @@ export function SheetOption({ label, selected, onPress, testID }: OptionProps) {
       onPress={onPress}
       style={styles.option}
     >
-      <AppText gold={selected}>{label}</AppText>
-      {selected ? <AppText gold>✓</AppText> : null}
+      <AppText variant={selected ? 'subtitle' : 'body'}>{label}</AppText>
+      {selected ? <AppText accent>✓</AppText> : null}
     </PressableScale>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   root: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: palette.scrim },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    backgroundColor: palette.secondaryBackground,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
@@ -59,8 +62,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: 36,
     height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.border,
+    borderRadius: radius.pill,
+    backgroundColor: palette.iron,
     marginBottom: spacing.md,
   },
   title: { marginBottom: spacing.sm },
@@ -69,7 +72,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.iron,
   },
-});
+}));

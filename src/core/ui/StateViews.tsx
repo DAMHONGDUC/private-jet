@@ -1,13 +1,15 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useBlackJetTheme } from '@/core/theme/blackjet';
 import type { AppError } from '@/core/error/app-error';
-import { colors, spacing } from '@/core/theme/theme';
+import { spacing } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { Button } from './Button';
 
 export function LoadingView() {
+  const palette = useBlackJetTheme();
   return (
     <View style={styles.center} testID="loading-view">
-      <ActivityIndicator color={colors.gold} size="large" />
+      <ActivityIndicator color={palette.jetBlack} size="large" />
     </View>
   );
 }

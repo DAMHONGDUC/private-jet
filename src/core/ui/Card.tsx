@@ -1,16 +1,18 @@
-import { StyleSheet, View, type ViewProps } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { View, type ViewProps } from 'react-native';
+import { makeStyles } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
 
 export function Card({ style, ...rest }: ViewProps) {
+  const styles = useStyles();
   return <View {...rest} style={[styles.card, style]} />;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: palette.primaryBackground,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    borderWidth: 1,
+    borderColor: palette.iron,
     padding: spacing.lg,
   },
-});
+}));

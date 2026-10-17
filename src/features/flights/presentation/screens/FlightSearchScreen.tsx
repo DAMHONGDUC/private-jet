@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { BottomSheet, SheetOption } from '@/core/ui/BottomSheet';
 import { Button } from '@/core/ui/Button';
@@ -53,6 +54,7 @@ const airportLabel = (airport: Airport | undefined, code: string | null) =>
   code ? `${airport?.city ?? code} (${code})` : null;
 
 export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }: Props) {
+  const styles = useStyles();
   const dispatch = useDispatch();
   const search = useSelector(selectFlightSearch);
   const { data: airports } = useGetAirportsQuery();
@@ -103,7 +105,7 @@ export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }
               onPress={() => dispatch(airportsSwapped())}
               style={styles.swap}
             >
-              <AppText gold>⇅</AppText>
+              <AppText accent>⇅</AppText>
             </PressableScale>
           </View>
           <View style={styles.divider} />
@@ -227,14 +229,14 @@ export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }
 
 const SWAP_SIZE = 36;
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   content: { padding: spacing.lg, gap: spacing.xl, paddingBottom: spacing.xxl },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: palette.primaryBackground,
     borderRadius: radius.lg,
     paddingHorizontal: spacing.lg,
   },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: palette.iron },
   // Keeps long city names clear of the swap button.
   routeField: { paddingRight: SWAP_SIZE + spacing.sm },
   swap: {
@@ -245,19 +247,19 @@ const styles = StyleSheet.create({
     width: SWAP_SIZE,
     height: SWAP_SIZE,
     borderRadius: SWAP_SIZE / 2,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: palette.primaryBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pair: { flexDirection: 'row', gap: spacing.lg },
-  vertical: { width: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  vertical: { width: StyleSheet.hairlineWidth, backgroundColor: palette.iron },
   action: { paddingVertical: spacing.lg },
   recent: { gap: spacing.xs },
   recentRow: {
     paddingVertical: spacing.md,
     gap: 2,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderBottomColor: palette.iron,
   },
   stepperRow: {
     flexDirection: 'row',
@@ -265,4 +267,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.lg,
   },
-});
+}));

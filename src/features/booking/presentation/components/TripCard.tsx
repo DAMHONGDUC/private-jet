@@ -1,11 +1,13 @@
-import { StyleSheet, View } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { View } from 'react-native';
+import { radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { Card } from '@/core/ui/Card';
 import { formatDate, formatMoney, formatTime } from '@/core/utils/format';
 import type { Booking } from '../../domain/entities/booking';
 
 export function TripCard({ booking }: { booking: Booking }) {
+  const styles = useStyles();
   return (
     <Card style={styles.card} testID={`trip-${booking.reference}`}>
       <View style={styles.between}>
@@ -13,7 +15,7 @@ export function TripCard({ booking }: { booking: Booking }) {
           {booking.originCode} → {booking.destinationCode}
         </AppText>
         <View style={styles.reference}>
-          <AppText variant="caption" gold>
+          <AppText variant="caption" accent>
             {booking.reference}
           </AppText>
         </View>
@@ -26,7 +28,7 @@ export function TripCard({ booking }: { booking: Booking }) {
           {formatDate(booking.departureAt)} · {formatTime(booking.departureAt)} ·{' '}
           {booking.passengers.length} pax
         </AppText>
-        <AppText variant="subtitle" gold>
+        <AppText variant="subtitle" accent>
           {formatMoney(booking.totalPrice, booking.currency)}
         </AppText>
       </View>
@@ -34,13 +36,13 @@ export function TripCard({ booking }: { booking: Booking }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   card: { gap: spacing.sm },
   between: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   reference: {
-    backgroundColor: colors.goldSoft,
+    backgroundColor: palette.iron,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
-});
+}));

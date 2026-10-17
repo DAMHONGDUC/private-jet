@@ -1,11 +1,12 @@
-import { StyleSheet } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
 type Props = { label: string; selected: boolean; onPress: () => void; testID?: string };
 
 export function Chip({ label, selected, onPress, testID }: Props) {
+  const styles = useStyles();
   return (
     <PressableScale
       testID={testID}
@@ -21,15 +22,15 @@ export function Chip({ label, selected, onPress, testID }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   chip: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: palette.iron,
+    backgroundColor: palette.primaryBackground,
   },
-  selected: { backgroundColor: colors.gold, borderColor: colors.gold },
-  selectedText: { color: colors.background, fontWeight: '600' },
-});
+  selected: { backgroundColor: palette.jetBlack, borderColor: palette.jetBlack },
+  selectedText: { color: palette.ghostWhite },
+}));

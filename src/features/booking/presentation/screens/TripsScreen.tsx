@@ -1,5 +1,6 @@
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { colors, spacing } from '@/core/theme/theme';
+import { FlatList, RefreshControl, View } from 'react-native';
+import { spacing } from '@/core/theme/theme';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { Screen } from '@/core/ui/Screen';
 import { EmptyView, ErrorView, LoadingView } from '@/core/ui/StateViews';
@@ -7,6 +8,8 @@ import { useGetBookingsQuery } from '../booking-api';
 import { TripCard } from '../components/TripCard';
 
 export function TripsScreen() {
+  const styles = useStyles();
+  const palette = useBlackJetTheme();
   const { data, error, isLoading, isFetching, refetch } = useGetBookingsQuery();
 
   let body;
@@ -27,7 +30,7 @@ export function TripsScreen() {
             onRefresh={() => {
               refetch();
             }}
-            tintColor={colors.gold}
+            tintColor={palette.jetBlack}
           />
         }
         ListEmptyComponent={<EmptyView title="No trips yet" message="Booked flights show up here." />}
@@ -39,7 +42,7 @@ export function TripsScreen() {
   return (
     <Screen top>
       <View style={styles.header}>
-        <AppText variant="label" gold>
+        <AppText variant="label" accent>
           Itinerary
         </AppText>
         <AppText variant="display">My trips</AppText>
@@ -49,7 +52,7 @@ export function TripsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => ({
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.xs },
   list: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
-});
+}));

@@ -1,8 +1,8 @@
-import { useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
 
 /**
- * The BlackJet look the dashboard is rebuilt in (feature-docs/dashboard §1).
- * The rest of the app keeps `theme.ts`; screens opt in with `useBlackJetTheme`.
+ * The BlackJet look (feature-docs/dashboard §1), light and dark, following the
+ * system setting. Spacing and radii stay in `theme.ts`.
  */
 export type BlackJetPalette = {
   primaryText: string;
@@ -21,6 +21,9 @@ export type BlackJetPalette = {
   cardBackground: string;
   loadStateColour: string;
   shimmerColour: string;
+  success: string;
+  /** Translucent backdrop behind sheets and dialogs. */
+  scrim: string;
   scheme: 'light' | 'dark';
 };
 
@@ -39,6 +42,8 @@ export const blackJetLight: BlackJetPalette = {
   cardBackground: '#F1EFEF',
   loadStateColour: '#B4B4B4',
   shimmerColour: '#E0E0E0',
+  success: '#249689',
+  scrim: 'rgba(0, 0, 0, 0.45)',
   scheme: 'light',
 };
 
@@ -57,6 +62,8 @@ export const blackJetDark: BlackJetPalette = {
   cardBackground: '#0F0F0F',
   loadStateColour: '#2A2B29',
   shimmerColour: '#545751',
+  success: '#2FB3A3',
+  scrim: 'rgba(0, 0, 0, 0.65)',
   scheme: 'dark',
 };
 
@@ -85,4 +92,18 @@ export const blackJetCurves = {
 
 export function useBlackJetTheme(): BlackJetPalette {
   return useColorScheme() === 'dark' ? blackJetDark : blackJetLight;
+}
+
+/**
+ * Styles that depend on the palette, built once per scheme:
+ * `const useStyles = makeStyles(p => ({ card: { backgroundColor: p.primaryBackground } }))`.
+ */
+type NamedStyles = Record<string, ViewStyle | TextStyle | ImageStyle>;
+
+export function makeStyles<T extends NamedStyles>(factory: (palette: BlackJetPalette) => T): () => Readonly<T> {
+  const light = StyleSheet.create(factory(blackJetLight));
+  const dark = StyleSheet.create(factory(blackJetDark));
+  return function useStyles() {
+    return useBlackJetTheme().scheme === 'dark' ? dark : light;
+  };
 }

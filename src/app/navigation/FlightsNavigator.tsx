@@ -6,7 +6,7 @@ import {
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
-import { colors } from '@/core/theme/theme';
+import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { BookingConfirmationScreen } from '@/features/booking/presentation/screens/BookingConfirmationScreen';
 import { BookingScreen } from '@/features/booking/presentation/screens/BookingScreen';
 import { selectFlightSearch } from '@/features/flights/presentation/flight-search-slice';
@@ -85,14 +85,17 @@ function BookingConfirmationRoute({ route }: Props<'BookingConfirmation'>) {
 }
 
 export function FlightsNavigator() {
+  const palette = useBlackJetTheme();
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.gold,
-        headerTitleStyle: { color: colors.text },
+        headerStyle: { backgroundColor: palette.secondaryBackground },
+        headerTintColor: palette.primaryText,
+        headerTitleStyle: { color: palette.primaryText, fontFamily: blackJetFonts.medium },
         headerShadowVisible: false,
-        contentStyle: { backgroundColor: colors.background },
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: palette.secondaryBackground },
+        animation: 'slide_from_right',
       }}
     >
       <Stack.Screen name="FlightSearch" component={FlightSearchRoute} options={{ headerShown: false }} />

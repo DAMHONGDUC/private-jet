@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -8,13 +8,14 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { colors } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 
 const SIZE = 96;
 
 /** A gold disc that eases in with a tick, while a ring pulses out once behind it. */
 export function SuccessMark() {
+  const styles = useStyles();
   const disc = useSharedValue(0);
   const tick = useSharedValue(0);
   const ring = useSharedValue(0);
@@ -48,7 +49,7 @@ export function SuccessMark() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   wrap: { width: SIZE * 2, height: SIZE * 2, alignItems: 'center', justifyContent: 'center' },
   ring: {
     position: 'absolute',
@@ -56,15 +57,15 @@ const styles = StyleSheet.create({
     height: SIZE,
     borderRadius: SIZE / 2,
     borderWidth: 2,
-    borderColor: colors.gold,
+    borderColor: palette.jetBlack,
   },
   disc: {
     width: SIZE,
     height: SIZE,
     borderRadius: SIZE / 2,
-    backgroundColor: colors.gold,
+    backgroundColor: palette.jetBlack,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tick: { fontSize: 44, color: colors.background, fontWeight: '700' },
-});
+  tick: { fontSize: 44, color: palette.secondaryBackground, fontWeight: '700' },
+}));

@@ -1,5 +1,6 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { ActivityIndicator } from 'react-native';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
@@ -8,12 +9,16 @@ type Props = {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
   testID?: string;
 };
 
+/** 50 pt, the BlackJet main button: solid jet black, or outlined. */
 export function Button({ title, onPress, loading, disabled, variant = 'primary', testID }: Props) {
+  const palette = useBlackJetTheme();
+  const styles = useStyles();
   const inactive = disabled || loading;
+  const textColor = variant === 'primary' ? palette.ghostWhite : variant === 'danger' ? palette.error : palette.primaryText;
 
   return (
     <PressableScale
@@ -22,12 +27,12 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary',
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
-      style={[styles.base, variant === 'primary' ? styles.primary : styles.secondary, inactive && styles.inactive]}
+      style={[styles.base, styles[variant], inactive && styles.inactive]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.background : colors.gold} />
+        <ActivityIndicator color={textColor} />
       ) : (
-        <AppText variant="subtitle" style={variant === 'primary' ? styles.primaryText : styles.secondaryText}>
+        <AppText variant="subtitle" style={{ color: textColor }}>
           {title}
         </AppText>
       )}
@@ -35,17 +40,16 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary',
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   base: {
-    minHeight: 52,
+    minHeight: 50,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
   },
-  primary: { backgroundColor: colors.gold },
-  secondary: { borderWidth: 1, borderColor: colors.gold },
+  primary: { backgroundColor: palette.jetBlack },
+  secondary: { borderWidth: 1, borderColor: palette.iron },
+  danger: { borderWidth: 1, borderColor: palette.error },
   inactive: { opacity: 0.5 },
-  primaryText: { color: colors.background },
-  secondaryText: { color: colors.gold },
-});
+}));

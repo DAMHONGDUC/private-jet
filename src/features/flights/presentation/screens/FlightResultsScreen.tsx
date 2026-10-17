@@ -1,6 +1,7 @@
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { colors, spacing } from '@/core/theme/theme';
+import { spacing } from '@/core/theme/theme';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -15,6 +16,8 @@ import { airportsByCode, describeDetails, describeRoute } from '../search-summar
 type Props = { onOpenFlight: (flightId: string) => void; onEditSearch: () => void };
 
 export function FlightResultsScreen({ onOpenFlight, onEditSearch }: Props) {
+  const styles = useStyles();
+  const palette = useBlackJetTheme();
   const dispatch = useDispatch();
   const criteria = useSelector(selectFlightSearch);
   const params = useSelector(selectFlightSearchParams);
@@ -38,7 +41,7 @@ export function FlightResultsScreen({ onOpenFlight, onEditSearch }: Props) {
             {describeDetails(criteria)}
           </AppText>
         </View>
-        <AppText variant="caption" gold>
+        <AppText variant="caption" accent>
           Change
         </AppText>
       </PressableScale>
@@ -64,7 +67,7 @@ export function FlightResultsScreen({ onOpenFlight, onEditSearch }: Props) {
             onRefresh={() => {
               refetch();
             }}
-            tintColor={colors.gold}
+            tintColor={palette.jetBlack}
           />
         }
         ListHeaderComponent={
@@ -93,7 +96,7 @@ export function FlightResultsScreen({ onOpenFlight, onEditSearch }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => ({
   header: { paddingTop: spacing.sm, gap: spacing.md },
   summary: {
     marginHorizontal: spacing.lg,
@@ -104,4 +107,4 @@ const styles = StyleSheet.create({
   summaryText: { flex: 1, gap: 2 },
   list: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
   empty: { flex: 1, paddingBottom: spacing.xxl },
-});
+}));

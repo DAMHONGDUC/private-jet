@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { radius, spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
@@ -14,6 +15,7 @@ import { useGetFlightQuery } from '../flights-api';
 type Props = { flightId: string; onBook: (flightId: string) => void };
 
 export function FlightDetailScreen({ flightId, onBook }: Props) {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const { data: flight, error, isLoading, refetch } = useGetFlightQuery(flightId);
 
@@ -61,7 +63,7 @@ export function FlightDetailScreen({ flightId, onBook }: Props) {
         <View style={styles.amenities}>
           {flight.amenities.map(amenity => (
             <View key={amenity} style={styles.amenity}>
-              <AppText variant="caption" gold>
+              <AppText variant="caption" accent>
                 {amenity}
               </AppText>
             </View>
@@ -71,7 +73,7 @@ export function FlightDetailScreen({ flightId, onBook }: Props) {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         <View>
-          <AppText variant="title" gold>
+          <AppText variant="title" accent>
             {formatMoney(flight.pricePerSeat, flight.currency)}
           </AppText>
           <AppText variant="caption" muted>
@@ -89,14 +91,14 @@ export function FlightDetailScreen({ flightId, onBook }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   content: { padding: spacing.lg, gap: spacing.lg },
   rows: { gap: spacing.md },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.lg },
   value: { flexShrink: 1, textAlign: 'right' },
   amenities: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   amenity: {
-    backgroundColor: colors.goldSoft,
+    backgroundColor: palette.iron,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    backgroundColor: colors.surface,
+    borderTopColor: palette.iron,
+    backgroundColor: palette.primaryBackground,
   },
-});
+}));

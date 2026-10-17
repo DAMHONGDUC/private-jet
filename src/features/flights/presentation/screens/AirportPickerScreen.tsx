@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { radius, spacing } from '@/core/theme/theme';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
@@ -18,6 +19,8 @@ const matches = (airport: Airport, query: string) =>
   [airport.code, airport.city, airport.name].some(text => text.toLowerCase().includes(query));
 
 export function AirportPickerScreen({ field, onDone }: Props) {
+  const styles = useStyles();
+  const palette = useBlackJetTheme();
   const dispatch = useDispatch();
   const search = useSelector(selectFlightSearch);
   const { data: airports, error, isLoading, refetch } = useGetAirportsQuery();
@@ -82,7 +85,7 @@ export function AirportPickerScreen({ field, onDone }: Props) {
           value={query}
           onChangeText={setQuery}
           placeholder="City, airport or code"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={palette.secondaryText}
           autoFocus
           autoCorrect={false}
           autoCapitalize="none"
@@ -105,6 +108,7 @@ type OptionProps = {
 };
 
 function Option({ code, title, subtitle, selected, onPress, testID }: OptionProps) {
+  const styles = useStyles();
   return (
     <PressableScale
       testID={testID}
@@ -114,23 +118,23 @@ function Option({ code, title, subtitle, selected, onPress, testID }: OptionProp
       style={styles.option}
     >
       <View style={styles.optionText}>
-        <AppText gold={selected}>{title}</AppText>
+        <AppText accent={selected}>{title}</AppText>
         <AppText variant="caption" muted numberOfLines={1}>
           {subtitle}
         </AppText>
       </View>
-      <AppText variant="caption" gold={selected} muted={!selected}>
+      <AppText variant="caption" accent={selected} muted={!selected}>
         {code}
       </AppText>
     </PressableScale>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   searchWrap: { padding: spacing.lg, paddingBottom: spacing.sm },
   search: {
-    color: colors.text,
-    backgroundColor: colors.surface,
+    color: palette.primaryText,
+    backgroundColor: palette.primaryBackground,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderBottomColor: palette.iron,
   },
   optionText: { flex: 1, gap: 2 },
-});
+}));

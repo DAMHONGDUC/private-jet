@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing } from '@/core/theme/theme';
+import { spacing } from '@/core/theme/theme';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Props) {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const { data: flight, error: flightError, isLoading, refetch } = useGetFlightQuery(flightId);
   const [bookFlight, { isLoading: isBooking, error: bookingError, reset }] = useBookFlightMutation();
@@ -153,7 +155,7 @@ export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Pro
             <AppText variant="caption" muted>
               Total · {names.length} seat{names.length > 1 ? 's' : ''}
             </AppText>
-            <AppText variant="title" gold testID="booking-total">
+            <AppText variant="title" accent testID="booking-total">
               {formatMoney(total, flight.currency)}
             </AppText>
           </View>
@@ -164,13 +166,13 @@ export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Pro
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
   content: { padding: spacing.lg, gap: spacing.lg },
   summary: { gap: spacing.xs },
   section: { gap: spacing.lg },
   between: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  error: { color: colors.danger, textAlign: 'center' },
+  error: { color: palette.error, textAlign: 'center' },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    backgroundColor: colors.surface,
+    borderTopColor: palette.iron,
+    backgroundColor: palette.primaryBackground,
   },
-});
+}));
