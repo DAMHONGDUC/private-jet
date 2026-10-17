@@ -25,7 +25,7 @@ function StepButton(props: { label: string; testID: string; disabled: boolean; o
       accessibilityState={{ disabled: props.disabled }}
       disabled={props.disabled}
       onPress={props.onPress}
-      scaleTo={0.9}
+      scaleTo={0.94}
       style={[styles.button, props.disabled && styles.disabled]}
     >
       <AppText variant="title" gold>

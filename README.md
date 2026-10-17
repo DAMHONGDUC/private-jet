@@ -67,9 +67,9 @@ Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` 
 
 | Feature | Screens | Reanimated |
 |---|---|---|
-| Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, stretch/parallax loyalty card, animated tier progress, bars that grow in turn, staggered cards |
-| Flights | List with filters, detail | Staggered list entry, press-scale cards, plane flying the route |
-| Booking | Form, confirmation, Trips | Animated passenger fields (enter/exit/layout), animated total, success mark (spring disc, tick, pulse ring) |
+| Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, tier progress fill, bars ease to height |
+| Flights | List with filters, detail | Press-scale cards, plane flying the route |
+| Booking | Form, confirmation, Trips | Success mark (disc, tick, one ring pulse); error message fades in |
 
 ## Folder layout
 

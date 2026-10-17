@@ -1,5 +1,4 @@
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import { colors, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -52,11 +51,7 @@ export function FlightListScreen({ onOpenFlight }: Props) {
         ListEmptyComponent={
           <EmptyView title="No flights" message="Nothing matches these filters. Try another one." />
         }
-        renderItem={({ item, index }) => (
-          <Animated.View entering={FadeInDown.delay(index * 70).springify().damping(16)}>
-            <FlightCard flight={item} onPress={() => onOpenFlight(item.id)} />
-          </Animated.View>
-        )}
+        renderItem={({ item }) => <FlightCard flight={item} onPress={() => onOpenFlight(item.id)} />}
       />
     );
   }

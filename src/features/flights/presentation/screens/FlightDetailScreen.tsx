@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -46,24 +45,20 @@ export function FlightDetailScreen({ flightId, onBook }: Props) {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Animated.View entering={FadeInUp.springify().damping(16)}>
-          <Card>
-            <RouteHero flight={flight} />
-          </Card>
-        </Animated.View>
+        <Card>
+          <RouteHero flight={flight} />
+        </Card>
 
-        <Animated.View entering={FadeInUp.delay(120).springify().damping(16)}>
-          <Card style={styles.rows}>
-            {rows.map(([label, value]) => (
-              <View key={label} style={styles.row}>
-                <AppText muted>{label}</AppText>
-                <AppText style={styles.value}>{value}</AppText>
-              </View>
-            ))}
-          </Card>
-        </Animated.View>
+        <Card style={styles.rows}>
+          {rows.map(([label, value]) => (
+            <View key={label} style={styles.row}>
+              <AppText muted>{label}</AppText>
+              <AppText style={styles.value}>{value}</AppText>
+            </View>
+          ))}
+        </Card>
 
-        <Animated.View entering={FadeInUp.delay(240).springify().damping(16)} style={styles.amenities}>
+        <View style={styles.amenities}>
           {flight.amenities.map(amenity => (
             <View key={amenity} style={styles.amenity}>
               <AppText variant="caption" gold>
@@ -71,7 +66,7 @@ export function FlightDetailScreen({ flightId, onBook }: Props) {
               </AppText>
             </View>
           ))}
-        </Animated.View>
+        </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>

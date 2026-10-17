@@ -1,5 +1,4 @@
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { colors, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Screen } from '@/core/ui/Screen';
@@ -32,11 +31,7 @@ export function TripsScreen() {
           />
         }
         ListEmptyComponent={<EmptyView title="No trips yet" message="Booked flights show up here." />}
-        renderItem={({ item, index }) => (
-          <Animated.View entering={FadeInDown.delay(index * 70).springify().damping(16)}>
-            <TripCard booking={item} />
-          </Animated.View>
-        )}
+        renderItem={({ item }) => <TripCard booking={item} />}
       />
     );
   }

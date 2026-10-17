@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
   withSequence,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { colors } from '@/core/theme/theme';
@@ -13,22 +13,23 @@ import { AppText } from '@/core/ui/AppText';
 
 const SIZE = 96;
 
-/** A gold disc that pops in with a tick, while a ring pulses out once behind it. */
+/** A gold disc that eases in with a tick, while a ring pulses out once behind it. */
 export function SuccessMark() {
   const disc = useSharedValue(0);
   const tick = useSharedValue(0);
   const ring = useSharedValue(0);
 
   useEffect(() => {
-    disc.value = withSpring(1, { damping: 12, stiffness: 180 });
-    tick.value = withDelay(250, withSpring(1, { damping: 10, stiffness: 200 }));
+    const easeOut = { duration: 300, easing: Easing.out(Easing.cubic) };
+    disc.value = withTiming(1, easeOut);
+    tick.value = withDelay(200, withTiming(1, easeOut));
     ring.value = withDelay(150, withSequence(withTiming(1, { duration: 700 }), withTiming(0, { duration: 0 })));
   }, [disc, tick, ring]);
 
   const discStyle = useAnimatedStyle(() => ({ transform: [{ scale: disc.value }] }));
   const tickStyle = useAnimatedStyle(() => ({
     opacity: tick.value,
-    transform: [{ scale: 0.6 + tick.value * 0.4 }],
+    transform: [{ scale: 0.8 + tick.value * 0.2 }],
   }));
   const ringStyle = useAnimatedStyle(() => ({
     opacity: 1 - ring.value,

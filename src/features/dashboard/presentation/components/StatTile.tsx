@@ -1,22 +1,17 @@
-import { StyleSheet } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
 import { colors, radius, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 
-type Props = { label: string; value: string; index: number; testID?: string };
+type Props = { label: string; value: string; testID?: string };
 
-export function StatTile({ label, value, index, testID }: Props) {
+export function StatTile({ label, value, testID }: Props) {
   return (
-    <Animated.View
-      testID={testID}
-      entering={FadeInDown.delay(150 + index * 90).springify().damping(15)}
-      style={styles.tile}
-    >
+    <View testID={testID} style={styles.tile}>
       <AppText variant="title">{value}</AppText>
       <AppText variant="caption" muted>
         {label}
       </AppText>
-    </Animated.View>
+    </View>
   );
 }
 

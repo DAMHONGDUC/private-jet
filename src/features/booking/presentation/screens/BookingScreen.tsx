@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOutUp, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -105,40 +105,32 @@ export function BookingScreen({ flightId, onBooked }: Props) {
             </View>
 
             {names.map((name, index) => (
-              <Animated.View
+              <FormField
                 key={index}
-                entering={FadeInDown.springify().damping(16)}
-                exiting={FadeOutUp.duration(150)}
-                layout={LinearTransition.springify().damping(18)}
-              >
-                <FormField
-                  testID={`passenger-name-${index}`}
-                  label={`Passenger ${index + 1}`}
-                  placeholder="Full name as on passport"
-                  autoCapitalize="words"
-                  value={name}
-                  onChangeText={text =>
-                    setNames(current => current.map((item, i) => (i === index ? text : item)))
-                  }
-                />
-              </Animated.View>
+                testID={`passenger-name-${index}`}
+                label={`Passenger ${index + 1}`}
+                placeholder="Full name as on passport"
+                autoCapitalize="words"
+                value={name}
+                onChangeText={text =>
+                  setNames(current => current.map((item, i) => (i === index ? text : item)))
+                }
+              />
             ))}
           </Card>
 
-          <Animated.View layout={LinearTransition.springify().damping(18)}>
-            <Card style={styles.section}>
-              <FormField
-                testID="contact-email"
-                label="Contact email"
-                placeholder="you@example.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={email}
-                onChangeText={setEmail}
-              />
-            </Card>
-          </Animated.View>
+          <Card style={styles.section}>
+            <FormField
+              testID="contact-email"
+              label="Contact email"
+              placeholder="you@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={email}
+              onChangeText={setEmail}
+            />
+          </Card>
 
           {shownError ? (
             <Animated.View entering={FadeIn}>
@@ -154,11 +146,9 @@ export function BookingScreen({ flightId, onBooked }: Props) {
             <AppText variant="caption" muted>
               Total · {names.length} seat{names.length > 1 ? 's' : ''}
             </AppText>
-            <Animated.View key={total} entering={FadeInDown.springify().damping(14)}>
-              <AppText variant="title" gold testID="booking-total">
-                {formatMoney(total, flight.currency)}
-              </AppText>
-            </Animated.View>
+            <AppText variant="title" gold testID="booking-total">
+              {formatMoney(total, flight.currency)}
+            </AppText>
           </View>
           <Button testID="confirm-booking" title="Confirm booking" loading={isBooking} onPress={submit} />
         </View>

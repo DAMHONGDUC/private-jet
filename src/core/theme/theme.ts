@@ -28,4 +28,4 @@ export const radius = {
 } as const;
 
 /** One spring for every press and pop, so the app moves the same everywhere. */
-export const springConfig = { damping: 18, stiffness: 220, mass: 0.6 } as const;
+export const pressTiming = { duration: 120 } as const;

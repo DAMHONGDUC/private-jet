@@ -1,7 +1,6 @@
 import { RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
-  FadeInDown,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -43,13 +42,6 @@ export function DashboardScreen({ onOpenTrips, onFindFlights }: Props) {
   }));
   const barStyle = useAnimatedStyle(() => ({
     opacity: interpolate(scrollY.value, [COLLAPSE_AT * 0.6, COLLAPSE_AT], [0, 1], Extrapolation.CLAMP),
-  }));
-  // Pulling down stretches the loyalty card a little; scrolling up gives it parallax.
-  const loyaltyStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: interpolate(scrollY.value, [-120, 0], [1.06, 1], Extrapolation.CLAMP) },
-      { translateY: interpolate(scrollY.value, [0, 200], [0, 40], Extrapolation.CLAMP) },
-    ],
   }));
 
   if (isLoading) {
@@ -94,31 +86,22 @@ export function DashboardScreen({ onOpenTrips, onFindFlights }: Props) {
           </AppText>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.springify().damping(16)} style={loyaltyStyle}>
-          <LoyaltyCard summary={summary} />
-        </Animated.View>
+        <LoyaltyCard summary={summary} />
 
         <View style={styles.stats}>
-          <StatTile index={0} testID="stat-upcoming" label="Upcoming trips" value={String(summary.upcomingTrips)} />
-          <StatTile index={1} label="Flight hours" value={`${summary.flightHoursThisYear}h`} />
+          <StatTile testID="stat-upcoming" label="Upcoming trips" value={String(summary.upcomingTrips)} />
+          <StatTile label="Flight hours" value={`${summary.flightHoursThisYear}h`} />
           <StatTile
-            index={2}
             label="Spent this year"
             value={formatMoney(summary.totalSpentThisYear, summary.currency)}
           />
         </View>
 
-        <Animated.View entering={FadeInDown.delay(420).springify().damping(16)}>
-          <NextTripCard trip={summary.nextTrip} onPress={onOpenTrips} />
-        </Animated.View>
+        <NextTripCard trip={summary.nextTrip} onPress={onOpenTrips} />
 
-        <Animated.View entering={FadeInDown.delay(520).springify().damping(16)}>
-          <SpendChart data={summary.monthlySpend} currency={summary.currency} />
-        </Animated.View>
+        <SpendChart data={summary.monthlySpend} currency={summary.currency} />
 
-        <Animated.View entering={FadeInDown.delay(620).springify().damping(16)}>
-          <Button testID="find-flights" title="Find a jet" onPress={onFindFlights} />
-        </Animated.View>
+        <Button testID="find-flights" title="Find a jet" onPress={onFindFlights} />
       </Animated.ScrollView>
 
       <Animated.View

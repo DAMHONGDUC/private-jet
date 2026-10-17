@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
-  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { colors, radius, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -16,7 +16,7 @@ const CHART_HEIGHT = 140;
 
 type Props = { data: MonthlySpend[]; currency: string };
 
-/** Six months of spend; bars grow in turn and re-grow when a value changes. */
+/** Six months of spend; bars ease up to their height and follow value changes. */
 export function SpendChart({ data, currency }: Props) {
   const max = Math.max(1, ...data.map(entry => entry.amount));
   const current = data[data.length - 1];
@@ -35,7 +35,6 @@ export function SpendChart({ data, currency }: Props) {
         {data.map((entry, index) => (
           <Bar
             key={entry.month}
-            index={index}
             ratio={entry.amount / max}
             label={entry.month}
             highlighted={index === data.length - 1}
@@ -46,14 +45,14 @@ export function SpendChart({ data, currency }: Props) {
   );
 }
 
-type BarProps = { index: number; ratio: number; label: string; highlighted: boolean };
+type BarProps = { ratio: number; label: string; highlighted: boolean };
 
-function Bar({ index, ratio, label, highlighted }: BarProps) {
+function Bar({ ratio, label, highlighted }: BarProps) {
   const height = useSharedValue(0);
 
   useEffect(() => {
-    height.value = withDelay(300 + index * 90, withSpring(ratio * CHART_HEIGHT, { damping: 14, stiffness: 120 }));
-  }, [height, index, ratio]);
+    height.value = withTiming(ratio * CHART_HEIGHT, { duration: 500, easing: Easing.out(Easing.cubic) });
+  }, [height, ratio]);
 
   const barStyle = useAnimatedStyle(() => ({ height: height.value }));
 

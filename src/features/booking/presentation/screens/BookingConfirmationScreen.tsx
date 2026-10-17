@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
@@ -30,15 +29,15 @@ export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Pr
     <Screen top>
       <View style={styles.content}>
         <SuccessMark />
-        <Animated.View entering={FadeInUp.delay(300).springify()} style={styles.center}>
+        <View style={styles.center}>
           <AppText variant="display">You're booked</AppText>
           <AppText muted>Reference</AppText>
           <AppText variant="title" gold testID="booking-reference">
             {booking.reference}
           </AppText>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.delay(450).springify()} style={styles.full}>
+        <View style={styles.full}>
           <Card style={styles.card}>
             <AppText variant="subtitle">
               {booking.originCity} → {booking.destinationCity}
@@ -51,12 +50,12 @@ export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Pr
               {formatMoney(booking.totalPrice, booking.currency)}
             </AppText>
           </Card>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.delay(600).springify()} style={[styles.full, styles.actions]}>
+        <View style={[styles.full, styles.actions]}>
           <Button testID="view-trips" title="View my trips" onPress={onViewTrips} />
           <Button title="Back to flights" variant="secondary" onPress={onDone} />
-        </Animated.View>
+        </View>
       </View>
     </Screen>
   );
