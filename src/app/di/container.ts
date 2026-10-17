@@ -20,7 +20,6 @@ import { CharterMockDataSource } from '@/features/dashboard/data/datasources/cha
 import { DashboardMockDataSource } from '@/features/dashboard/data/datasources/dashboard-mock-data-source';
 import { CharterRepositoryImpl } from '@/features/dashboard/data/repositories/charter-repository-impl';
 import { DashboardRepositoryImpl } from '@/features/dashboard/data/repositories/dashboard-repository-impl';
-import { GetInbox } from '@/features/dashboard/domain/usecases/get-inbox';
 import { GetNews } from '@/features/dashboard/domain/usecases/get-news';
 import { SearchCharters } from '@/features/dashboard/domain/usecases/search-charters';
 import type { DashboardDependencies } from '@/features/dashboard/presentation/dashboard-api';
@@ -30,11 +29,23 @@ import { GetAirports } from '@/features/flights/domain/usecases/get-airports';
 import { GetFlightById } from '@/features/flights/domain/usecases/get-flight-by-id';
 import { SearchFlights } from '@/features/flights/domain/usecases/search-flights';
 import type { FlightsDependencies } from '@/features/flights/presentation/flights-api';
+import { InboxMockDataSource } from '@/features/inbox/data/datasources/inbox-mock-data-source';
+import { InboxRepositoryImpl } from '@/features/inbox/data/repositories/inbox-repository-impl';
+import {
+  GetInboxSummary,
+  GetMessages,
+  GetNotifications,
+  MarkMessagesRead,
+  MarkNotificationRead,
+  SendMessage,
+} from '@/features/inbox/domain/usecases/inbox';
+import type { InboxDependencies } from '@/features/inbox/presentation/inbox-api';
 
 export type AppDependencies = FlightsDependencies &
   BookingDependencies &
   DashboardDependencies &
-  AuthDependencies;
+  AuthDependencies &
+  InboxDependencies;
 
 export type DependencyOptions = {
   /** Fake network delay of every mock data source; 0 in tests. */
@@ -61,6 +72,7 @@ export function createDependencies({
   const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
   const authRepository = new AuthRepositoryImpl(new AuthMockDataSource(latencyMs));
   const paymentRepository = new PaymentRepositoryImpl(new PaymentMockDataSource(latencyMs));
+  const inboxRepository = new InboxRepositoryImpl(new InboxMockDataSource(latencyMs, now));
 
   return {
     searchFlights: new SearchFlights(flightRepository, now),
@@ -77,10 +89,15 @@ export function createDependencies({
     removeCard: new RemoveCard(paymentRepository),
     searchCharters: new SearchCharters(charterRepository, now),
     getNews: new GetNews(dashboardRepository),
-    getInbox: new GetInbox(dashboardRepository),
     restoreSession: new RestoreSession(authRepository),
     signIn: new SignIn(authRepository),
     signOut: new SignOut(authRepository),
     updateProfile: new UpdateProfile(authRepository),
+    getInboxSummary: new GetInboxSummary(inboxRepository),
+    getNotifications: new GetNotifications(inboxRepository),
+    markNotificationRead: new MarkNotificationRead(inboxRepository),
+    getMessages: new GetMessages(inboxRepository),
+    sendMessage: new SendMessage(inboxRepository),
+    markMessagesRead: new MarkMessagesRead(inboxRepository),
   };
 }

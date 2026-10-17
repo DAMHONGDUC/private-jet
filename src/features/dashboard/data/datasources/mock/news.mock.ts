@@ -1,4 +1,3 @@
-import type { InboxDto } from '../../models/inbox-dto';
 import type { NewsPostDto } from '../../models/news-post-dto';
 
 const post = (
@@ -25,8 +24,4 @@ export function buildMockNews(): NewsPostDto[] {
     post('n7', 'Flying with your pets', 'Cabins that welcome dogs and cats of every size.', 'news-2'),
     post('n8', 'Catering by request', 'Tell us your menu; the chef meets you on board.', 'news-3'),
   ];
-}
-
-export function buildMockInbox(): InboxDto {
-  return { unread_messages: 3, unread_notifications: 1 };
 }

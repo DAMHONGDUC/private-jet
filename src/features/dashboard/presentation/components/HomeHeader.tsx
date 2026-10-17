@@ -3,7 +3,7 @@ import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
 import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
-import { useGetInboxQuery } from '../dashboard-api';
+import { useGetInboxSummaryQuery } from '@/features/inbox/presentation/inbox-api';
 import { LOGO } from '@/core/ui/images';
 
 type AppBarProps = { onOpenMessages?: () => void; onOpenNotifications?: () => void };
@@ -11,7 +11,7 @@ type AppBarProps = { onOpenMessages?: () => void; onOpenNotifications?: () => vo
 /** Logo on the left; chat and bell with unread badges on the right (feature-docs/dashboard §2.1). */
 export function HomeAppBar({ onOpenMessages, onOpenNotifications }: AppBarProps) {
   const palette = useBlackJetTheme();
-  const { data: inbox } = useGetInboxQuery();
+  const { data: inbox } = useGetInboxSummaryQuery();
 
   return (
     <View style={[styles.bar, { backgroundColor: palette.secondaryBackground }]}>

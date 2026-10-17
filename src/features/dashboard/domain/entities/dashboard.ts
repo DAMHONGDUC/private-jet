@@ -10,6 +10,3 @@ export type NewsPost = {
 
 /** The most stories the carousel shows. */
 export const MAX_NEWS_POSTS = 5;
-
-/** Counts behind the badges on the app bar. */
-export type Inbox = { unreadMessages: number; unreadNotifications: number };

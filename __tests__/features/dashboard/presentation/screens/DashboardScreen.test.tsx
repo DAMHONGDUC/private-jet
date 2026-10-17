@@ -22,8 +22,8 @@ async function fillOneWay(day: string) {
 test('shows the unread badges and the news before any search', async () => {
   await renderWithStore(<DashboardScreen today={TEST_NOW} />);
 
-  expect(await screen.findByTestId('open-messages-badge')).toHaveTextContent('3');
-  expect(screen.getByTestId('open-notifications-badge')).toHaveTextContent('1');
+  expect(await screen.findByTestId('open-messages-badge')).toHaveTextContent('2');
+  expect(screen.getByTestId('open-notifications-badge')).toHaveTextContent('2');
   expect(await screen.findByTestId('news-carousel')).toBeOnTheScreen();
   expect(screen.queryByTestId('jet-results')).toBeNull();
 });
