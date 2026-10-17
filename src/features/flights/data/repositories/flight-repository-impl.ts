@@ -1,6 +1,6 @@
 import { DomainError } from '@/core/error/app-error';
 import { toDayKey } from '@/core/utils/date';
-import type { Airport, Flight, FlightSearchParams } from '../../domain/entities/flight';
+import { departsWithin, type Airport, type Flight, type FlightSearchParams } from '../../domain/entities/flight';
 import type { FlightRepository } from '../../domain/repositories/flight-repository';
 import type { FlightDataSource } from '../datasources/flight-data-source';
 import { toAirport, toFlight } from '../mappers/flight-mapper';
@@ -9,7 +9,14 @@ export class FlightRepositoryImpl implements FlightRepository {
   constructor(private readonly dataSource: FlightDataSource) {}
 
   // The mock filters here; a real backend would take these as query parameters.
-  async searchFlights({ origin, destination, date, passengers, category }: FlightSearchParams): Promise<Flight[]> {
+  async searchFlights({
+    origin,
+    destination,
+    date,
+    passengers,
+    time,
+    category,
+  }: FlightSearchParams): Promise<Flight[]> {
     const dtos = await this.dataSource.getFlights();
     return dtos
       .map(toFlight)
@@ -17,6 +24,7 @@ export class FlightRepositoryImpl implements FlightRepository {
       .filter(flight => !destination || flight.destination.code === destination)
       .filter(flight => !date || toDayKey(new Date(flight.departureAt)) === date)
       .filter(flight => !passengers || flight.seatsAvailable >= passengers)
+      .filter(flight => !time || departsWithin(flight, time))
       .filter(flight => !category || flight.aircraft.category === category);
   }
 

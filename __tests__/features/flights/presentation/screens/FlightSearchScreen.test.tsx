@@ -21,6 +21,11 @@ test('fills the form through its sheets and searches, then offers the search aga
   await fireEvent.press(screen.getByTestId(`date-${day}`));
   expect(screen.getByTestId('pick-date')).toHaveTextContent(/Departure date.+\d/);
 
+  await fireEvent.press(screen.getByTestId('pick-time'));
+  expect(screen.getByTestId('time-option-evening')).toHaveTextContent('Evening · 18:00–00:00');
+  await fireEvent.press(screen.getByTestId('time-option-morning'));
+  expect(screen.getByTestId('pick-time')).toHaveTextContent('TimeMorning');
+
   await fireEvent.press(screen.getByTestId('pick-passengers'));
   await fireEvent.press(screen.getByTestId('search-passengers-increment'));
   await fireEvent.press(screen.getByTestId('passengers-done'));
@@ -33,7 +38,7 @@ test('fills the form through its sheets and searches, then offers the search aga
   await fireEvent.press(screen.getByTestId('search-flights'));
 
   expect(props.onSearch).toHaveBeenCalledTimes(1);
-  expect(store.getState().flightSearch).toMatchObject({ date: day, passengers: 2, category: 'heavy' });
+  expect(store.getState().flightSearch).toMatchObject({ date: day, time: 'morning', passengers: 2, category: 'heavy' });
   expect(store.getState().flightSearch.recent).toHaveLength(1);
 
   await fireEvent.press(await screen.findByTestId('recent-search-0'));

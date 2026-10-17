@@ -68,7 +68,7 @@ Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` 
 | Feature | Screens | Reanimated |
 |---|---|---|
 | Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, tier progress fill, bars ease to height |
-| Flights | Search card (from/to with swap, departure date, passengers, jet type in bottom sheets; recent searches), airport picker, results with jet filter, detail | Press-scale cards, plane flying the route |
+| Flights | Search card (from/to with swap; departure date, time of day, passengers and jet type in bottom sheets; recent searches), airport picker, results with jet filter, detail | Press-scale cards, plane flying the route |
 | Booking | Form, confirmation, Trips | Success mark (disc, tick, one ring pulse); error message fades in |
 
 ## Folder layout

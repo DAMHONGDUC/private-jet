@@ -1,6 +1,7 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   MAX_SEARCH_PASSENGERS,
+  type DepartureWindow,
   type FlightSearchParams,
   type JetCategory,
 } from '../domain/entities/flight';
@@ -11,6 +12,7 @@ export type SearchCriteria = {
   destination: string | null;
   /** `YYYY-MM-DD`, local. */
   date: string | null;
+  time: DepartureWindow | null;
   passengers: number;
   category: JetCategory | null;
 };
@@ -24,16 +26,18 @@ const emptyCriteria: SearchCriteria = {
   origin: null,
   destination: null,
   date: null,
+  time: null,
   passengers: 1,
   category: null,
 };
 
 const initialState: FlightSearchState = { ...emptyCriteria, recent: [] };
 
-const criteriaOf = ({ origin, destination, date, passengers, category }: FlightSearchState): SearchCriteria => ({
+const criteriaOf = ({ origin, destination, date, time, passengers, category }: FlightSearchState): SearchCriteria => ({
   origin,
   destination,
   date,
+  time,
   passengers,
   category,
 });
@@ -42,6 +46,7 @@ const sameCriteria = (a: SearchCriteria, b: SearchCriteria) =>
   a.origin === b.origin &&
   a.destination === b.destination &&
   a.date === b.date &&
+  a.time === b.time &&
   a.passengers === b.passengers &&
   a.category === b.category;
 
@@ -67,6 +72,9 @@ export const flightSearchSlice = createSlice({
     },
     dateSelected(state, action: PayloadAction<string | null>) {
       state.date = action.payload;
+    },
+    timeSelected(state, action: PayloadAction<DepartureWindow | null>) {
+      state.time = action.payload;
     },
     passengersChanged(state, action: PayloadAction<number>) {
       state.passengers = Math.min(MAX_SEARCH_PASSENGERS, Math.max(1, Math.round(action.payload)));
@@ -96,6 +104,7 @@ export const {
   destinationSelected,
   airportsSwapped,
   dateSelected,
+  timeSelected,
   passengersChanged,
   categorySelected,
   searchSubmitted,
@@ -110,10 +119,11 @@ export const selectFlightSearch = (state: WithSearch) => state.flightSearch;
 /** The form as search params; memoised so the query hook sees a stable object. */
 export const selectFlightSearchParams = createSelector(
   selectFlightSearch,
-  ({ origin, destination, date, passengers, category }): FlightSearchParams => ({
+  ({ origin, destination, date, time, passengers, category }): FlightSearchParams => ({
     ...(origin ? { origin } : {}),
     ...(destination ? { destination } : {}),
     ...(date ? { date } : {}),
+    ...(time ? { time } : {}),
     passengers,
     ...(category ? { category } : {}),
   }),

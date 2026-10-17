@@ -39,8 +39,28 @@ export type FlightSearchParams = {
   date?: string;
   /** Seats needed; flights with fewer seats left are left out. */
   passengers?: number;
+  /** Local time of day the flight leaves in; any time when absent. */
+  time?: DepartureWindow;
   category?: JetCategory;
 };
+
+export type DepartureWindow = 'night' | 'morning' | 'afternoon' | 'evening';
+
+/** Local departure hours per window: `from` included, `to` excluded. */
+export const DEPARTURE_WINDOWS: Record<DepartureWindow, { from: number; to: number }> = {
+  night: { from: 0, to: 6 },
+  morning: { from: 6, to: 12 },
+  afternoon: { from: 12, to: 18 },
+  evening: { from: 18, to: 24 },
+};
+
+export const DEPARTURE_WINDOW_ORDER: readonly DepartureWindow[] = ['morning', 'afternoon', 'evening', 'night'];
+
+export function departsWithin(flight: Flight, window: DepartureWindow): boolean {
+  const hour = new Date(flight.departureAt).getHours();
+  const { from, to } = DEPARTURE_WINDOWS[window];
+  return hour >= from && hour < to;
+}
 
 /** The most seats one search asks for, which is also the most one booking holds. */
 export const MAX_SEARCH_PASSENGERS = 8;
