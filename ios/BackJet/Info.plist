@@ -74,5 +74,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>KnulTrial-Bold.otf</string>
+		<string>KnulTrial-Medium.otf</string>
+		<string>KnulTrial-Regular.otf</string>
+		<string>MaterialIcons-Regular.otf</string>
+		<string>BlackJet_NewIcons.ttf</string>
+		<string>BlackJet_Custom_Icons.ttf</string>
+	</array>
 </dict>
 </plist>

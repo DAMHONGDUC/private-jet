@@ -5,6 +5,14 @@
 jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
+// Native views and modules with no JS fallback.
+jest.mock('lottie-react-native', () => {
+  const { createElement } = require('react');
+  const { View } = require('react-native');
+  return { __esModule: true, default: props => createElement(View, { testID: props.testID }) };
+});
+jest.mock('react-native-haptic-feedback', () => ({ __esModule: true, default: { trigger: jest.fn() } }));
+
 jest.mock('react-native-safe-area-context', () => {
   const actual = jest.requireActual('react-native-safe-area-context');
   const insets = { top: 0, right: 0, bottom: 0, left: 0 };

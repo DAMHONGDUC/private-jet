@@ -1,0 +1,29 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/BlackJet_Custom_Icons.ttf",
+      "sha1": "68f60cb8e86ec7bd8092c9a22b986a6aaa45dd06"
+    },
+    {
+      "path": "src/assets/fonts/BlackJet_NewIcons.ttf",
+      "sha1": "d29fcfd5037d70f00eb12327bf7b6a1eb06a5891"
+    },
+    {
+      "path": "src/assets/fonts/KnulTrial-Bold.otf",
+      "sha1": "148337fad4b814e028bf6c82a98935737171b5b4"
+    },
+    {
+      "path": "src/assets/fonts/KnulTrial-Medium.otf",
+      "sha1": "e52fbd468bd959428c141883c4de5db4cbb419f5"
+    },
+    {
+      "path": "src/assets/fonts/KnulTrial-Regular.otf",
+      "sha1": "ff1ff3c89a1a67e4377bc1f90d45784fa4490dbb"
+    },
+    {
+      "path": "src/assets/fonts/MaterialIcons-Regular.otf",
+      "sha1": "5ee1674c03603467dddacd5d17acbc90cf542c02"
+    }
+  ]
+}
