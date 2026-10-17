@@ -21,20 +21,24 @@ type Props = {
 const matches = (airport: Airport, needle: string) =>
   [airport.code, airport.city, airport.name].some(text => text.toLowerCase().includes(needle));
 
-/** Search by city, code or name, or pick a recent airport (feature-docs/dashboard §4.1). */
+/** Search by city, code or name; recent airports come first (feature-docs/dashboard §4.1). */
 export function AirportSheet({ visible, title, airports, recent, onPick, onClose }: Props) {
   const palette = useBlackJetTheme();
   const [query, setQuery] = useState('');
 
   const needle = query.trim().toLowerCase();
-  const rows = useMemo(() => {
+  const sections = useMemo((): { title: string; rows: Airport[] }[] => {
     const all = airports ?? [];
     if (needle) {
-      return all.filter(airport => matches(airport, needle));
+      return [{ title: 'Results', rows: all.filter(airport => matches(airport, needle)) }];
     }
     const byCode = new Map(all.map(airport => [airport.code, airport]));
-    const recentAirports = recent.map(code => byCode.get(code)).filter((item): item is Airport => !!item);
-    return recentAirports.length > 0 ? recentAirports : all;
+    const recentRows = recent.map(code => byCode.get(code)).filter((item): item is Airport => !!item);
+    const others = all.filter(airport => !recent.includes(airport.code));
+    return [
+      ...(recentRows.length > 0 ? [{ title: 'Recent Airports', rows: recentRows }] : []),
+      { title: 'All Airports', rows: others },
+    ];
   }, [airports, needle, recent]);
 
   const close = () => {
@@ -67,33 +71,37 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
       </FadeUp>
 
       <FadeUp index={2} style={styles.listWrap}>
-        <BJText size={16} style={styles.heading}>
-          {needle ? 'Results' : recent.length > 0 ? 'Recent Airports' : 'All Airports'}
-        </BJText>
         {!airports ? (
           <ActivityIndicator color={palette.jetBlack} />
-        ) : rows.length === 0 ? (
+        ) : needle && sections[0].rows.length === 0 ? (
           <BJText tone="secondary" weight="regular">
             No airport matches “{query.trim()}”.
           </BJText>
         ) : (
           <ScrollView keyboardShouldPersistTaps="handled">
-            {rows.map(airport => (
-              <PressableScale
-                key={airport.code}
-                testID={`airport-option-${airport.code}`}
-                accessibilityRole="button"
-                onPress={() => {
-                  setQuery('');
-                  onPick(airport.code);
-                }}
-                style={[styles.row, { borderBottomColor: palette.iron }]}
-              >
-                <BJText size={18}>{airport.code}</BJText>
-                <BJText tone="secondary" numberOfLines={1}>
-                  {airport.city} - {airport.name}
+            {sections.map(section => (
+              <View key={section.title} style={styles.section}>
+                <BJText size={16} style={styles.heading}>
+                  {section.title}
                 </BJText>
-              </PressableScale>
+                {section.rows.map(airport => (
+                  <PressableScale
+                    key={airport.code}
+                    testID={`airport-option-${airport.code}`}
+                    accessibilityRole="button"
+                    onPress={() => {
+                      setQuery('');
+                      onPick(airport.code);
+                    }}
+                    style={[styles.row, { borderBottomColor: palette.iron }]}
+                  >
+                    <BJText size={18}>{airport.code}</BJText>
+                    <BJText tone="secondary" numberOfLines={1}>
+                      {airport.city} - {airport.name}
+                    </BJText>
+                  </PressableScale>
+                ))}
+              </View>
             ))}
           </ScrollView>
         )}
@@ -113,6 +121,7 @@ const styles = StyleSheet.create({
   },
   input: { flex: 1, fontFamily: blackJetFonts.regular, fontSize: 14, paddingVertical: 0 },
   listWrap: { marginTop: 18, minHeight: 240, maxHeight: 420 },
+  section: { marginBottom: 12 },
   heading: { marginBottom: 8 },
   row: { paddingVertical: 12, gap: 4, borderBottomWidth: StyleSheet.hairlineWidth },
 });
