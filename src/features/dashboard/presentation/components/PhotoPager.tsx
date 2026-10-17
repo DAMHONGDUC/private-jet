@@ -10,6 +10,8 @@ type Props = {
   dotsBottom: number;
   /** Drawn over each photo, e.g. a story's title. */
   renderOverlay?: (index: number) => ReactNode;
+  /** A photo was tapped. */
+  onPressItem?: (index: number) => void;
   testID?: string;
 };
 
@@ -19,7 +21,7 @@ const DOT = 6;
  * Photos that page sideways, with slide-style dots: 6 pt, 4 pt apart,
  * permanent ash and white (feature-docs/dashboard §2.4).
  */
-export function PhotoPager({ photos, height, dotsBottom, renderOverlay, testID }: Props) {
+export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressItem, testID }: Props) {
   const palette = useBlackJetTheme();
   const [width, setWidth] = useState(0);
   const [page, setPage] = useState(0);
@@ -38,10 +40,17 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, testID }
           getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
           onMomentumScrollEnd={event => setPage(Math.round(event.nativeEvent.contentOffset.x / width))}
           renderItem={({ item, index }) => (
-            <View style={{ width, height }}>
+            <PressableScale
+              testID={testID && `${testID}-item-${index}`}
+              disabled={!onPressItem}
+              accessibilityRole={onPressItem ? 'button' : undefined}
+              onPress={() => onPressItem?.(index)}
+              scaleTo={0.99}
+              style={{ width, height }}
+            >
               <Image source={item} resizeMode="cover" style={StyleSheet.absoluteFill} />
               {renderOverlay?.(index)}
-            </View>
+            </PressableScale>
           )}
         />
       ) : null}

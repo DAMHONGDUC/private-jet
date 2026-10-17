@@ -7,6 +7,8 @@ export type NewsPostDto = {
     'meta-title': string;
     /** Spelled as in the CMS. */
     summery: string;
+    /** Missing on short items; the summary stands in. */
+    'post-body'?: string;
     'main-image': { key: string };
   };
 };

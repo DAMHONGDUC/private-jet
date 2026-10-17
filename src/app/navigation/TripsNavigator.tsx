@@ -8,7 +8,7 @@ import {
 import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { TripDetailScreen } from '@/features/booking/presentation/screens/TripDetailScreen';
 import { TripsScreen } from '@/features/booking/presentation/screens/TripsScreen';
-import type { RootTabParamList, TripsStackParamList } from './types';
+import type { AppStackParamList, RootTabParamList, TripsStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<TripsStackParamList>();
 
@@ -29,7 +29,8 @@ function TripListRoute({ navigation }: Props<'TripList'>) {
 }
 
 function TripDetailRoute({ route }: Props<'TripDetail'>) {
-  return <TripDetailScreen bookingId={route.params.bookingId} />;
+  const root = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  return <TripDetailScreen bookingId={route.params.bookingId} onContactConcierge={() => root.navigate('Chat')} />;
 }
 
 export function TripsNavigator() {

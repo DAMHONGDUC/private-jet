@@ -10,7 +10,7 @@ import { BookingConfirmationScreen } from '@/features/booking/presentation/scree
 import { CharterCheckoutScreen } from '@/features/dashboard/presentation/screens/CharterCheckoutScreen';
 import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 import { JetQuoteScreen } from '@/features/dashboard/presentation/screens/JetQuoteScreen';
-import type { HomeStackParamList, RootTabParamList } from './types';
+import type { AppStackParamList, HomeStackParamList, RootTabParamList } from './types';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -21,8 +21,12 @@ type TabsNavigation = CompositeNavigationProp<
 >;
 
 function HomeRoute({ navigation }: Props<'Home'>) {
+  const root = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   return (
     <DashboardScreen
+      onOpenMessages={() => root.navigate('Chat')}
+      onOpenNotifications={() => root.navigate('Notifications')}
+      onOpenNews={newsId => root.navigate('NewsDetail', { newsId })}
       onOpenQuote={(legIndex, quoteId) => navigation.navigate('JetQuote', { legIndex, quoteId })}
       onCheckout={() => navigation.navigate('CharterCheckout')}
     />

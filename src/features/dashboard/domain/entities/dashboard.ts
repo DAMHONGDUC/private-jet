@@ -3,6 +3,8 @@ export type NewsPost = {
   id: string;
   title: string;
   summary: string;
+  /** The full story, paragraphs separated by blank lines. */
+  body: string;
   /** Key of a bundled image. */
   image: string;
   status: 'published' | 'draft' | 'archived';

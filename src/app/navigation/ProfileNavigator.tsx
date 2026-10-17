@@ -1,11 +1,16 @@
-import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationProp,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AddCardScreen } from '@/features/profile/presentation/screens/AddCardScreen';
 import { EditProfileScreen } from '@/features/profile/presentation/screens/EditProfileScreen';
 import { HelpScreen, LegalScreen } from '@/features/profile/presentation/screens/HelpScreen';
 import { PaymentMethodsScreen } from '@/features/profile/presentation/screens/PaymentMethodsScreen';
 import { ProfileScreen } from '@/features/profile/presentation/screens/ProfileScreen';
-import type { ProfileStackParamList } from './types';
+import type { AppStackParamList, ProfileStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -34,6 +39,11 @@ function AddCardRoute({ navigation }: Props<'AddCard'>) {
   return <AddCardScreen onAdded={() => navigation.goBack()} />;
 }
 
+function HelpRoute() {
+  const root = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  return <HelpScreen onContactConcierge={() => root.navigate('Chat')} />;
+}
+
 export function ProfileNavigator() {
   const palette = useBlackJetTheme();
   return (
@@ -56,7 +66,7 @@ export function ProfileNavigator() {
         component={AddCardRoute}
         options={{ title: 'Add a card', animation: 'slide_from_bottom' }}
       />
-      <Stack.Screen name="Help" component={HelpScreen} options={{ title: 'Help' }} />
+      <Stack.Screen name="Help" component={HelpRoute} options={{ title: 'Help' }} />
       <Stack.Screen name="Legal" component={LegalScreen} options={{ title: 'Terms & privacy' }} />
     </Stack.Navigator>
   );

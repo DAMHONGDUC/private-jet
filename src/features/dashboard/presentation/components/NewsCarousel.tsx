@@ -12,7 +12,7 @@ const OVERLAY =
   'linear-gradient(200deg, rgba(8, 7, 5, 0.1) 20%, rgba(8, 7, 5, 0.4) 60%, rgba(8, 7, 5, 0.8) 90%)';
 
 /** Up to five stories that page sideways (feature-docs/dashboard §2.4); hidden when there are none. */
-export function NewsCarousel() {
+export function NewsCarousel({ onOpenNews }: { onOpenNews?: (newsId: string) => void }) {
   const { data: posts, isLoading } = useGetNewsQuery();
 
   if (isLoading) {
@@ -32,6 +32,7 @@ export function NewsCarousel() {
         photos={posts.map(post => imageFor(post.image))}
         height={HEIGHT}
         dotsBottom={12}
+        onPressItem={onOpenNews && (index => onOpenNews(posts[index].id))}
         renderOverlay={index => (
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundImage: OVERLAY }]}>
             <View style={styles.text}>

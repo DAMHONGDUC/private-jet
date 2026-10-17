@@ -15,6 +15,10 @@ export type AppStackParamList = {
   Splash: undefined;
   Login: undefined;
   Main: NavigatorScreenParams<RootTabParamList>;
+  /** Over the tabs, signed in only. */
+  Chat: undefined;
+  Notifications: undefined;
+  NewsDetail: { newsId: string };
 };
 
 export type HomeStackParamList = {

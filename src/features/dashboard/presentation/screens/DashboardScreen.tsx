@@ -31,6 +31,8 @@ type Props = {
   onOpenQuote?: (legIndex: number, quoteId: string) => void;
   /** Every leg has a jet; on to checkout. */
   onCheckout?: () => void;
+  /** A story in the carousel was tapped. */
+  onOpenNews?: (newsId: string) => void;
   /** The first day the calendar allows; tests pin it. */
   today?: Date;
 };
@@ -47,6 +49,7 @@ export function DashboardScreen({
   onOpenNotifications,
   onOpenQuote,
   onCheckout,
+  onOpenNews,
   today: todayProp,
 }: Props) {
   const palette = useBlackJetTheme();
@@ -137,7 +140,7 @@ export function DashboardScreen({
               onOpenQuote={onOpenQuote}
             />
           ) : (
-            <NewsCarousel />
+            <NewsCarousel onOpenNews={onOpenNews} />
           )}
         </Animated.ScrollView>
 
