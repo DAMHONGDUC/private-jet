@@ -34,3 +34,19 @@ export type DashboardSummary = {
 
 /** Loyalty points earned per unit of currency spent. */
 export const POINTS_PER_CURRENCY_UNIT = 0.1;
+
+/** A story for the dashboard's carousel. */
+export type NewsPost = {
+  id: string;
+  title: string;
+  summary: string;
+  /** Key of a bundled image. */
+  image: string;
+  status: 'published' | 'draft' | 'archived';
+};
+
+/** The most stories the carousel shows. */
+export const MAX_NEWS_POSTS = 5;
+
+/** Counts behind the badges on the app bar. */
+export type Inbox = { unreadMessages: number; unreadNotifications: number };

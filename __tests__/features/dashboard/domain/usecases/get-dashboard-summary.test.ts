@@ -25,7 +25,7 @@ const booking = (id: string, departureAt: string, totalPrice: number) =>
   ({ id, departureAt, totalPrice, durationMinutes: 120 }) as Booking;
 
 test('adds the bookings to the loyalty record', async () => {
-  const dashboard: DashboardRepository = { getMembership: async () => membership };
+  const dashboard = { getMembership: async () => membership } as unknown as DashboardRepository;
   const bookings = {
     getBookings: async () => [
       booking('past', '2026-10-01T10:00:00.000Z', 2000),
