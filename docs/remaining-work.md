@@ -34,12 +34,12 @@ Branch `feature/flight-booking`. Update this file with every commit, so whoever 
 
 ## Still to do
 1. **Repo hygiene (important)**
-   - The original APK, which embeds real third-party API tokens, is gone from the tip of the branch, and `.gitignore` now blocks `*.apk` / `*.aab`.
-   - It is still in the **git history**, and the repo is public. Rewrite the history to remove it, then force push:
-     - `git filter-repo --path black-jet-apk --invert-paths`
-     - `git push --force-with-lease`
-   - Do this on every branch that has the file, and ask collaborators to re-clone.
-   - Never reuse those keys.
+   - Done on 2026-10-17: the APK is gone from the history of `feature/flight-booking` (`git filter-repo --path black-jet-apk --invert-paths`, limited to the commits after `a13c64b`), force-pushed with a lease. `main` never had it.
+   - Still to do by the owner:
+     - **Rotate the third-party API tokens** that were in the APK; the old history was public, so treat them as leaked.
+     - Ask GitHub Support to purge the old commits (`0853952` … `57088cd`): GitHub keeps them reachable by SHA, and the PR #1 merge ref still pointed at them right after the push.
+     - Any other clone of the repo (other machines, collaborators) must re-clone or `git reset --hard origin/feature/flight-booking`.
+   - The rewrite dropped the SSH signatures of the 29 commits after the APK; the earlier commits keep theirs.
 2. **Optional:** the jet photos have rounded black corners baked into the files (`src/assets/images/jet-*.jpg`); clean, square-cornered photos would look better in the cards. `jet-1.jpg` also shows a HondaJet, not a Pilatus PC-24.
 
 ## How to work
