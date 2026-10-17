@@ -48,7 +48,8 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressI
               scaleTo={0.99}
               style={{ width, height }}
             >
-              <Image source={item} resizeMode="cover" style={StyleSheet.absoluteFill} />
+              {/* Sized explicitly: with only absolute insets, iOS draws the photo at its pixel size. */}
+              <Image source={item} resizeMode="cover" style={[StyleSheet.absoluteFill, { width, height }]} />
               {renderOverlay?.(index)}
             </PressableScale>
           )}

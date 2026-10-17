@@ -65,7 +65,7 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
       >
         <Animated.View style={[styles.hero, heroStyle]}>
-          <Image source={imageFor(post.image)} resizeMode="cover" style={StyleSheet.absoluteFill} />
+          <Image source={imageFor(post.image)} resizeMode="cover" style={[StyleSheet.absoluteFill, styles.photo]} />
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundImage: SHADE }]} />
         </Animated.View>
         <View style={styles.sheet}>
@@ -108,6 +108,8 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
 const SHADE = 'linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 40%)';
 
 const useStyles = makeStyles(palette => ({
+  // Sized explicitly: with only absolute insets, iOS draws the photo at its pixel size.
+  photo: { width: '100%', height: '100%' },
   root: { flex: 1, backgroundColor: palette.secondaryBackground },
   hero: { height: HERO, backgroundColor: '#191919', overflow: 'hidden' },
   sheet: {
