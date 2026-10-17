@@ -20,8 +20,7 @@ export const bookingApi = baseApi.injectEndpoints({
     }),
     bookFlight: build.mutation<Booking, BookingRequest>({
       queryFn: (request, { extra }) => runQuery(() => deps(extra).bookFlight.execute(request)),
-      // Seats changed on this flight and in the list; the trips and the
-      // dashboard (which provides 'Booking' too) refetch.
+      // Seats changed on this flight and in the list; the trips refetch.
       invalidatesTags: (_result, error, { flightId }) =>
         error?.code === 'VALIDATION'
           ? []

@@ -5,10 +5,9 @@ import { createTestStore } from '@test-utils/test-store';
 test('books a flight from the dashboard to the confirmation', async () => {
   await render(<App store={createTestStore()} />);
 
-  expect(await screen.findByTestId('dashboard-greeting')).toHaveTextContent('Welcome back, Duc');
-  expect(screen.getByTestId('stat-upcoming')).toHaveTextContent(/^1/);
+  expect(await screen.findByTestId('booking-card')).toBeOnTheScreen();
 
-  await fireEvent.press(screen.getByTestId('find-flights'));
+  await fireEvent.press(screen.getByTestId('tab-FlightsTab'));
   await fireEvent.press(await screen.findByTestId('search-flights'));
   await fireEvent.press(await screen.findByTestId('flight-card-BJ-101'));
   await fireEvent.press(await screen.findByTestId('book-button'));

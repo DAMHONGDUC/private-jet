@@ -1,136 +1,136 @@
+import { skipToken } from '@reduxjs/toolkit/query';
+import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, StyleSheet, View } from 'react-native';
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing } from '@/core/theme/theme';
-import { AppText } from '@/core/ui/AppText';
-import { Button } from '@/core/ui/Button';
-import { Screen } from '@/core/ui/Screen';
-import { ErrorView, LoadingView } from '@/core/ui/StateViews';
-import { formatMoney } from '@/core/utils/format';
-import { LoyaltyCard } from '../components/LoyaltyCard';
-import { NextTripCard } from '../components/NextTripCard';
-import { SpendChart } from '../components/SpendChart';
-import { StatTile } from '../components/StatTile';
-import { useGetDashboardSummaryQuery } from '../dashboard-api';
+import { useDispatch, useSelector } from 'react-redux';
+import { useBlackJetTheme } from '@/core/theme/blackjet';
+import { Snackbar } from '@/core/ui/Snackbar';
+import { errorMessage } from '@/core/ui/StateViews';
+import { checkDraft, type CharterRequest } from '../../domain/entities/charter';
+import { searchSubmitted, selectCharterDraft, selectSubmittedCharter } from '../charter-search-slice';
+import { HeroText, HomeAppBar } from '../components/HomeHeader';
+import { JetResults } from '../components/JetResults';
+import { NewsCarousel } from '../components/NewsCarousel';
+import { SearchPanel } from '../components/SearchPanel';
+import { SearchSummaryBar } from '../components/SearchSummaryBar';
+import { useSearchChartersQuery } from '../dashboard-api';
+import { useCollapsibleSearch } from '../use-collapsible-search';
 
-const COLLAPSE_AT = 80;
-const BAR_HEIGHT = 48;
+type Props = {
+  onOpenMessages?: () => void;
+  onOpenNotifications?: () => void;
+  /** The first day the calendar allows; tests pin it. */
+  today?: Date;
+};
 
-type Props = { onOpenTrips: () => void; onFindFlights: () => void };
+const sameRequest = (a: CharterRequest | null, b: CharterRequest) => JSON.stringify(a) === JSON.stringify(b);
 
-export function DashboardScreen({ onOpenTrips, onFindFlights }: Props) {
+/**
+ * BlackJet's home: plan a charter and see the jets right below the form,
+ * which collapses into a summary bar as the results scroll up
+ * (feature-docs/dashboard §2 and §12).
+ */
+export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: todayProp }: Props) {
+  const palette = useBlackJetTheme();
   const insets = useSafeAreaInsets();
-  const { data: summary, error, isLoading, isFetching, refetch } = useGetDashboardSummaryQuery();
-  const scrollY = useSharedValue(0);
+  const dispatch = useDispatch();
+  const submitted = useSelector(selectSubmittedCharter);
+  const draft = useSelector(selectCharterDraft);
+  const [today] = useState(() => todayProp ?? new Date());
+  const [notice, setNotice] = useState<string | null>(null);
+  const hideNotice = useCallback(() => setNotice(null), []);
+  const collapsible = useCollapsibleSearch();
 
-  const onScroll = useAnimatedScrollHandler(event => {
-    scrollY.value = event.contentOffset.y;
-  });
+  const { currentData: results, error, isFetching, refetch } = useSearchChartersQuery(submitted ?? skipToken);
 
-  // The large greeting drifts up and fades as the compact bar fades in.
-  const greetingStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [0, COLLAPSE_AT], [1, 0], Extrapolation.CLAMP),
-    transform: [
-      { translateY: interpolate(scrollY.value, [0, COLLAPSE_AT], [0, -24], Extrapolation.CLAMP) },
-    ],
-  }));
-  const barStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [COLLAPSE_AT * 0.6, COLLAPSE_AT], [0, 1], Extrapolation.CLAMP),
-  }));
+  useEffect(() => {
+    if (error) {
+      setNotice(errorMessage(error));
+    }
+  }, [error]);
 
-  if (isLoading) {
-    return (
-      <Screen top>
-        <LoadingView />
-      </Screen>
-    );
-  }
-  if (error || !summary) {
-    return (
-      <Screen top>
-        <ErrorView error={error} onRetry={refetch} />
-      </Screen>
-    );
-  }
+  const search = (request: CharterRequest) => {
+    if (sameRequest(submitted, request)) {
+      refetch();
+    } else {
+      dispatch(searchSubmitted(request));
+    }
+    collapsible.collapse();
+  };
 
   return (
-    <Screen>
-      <Animated.ScrollView
-        testID="dashboard-scroll"
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching}
-            onRefresh={() => {
-              refetch();
-            }}
-            tintColor={colors.gold}
-            progressViewOffset={insets.top}
-          />
-        }
-      >
-        <Animated.View style={greetingStyle}>
-          <AppText variant="label" gold>
-            Good to see you
-          </AppText>
-          <AppText variant="display" testID="dashboard-greeting">
-            Welcome back, {summary.memberName}
-          </AppText>
+    <View style={[styles.screen, { backgroundColor: palette.secondaryBackground, paddingTop: insets.top }]}>
+      <HomeAppBar onOpenMessages={onOpenMessages} onOpenNotifications={onOpenNotifications} />
+
+      <View style={styles.body} onLayout={collapsible.onViewportLayout}>
+        <Animated.ScrollView
+          testID="dashboard-scroll"
+          ref={collapsible.scrollRef}
+          onScroll={collapsible.onScroll}
+          scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[styles.content, { minHeight: collapsible.minContentHeight }]}
+          refreshControl={
+            submitted ? (
+              <RefreshControl
+                refreshing={isFetching && results !== undefined}
+                onRefresh={() => {
+                  refetch();
+                }}
+                tintColor={palette.jetBlack}
+              />
+            ) : undefined
+          }
+        >
+          <Animated.View style={collapsible.heroStyle} onLayout={collapsible.onHeroLayout}>
+            <HeroText />
+          </Animated.View>
+
+          <Animated.View
+            style={collapsible.panelStyle}
+            pointerEvents={collapsible.collapsed ? 'none' : 'auto'}
+            onLayout={collapsible.onPanelLayout}
+          >
+            <SearchPanel
+              today={today}
+              finding={isFetching && submitted !== null}
+              onSearch={search}
+              onInvalid={setNotice}
+            />
+          </Animated.View>
+
+          {submitted ? (
+            <JetResults
+              request={submitted}
+              results={results}
+              error={error}
+              onNewRequest={collapsible.expand}
+              onRetry={() => {
+                refetch();
+              }}
+            />
+          ) : (
+            <NewsCarousel />
+          )}
+        </Animated.ScrollView>
+
+        <Animated.View
+          style={[styles.summary, collapsible.summaryStyle]}
+          pointerEvents={collapsible.collapsed ? 'auto' : 'none'}
+        >
+          <SearchSummaryBar request={submitted ?? checkDraft(draft).request ?? null} onPress={collapsible.expand} />
         </Animated.View>
 
-        <LoyaltyCard summary={summary} />
-
-        <View style={styles.stats}>
-          <StatTile testID="stat-upcoming" label="Upcoming trips" value={String(summary.upcomingTrips)} />
-          <StatTile label="Flight hours" value={`${summary.flightHoursThisYear}h`} />
-          <StatTile
-            label="Spent this year"
-            value={formatMoney(summary.totalSpentThisYear, summary.currency)}
-          />
-        </View>
-
-        <NextTripCard trip={summary.nextTrip} onPress={onOpenTrips} />
-
-        <SpendChart data={summary.monthlySpend} currency={summary.currency} />
-
-        <Button testID="find-flights" title="Find a jet" onPress={onFindFlights} />
-      </Animated.ScrollView>
-
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.bar, { paddingTop: insets.top, height: insets.top + BAR_HEIGHT }, barStyle]}
-      >
-        <AppText variant="subtitle">{summary.memberName}</AppText>
-        <AppText variant="caption" gold>
-          {summary.tier} · {summary.points.toLocaleString('en-GB')} pts
-        </AppText>
-      </Animated.View>
-    </Screen>
+        <Snackbar message={notice} onHide={hideNotice} bottom={16} />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  stats: { flexDirection: 'row', gap: spacing.md },
-  bar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
+  screen: { flex: 1 },
+  body: { flex: 1 },
+  content: { paddingBottom: 32 },
+  summary: { position: 'absolute', top: 0, left: 0, right: 0 },
 });

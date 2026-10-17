@@ -7,7 +7,6 @@ import { CharterMockDataSource } from '@/features/dashboard/data/datasources/cha
 import { DashboardMockDataSource } from '@/features/dashboard/data/datasources/dashboard-mock-data-source';
 import { CharterRepositoryImpl } from '@/features/dashboard/data/repositories/charter-repository-impl';
 import { DashboardRepositoryImpl } from '@/features/dashboard/data/repositories/dashboard-repository-impl';
-import { GetDashboardSummary } from '@/features/dashboard/domain/usecases/get-dashboard-summary';
 import { GetInbox } from '@/features/dashboard/domain/usecases/get-inbox';
 import { GetNews } from '@/features/dashboard/domain/usecases/get-news';
 import { SearchCharters } from '@/features/dashboard/domain/usecases/search-charters';
@@ -42,9 +41,7 @@ export function createDependencies({
   const bookingRepository = new BookingRepositoryImpl(
     new BookingMockDataSource(latencyMs, now, random),
   );
-  const dashboardRepository = new DashboardRepositoryImpl(
-    new DashboardMockDataSource(latencyMs, now),
-  );
+  const dashboardRepository = new DashboardRepositoryImpl(new DashboardMockDataSource(latencyMs));
   const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
 
   return {
@@ -53,7 +50,6 @@ export function createDependencies({
     getAirports: new GetAirports(flightRepository),
     bookFlight: new BookFlight(bookingRepository, flightRepository, now),
     getBookings: new GetBookings(bookingRepository),
-    getDashboardSummary: new GetDashboardSummary(dashboardRepository, bookingRepository, now),
     searchCharters: new SearchCharters(charterRepository, now),
     getNews: new GetNews(dashboardRepository),
     getInbox: new GetInbox(dashboardRepository),
