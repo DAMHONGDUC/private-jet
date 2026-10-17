@@ -10,6 +10,20 @@ A private jet booking app built as a client demo. It covers:
 
 Everything runs on in-memory mock data, so the app works offline with no backend.
 
+## Screenshots
+
+iPhone 17 Pro Max simulator. Full set, including the news story and payment cards: [docs/screenshots](docs/screenshots).
+
+| | Home | Jets | Jet quote | Checkout | Booked |
+|---|---|---|---|---|---|
+| Light | <img src="docs/screenshots/home-light.png" width="160"> | <img src="docs/screenshots/results-light.png" width="160"> | <img src="docs/screenshots/quote-light.png" width="160"> | <img src="docs/screenshots/checkout-light.png" width="160"> | <img src="docs/screenshots/confirmation-light.png" width="160"> |
+| Dark | <img src="docs/screenshots/home-dark.png" width="160"> | <img src="docs/screenshots/results-dark.png" width="160"> | <img src="docs/screenshots/quote-dark.png" width="160"> | <img src="docs/screenshots/checkout-dark.png" width="160"> | <img src="docs/screenshots/confirmation-dark.png" width="160"> |
+
+| | Trips | Trip | Concierge | Profile | Add card |
+|---|---|---|---|---|---|
+| Light | <img src="docs/screenshots/trips-light.png" width="160"> | <img src="docs/screenshots/trip-detail-light.png" width="160"> | <img src="docs/screenshots/chat-light.png" width="160"> | <img src="docs/screenshots/profile-light.png" width="160"> | <img src="docs/screenshots/add-card-light.png" width="160"> |
+| Dark | <img src="docs/screenshots/trips-dark.png" width="160"> | <img src="docs/screenshots/trip-detail-dark.png" width="160"> | <img src="docs/screenshots/chat-dark.png" width="160"> | <img src="docs/screenshots/profile-dark.png" width="160"> | <img src="docs/screenshots/add-card-dark.png" width="160"> |
+
 ## Demo account
 
 The app opens already signed in as **Alexander Reed** (Black Card). After signing out, the login screen offers:
