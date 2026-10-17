@@ -39,7 +39,11 @@ Branch `feature/flight-booking`. Update this file with every commit, so whoever 
    - each in light and dark
 2. **Optional polish:** a smoother TripCard → TripDetail transition, using `FadeIn` on the header plus `LinearTransition`.
 3. **Repo hygiene (important)**
-   - `black-jet-apk/` holds the original APK, which embeds real third-party API tokens. Remove it from the repo, and from its history with `git filter-repo` plus a force push, because the repo is public.
+   - The original APK, which embeds real third-party API tokens, is gone from the tip of the branch, and `.gitignore` now blocks `*.apk` / `*.aab`.
+   - It is still in the **git history**, and the repo is public. Rewrite the history to remove it, then force push:
+     - `git filter-repo --path black-jet-apk --invert-paths`
+     - `git push --force-with-lease`
+   - Do this on every branch that has the file, and ask collaborators to re-clone.
    - Never reuse those keys.
 
 ## How to work

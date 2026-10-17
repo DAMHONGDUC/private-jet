@@ -73,3 +73,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Third-party builds; never commit them (they can embed API keys).
+*.apk
+*.aab
