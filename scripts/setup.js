@@ -16,9 +16,9 @@ const ios = path.join(root, 'ios');
 const args = process.argv.slice(2);
 const target = ['ios', 'android'].find(platform => args.includes(platform));
 
-function run(command, cwd = root) {
+function run(command, cwd = root, env = process.env) {
   console.log(`\n> ${command}`);
-  execSync(command, { cwd, stdio: 'inherit' });
+  execSync(command, { cwd, stdio: 'inherit', env });
 }
 
 function remove(relative) {
@@ -42,7 +42,8 @@ if (process.platform === 'darwin') {
   remove('ios/Pods');
   remove('ios/Podfile.lock');
   remove('ios/build');
-  run('bundle exec pod install --repo-update', ios);
+  // CocoaPods crashes with an encoding error when the shell locale is not UTF-8.
+  run('bundle exec pod install --repo-update', ios, { ...process.env, LANG: 'en_US.UTF-8', LC_ALL: 'en_US.UTF-8' });
 } else {
   console.log('\nSkipping CocoaPods: iOS builds need macOS.');
 }
