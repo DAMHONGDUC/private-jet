@@ -3,9 +3,14 @@ import { BookingRepositoryImpl } from '@/features/booking/data/repositories/book
 import { BookFlight } from '@/features/booking/domain/usecases/book-flight';
 import { GetBookings } from '@/features/booking/domain/usecases/get-bookings';
 import type { BookingDependencies } from '@/features/booking/presentation/booking-api';
+import { CharterMockDataSource } from '@/features/dashboard/data/datasources/charter-mock-data-source';
 import { DashboardMockDataSource } from '@/features/dashboard/data/datasources/dashboard-mock-data-source';
+import { CharterRepositoryImpl } from '@/features/dashboard/data/repositories/charter-repository-impl';
 import { DashboardRepositoryImpl } from '@/features/dashboard/data/repositories/dashboard-repository-impl';
 import { GetDashboardSummary } from '@/features/dashboard/domain/usecases/get-dashboard-summary';
+import { GetInbox } from '@/features/dashboard/domain/usecases/get-inbox';
+import { GetNews } from '@/features/dashboard/domain/usecases/get-news';
+import { SearchCharters } from '@/features/dashboard/domain/usecases/search-charters';
 import type { DashboardDependencies } from '@/features/dashboard/presentation/dashboard-api';
 import { FlightMockDataSource } from '@/features/flights/data/datasources/flight-mock-data-source';
 import { FlightRepositoryImpl } from '@/features/flights/data/repositories/flight-repository-impl';
@@ -40,6 +45,7 @@ export function createDependencies({
   const dashboardRepository = new DashboardRepositoryImpl(
     new DashboardMockDataSource(latencyMs, now),
   );
+  const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
 
   return {
     searchFlights: new SearchFlights(flightRepository, now),
@@ -48,5 +54,8 @@ export function createDependencies({
     bookFlight: new BookFlight(bookingRepository, flightRepository, now),
     getBookings: new GetBookings(bookingRepository),
     getDashboardSummary: new GetDashboardSummary(dashboardRepository, bookingRepository, now),
+    searchCharters: new SearchCharters(charterRepository, now),
+    getNews: new GetNews(dashboardRepository),
+    getInbox: new GetInbox(dashboardRepository),
   };
 }
