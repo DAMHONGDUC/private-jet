@@ -6,6 +6,7 @@ import { Card } from '@/core/ui/Card';
 import { Screen } from '@/core/ui/Screen';
 import { LoadingView } from '@/core/ui/StateViews';
 import { formatDate, formatMoney, formatTime } from '@/core/utils/format';
+import { firstLeg, lastLeg } from '../../domain/entities/booking';
 import { useGetBookingsQuery } from '../booking-api';
 import { SuccessMark } from '../components/SuccessMark';
 
@@ -40,10 +41,10 @@ export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Pr
         <View style={styles.full}>
           <Card style={styles.card}>
             <AppText variant="subtitle">
-              {booking.originCity} → {booking.destinationCity}
+              {firstLeg(booking).originCity} → {lastLeg(booking).destinationCity}
             </AppText>
             <AppText muted>
-              {formatDate(booking.departureAt)} · {formatTime(booking.departureAt)}
+              {formatDate(firstLeg(booking).departureAt)} · {formatTime(firstLeg(booking).departureAt)}
             </AppText>
             <AppText muted>
               {booking.passengers.length} passenger{booking.passengers.length > 1 ? 's' : ''} ·{' '}

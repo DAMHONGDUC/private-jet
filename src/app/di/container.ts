@@ -2,10 +2,19 @@ import { AuthMockDataSource } from '@/features/auth/data/datasources/auth-mock-d
 import { AuthRepositoryImpl } from '@/features/auth/data/repositories/auth-repository-impl';
 import { RestoreSession, SignIn, SignOut, UpdateProfile } from '@/features/auth/domain/usecases/auth';
 import type { AuthDependencies } from '@/features/auth/presentation/auth-api';
-import { BookingMockDataSource } from '@/features/booking/data/datasources/booking-mock-data-source';
-import { BookingRepositoryImpl } from '@/features/booking/data/repositories/booking-repository-impl';
+import {
+  BookingMockDataSource,
+  PaymentMockDataSource,
+} from '@/features/booking/data/datasources/booking-mock-data-source';
+import {
+  BookingRepositoryImpl,
+  PaymentRepositoryImpl,
+} from '@/features/booking/data/repositories/booking-repository-impl';
+import { BookCharter } from '@/features/booking/domain/usecases/book-charter';
 import { BookFlight } from '@/features/booking/domain/usecases/book-flight';
 import { GetBookings } from '@/features/booking/domain/usecases/get-bookings';
+import { CancelBooking, GetBooking } from '@/features/booking/domain/usecases/manage-bookings';
+import { AddCard, GetPaymentMethods, RemoveCard, SetDefaultPayment } from '@/features/booking/domain/usecases/payments';
 import type { BookingDependencies } from '@/features/booking/presentation/booking-api';
 import { CharterMockDataSource } from '@/features/dashboard/data/datasources/charter-mock-data-source';
 import { DashboardMockDataSource } from '@/features/dashboard/data/datasources/dashboard-mock-data-source';
@@ -51,13 +60,21 @@ export function createDependencies({
   const dashboardRepository = new DashboardRepositoryImpl(new DashboardMockDataSource(latencyMs));
   const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
   const authRepository = new AuthRepositoryImpl(new AuthMockDataSource(latencyMs));
+  const paymentRepository = new PaymentRepositoryImpl(new PaymentMockDataSource(latencyMs));
 
   return {
     searchFlights: new SearchFlights(flightRepository, now),
     getFlightById: new GetFlightById(flightRepository),
     getAirports: new GetAirports(flightRepository),
-    bookFlight: new BookFlight(bookingRepository, flightRepository, now),
+    bookFlight: new BookFlight(bookingRepository, flightRepository, paymentRepository, now),
+    bookCharter: new BookCharter(bookingRepository, flightRepository, paymentRepository, now),
     getBookings: new GetBookings(bookingRepository),
+    getBooking: new GetBooking(bookingRepository),
+    cancelBooking: new CancelBooking(bookingRepository, now),
+    getPaymentMethods: new GetPaymentMethods(paymentRepository),
+    addCard: new AddCard(paymentRepository, now),
+    setDefaultPayment: new SetDefaultPayment(paymentRepository),
+    removeCard: new RemoveCard(paymentRepository),
     searchCharters: new SearchCharters(charterRepository, now),
     getNews: new GetNews(dashboardRepository),
     getInbox: new GetInbox(dashboardRepository),

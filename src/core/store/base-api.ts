@@ -10,7 +10,7 @@ import type { AppError } from '@/core/error/app-error';
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fakeBaseQuery<AppError>(),
-  tagTypes: ['Flight', 'Booking'],
+  tagTypes: ['Flight', 'Booking', 'Payment'],
   refetchOnFocus: true,
   endpoints: () => ({}),
 });

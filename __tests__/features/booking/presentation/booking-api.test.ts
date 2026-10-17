@@ -4,8 +4,8 @@ import { bookingApi } from '@/features/booking/presentation/booking-api';
 
 const request = {
   flightId: 'BJ-101',
-  passengers: [{ fullName: 'Duc Dam' }, { fullName: 'An Tran' }],
-  contactEmail: 'duc@example.com',
+  passengers: [{ fullName: 'Alexander Reed' }, { fullName: 'Sophia Reed' }],
+  contactEmail: 'demo@blackjet.app',
 };
 
 async function settle() {
@@ -28,7 +28,8 @@ describe('booking through RTK Query', () => {
 
     const state = store.getState();
     expect(flightsApi.endpoints.getFlight.select('BJ-101')(state).data?.seatsAvailable).toBe(3);
-    expect(bookingApi.endpoints.getBookings.select()(state).data).toHaveLength(2);
+    // Four seeded bookings, plus this one.
+    expect(bookingApi.endpoints.getBookings.select()(state).data).toHaveLength(5);
 
     subscriptions.forEach(subscription => subscription.unsubscribe());
   });
@@ -42,6 +43,6 @@ describe('booking through RTK Query', () => {
 
     expect(result.error).toEqual({ code: 'SOLD_OUT', message: 'This flight is sold out.' });
     const bookings = await store.dispatch(bookingApi.endpoints.getBookings.initiate());
-    expect(bookings.data).toHaveLength(1);
+    expect(bookings.data).toHaveLength(4);
   });
 });
