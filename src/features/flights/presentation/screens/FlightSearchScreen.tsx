@@ -1,18 +1,19 @@
-import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { colors, radius, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
+import { BottomSheet, SheetOption } from '@/core/ui/BottomSheet';
 import { Button } from '@/core/ui/Button';
-import { Card } from '@/core/ui/Card';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
 import { Stepper } from '@/core/ui/Stepper';
-import { MAX_SEARCH_PASSENGERS } from '../../domain/entities/flight';
-import { CategoryChips } from '../components/CategoryChips';
-import { DateStrip } from '../components/DateStrip';
-import { FlightCard } from '../components/FlightCard';
-import { RouteSelector } from '../components/RouteSelector';
+import { fromDayKey } from '@/core/utils/date';
+import { formatDate } from '@/core/utils/format';
+import { JET_CATEGORIES, MAX_SEARCH_PASSENGERS, type Airport } from '../../domain/entities/flight';
+import { CATEGORY_LABELS } from '../components/CategoryChips';
+import { DateSheet } from '../components/DateSheet';
+import { SearchField } from '../components/SearchField';
 import {
   airportsSwapped,
   categorySelected,
@@ -23,26 +24,29 @@ import {
   selectFlightSearch,
   type SearchCriteria,
 } from '../flight-search-slice';
-import { useGetAirportsQuery, useSearchFlightsQuery } from '../flights-api';
+import { useGetAirportsQuery } from '../flights-api';
 import { airportsByCode, describeDetails, describeRoute } from '../search-summary';
 import type { AirportField } from './AirportPickerScreen';
 
-const DEPARTING_SOON = 3;
+type Sheet = 'date' | 'passengers' | 'jet' | null;
 
 type Props = {
   onPickAirport: (field: AirportField) => void;
   onSearch: () => void;
-  onOpenFlight: (flightId: string) => void;
-  /** The first day in the date strip; tests pin it. */
+  /** The first day the calendar allows; tests pin it. */
   today?: Date;
 };
 
-export function FlightSearchScreen({ onPickAirport, onSearch, onOpenFlight, today: todayProp }: Props) {
+const airportLabel = (airport: Airport | undefined, code: string | null) =>
+  code ? `${airport?.city ?? code} (${code})` : null;
+
+export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }: Props) {
   const dispatch = useDispatch();
   const search = useSelector(selectFlightSearch);
   const { data: airports } = useGetAirportsQuery();
-  const { data: upcoming, isLoading: upcomingLoading } = useSearchFlightsQuery({});
   const [today] = useState(() => todayProp ?? new Date());
+  const [sheet, setSheet] = useState<Sheet>(null);
+  const closeSheet = () => setSheet(null);
 
   const byCode = airportsByCode(airports);
 
@@ -58,33 +62,103 @@ export function FlightSearchScreen({ onPickAirport, onSearch, onOpenFlight, toda
 
   return (
     <Screen top>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.title}>
-          <AppText variant="label" gold>
-            Private charter
-          </AppText>
-          <AppText variant="display">Where to?</AppText>
+      <ScrollView contentContainerStyle={styles.content}>
+        <AppText variant="display">Where to?</AppText>
+
+        <View style={styles.card}>
+          <View>
+            <SearchField
+              testID="pick-origin"
+              label="From"
+              value={airportLabel(search.origin ? byCode[search.origin] : undefined, search.origin)}
+              placeholder="Any airport"
+              onPress={() => onPickAirport('origin')}
+              style={styles.routeField}
+            />
+            <View style={styles.divider} />
+            <SearchField
+              testID="pick-destination"
+              label="To"
+              value={airportLabel(search.destination ? byCode[search.destination] : undefined, search.destination)}
+              placeholder="Anywhere"
+              onPress={() => onPickAirport('destination')}
+              style={styles.routeField}
+            />
+            <PressableScale
+              testID="swap-airports"
+              accessibilityRole="button"
+              accessibilityLabel="Swap origin and destination"
+              onPress={() => dispatch(airportsSwapped())}
+              style={styles.swap}
+            >
+              <AppText gold>⇅</AppText>
+            </PressableScale>
+          </View>
+          <View style={styles.divider} />
+          <SearchField
+            testID="pick-date"
+            label="Departure date"
+            value={search.date ? formatDate(fromDayKey(search.date).toISOString()) : null}
+            placeholder="Any date"
+            onPress={() => setSheet('date')}
+          />
+          <View style={styles.divider} />
+          <View style={styles.pair}>
+            <SearchField
+              testID="pick-passengers"
+              label="Passengers"
+              value={`${search.passengers} passenger${search.passengers > 1 ? 's' : ''}`}
+              placeholder=""
+              onPress={() => setSheet('passengers')}
+            />
+            <View style={styles.vertical} />
+            <SearchField
+              testID="pick-jet"
+              label="Jet type"
+              value={search.category ? CATEGORY_LABELS[search.category] : null}
+              placeholder="Any jet"
+              onPress={() => setSheet('jet')}
+            />
+          </View>
+          <View style={styles.action}>
+            <Button testID="search-flights" title="Search flights" onPress={submit} />
+          </View>
         </View>
 
-        <RouteSelector
-          origin={search.origin ? byCode[search.origin] : undefined}
-          destination={search.destination ? byCode[search.destination] : undefined}
-          onPickOrigin={() => onPickAirport('origin')}
-          onPickDestination={() => onPickAirport('destination')}
-          onSwap={() => dispatch(airportsSwapped())}
-        />
-
-        <Section title="When">
-          <DateStrip today={today} value={search.date} onChange={day => dispatch(dateSelected(day))} />
-        </Section>
-
-        <Card style={styles.passengers}>
-          <View>
-            <AppText variant="subtitle">Passengers</AppText>
+        {search.recent.length > 0 ? (
+          <View style={styles.recent}>
             <AppText variant="caption" muted>
-              Up to {MAX_SEARCH_PASSENGERS} per booking
+              Recent searches
             </AppText>
+            {search.recent.map((criteria, index) => (
+              <PressableScale
+                key={`${describeRoute(criteria, byCode)}-${describeDetails(criteria)}`}
+                testID={`recent-search-${index}`}
+                accessibilityRole="button"
+                onPress={() => repeat(criteria)}
+                style={styles.recentRow}
+              >
+                <AppText numberOfLines={1}>{describeRoute(criteria, byCode)}</AppText>
+                <AppText variant="caption" muted numberOfLines={1}>
+                  {describeDetails(criteria)}
+                </AppText>
+              </PressableScale>
+            ))}
           </View>
+        ) : null}
+      </ScrollView>
+
+      <DateSheet
+        visible={sheet === 'date'}
+        today={today}
+        value={search.date}
+        onChange={day => dispatch(dateSelected(day))}
+        onClose={closeSheet}
+      />
+
+      <BottomSheet visible={sheet === 'passengers'} title="Passengers" onClose={closeSheet} testID="passengers-sheet">
+        <View style={styles.stepperRow}>
+          <AppText muted>Up to {MAX_SEARCH_PASSENGERS} per booking</AppText>
           <Stepper
             testID="search-passengers"
             value={search.passengers}
@@ -92,74 +166,66 @@ export function FlightSearchScreen({ onPickAirport, onSearch, onOpenFlight, toda
             max={MAX_SEARCH_PASSENGERS}
             onChange={count => dispatch(passengersChanged(count))}
           />
-        </Card>
+        </View>
+        <Button testID="passengers-done" title="Done" onPress={closeSheet} />
+      </BottomSheet>
 
-        <Section title="Jet">
-          <CategoryChips value={search.category} onChange={category => dispatch(categorySelected(category))} />
-        </Section>
-
-        <Button testID="search-flights" title="Search flights" onPress={submit} />
-
-        {search.recent.length > 0 ? (
-          <Section title="Recent searches">
-            {search.recent.map((criteria, index) => (
-              <PressableScale
-                key={`${describeRoute(criteria, byCode)}-${describeDetails(criteria)}`}
-                testID={`recent-search-${index}`}
-                accessibilityRole="button"
-                onPress={() => repeat(criteria)}
-                style={styles.recent}
-              >
-                <AppText gold>↺</AppText>
-                <View style={styles.recentText}>
-                  <AppText variant="subtitle" numberOfLines={1}>
-                    {describeRoute(criteria, byCode)}
-                  </AppText>
-                  <AppText variant="caption" muted numberOfLines={1}>
-                    {describeDetails(criteria)}
-                  </AppText>
-                </View>
-              </PressableScale>
-            ))}
-          </Section>
-        ) : null}
-
-        <Section title="Departing soon">
-          {upcomingLoading ? <ActivityIndicator color={colors.gold} /> : null}
-          {(upcoming ?? []).slice(0, DEPARTING_SOON).map(flight => (
-            <FlightCard key={flight.id} flight={flight} onPress={() => onOpenFlight(flight.id)} />
-          ))}
-        </Section>
-      </ScrollView>
+      <BottomSheet visible={sheet === 'jet'} title="Jet type" onClose={closeSheet} testID="jet-sheet">
+        {[null, ...JET_CATEGORIES].map(category => (
+          <SheetOption
+            key={category ?? 'any'}
+            testID={`jet-option-${category ?? 'any'}`}
+            label={category ? CATEGORY_LABELS[category] : 'Any jet'}
+            selected={search.category === category}
+            onPress={() => {
+              dispatch(categorySelected(category));
+              closeSheet();
+            }}
+          />
+        ))}
+      </BottomSheet>
     </Screen>
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <View style={styles.section}>
-      <AppText variant="label" muted>
-        {title}
-      </AppText>
-      {children}
-    </View>
-  );
-}
+const SWAP_SIZE = 36;
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.xl, paddingBottom: spacing.xxl },
-  title: { gap: spacing.xs },
-  section: { gap: spacing.md },
-  passengers: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  recent: {
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  // Keeps long city names clear of the swap button.
+  routeField: { paddingRight: SWAP_SIZE + spacing.sm },
+  swap: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    marginTop: -SWAP_SIZE / 2,
+    width: SWAP_SIZE,
+    height: SWAP_SIZE,
+    borderRadius: SWAP_SIZE / 2,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pair: { flexDirection: 'row', gap: spacing.lg },
+  vertical: { width: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  action: { paddingVertical: spacing.lg },
+  recent: { gap: spacing.xs },
+  recentRow: {
+    paddingVertical: spacing.md,
+    gap: 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  stepperRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    justifyContent: 'space-between',
+    paddingVertical: spacing.lg,
   },
-  recentText: { flex: 1, gap: 2 },
 });

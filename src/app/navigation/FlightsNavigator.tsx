@@ -31,7 +31,6 @@ function FlightSearchRoute({ navigation }: Props<'FlightSearch'>) {
     <FlightSearchScreen
       onPickAirport={field => navigation.navigate('AirportPicker', { field })}
       onSearch={() => navigation.navigate('FlightResults')}
-      onOpenFlight={flightId => navigation.navigate('FlightDetail', { flightId })}
     />
   );
 }

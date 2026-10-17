@@ -7,6 +7,7 @@ import { isSoldOut, type Flight } from '../../domain/entities/flight';
 
 type Props = { flight: Flight; onPress: () => void };
 
+/** Operator on top, then times and price on one line, then date and seats. */
 export function FlightCard({ flight, onPress }: Props) {
   const soldOut = isSoldOut(flight);
 
@@ -18,54 +19,42 @@ export function FlightCard({ flight, onPress }: Props) {
       onPress={onPress}
       style={styles.card}
     >
-      <View style={styles.header}>
-        <AppText variant="caption" muted>
-          {formatDate(flight.departureAt)} · {flight.operator}
-        </AppText>
-        <View style={[styles.badge, soldOut && styles.badgeSoldOut]}>
-          <AppText variant="caption" style={soldOut ? styles.badgeSoldOutText : styles.badgeText}>
-            {soldOut ? 'Sold out' : `${flight.seatsAvailable} seats left`}
-          </AppText>
-        </View>
-      </View>
+      <AppText variant="caption" muted numberOfLines={1}>
+        {flight.operator} · {flight.aircraft.model}
+      </AppText>
 
-      <View style={styles.route}>
+      <View style={styles.row}>
         <View>
-          <AppText variant="title">{flight.origin.code}</AppText>
+          <AppText variant="subtitle">{formatTime(flight.departureAt)}</AppText>
           <AppText variant="caption" muted>
-            {formatTime(flight.departureAt)}
+            {flight.origin.code}
           </AppText>
         </View>
         <View style={styles.path}>
           <AppText variant="caption" muted>
             {formatDuration(flight.durationMinutes)}
           </AppText>
-          <View style={styles.line}>
-            <View style={styles.dot} />
-            <View style={styles.dash} />
-            <AppText gold>✈︎</AppText>
-          </View>
+          <View style={styles.line} />
         </View>
-        <View style={styles.end}>
-          <AppText variant="title">{flight.destination.code}</AppText>
+        <View>
+          <AppText variant="subtitle">{formatTime(flight.arrivalAt)}</AppText>
           <AppText variant="caption" muted>
-            {formatTime(flight.arrivalAt)}
+            {flight.destination.code}
+          </AppText>
+        </View>
+        <View style={styles.price}>
+          <AppText variant="subtitle" gold>
+            {formatMoney(flight.pricePerSeat, flight.currency)}
+          </AppText>
+          <AppText variant="caption" muted>
+            per seat
           </AppText>
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <AppText variant="caption" muted>
-          {flight.aircraft.model}
-        </AppText>
-        <AppText variant="subtitle" gold>
-          {formatMoney(flight.pricePerSeat, flight.currency)}
-          <AppText variant="caption" muted>
-            {' '}
-            / seat
-          </AppText>
-        </AppText>
-      </View>
+      <AppText variant="caption" muted={!soldOut} style={soldOut ? styles.soldOut : undefined}>
+        {formatDate(flight.departureAt)} · {soldOut ? 'Sold out' : `${flight.seatsAvailable} seats left`}
+      </AppText>
     </PressableScale>
   );
 }
@@ -74,26 +63,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
     padding: spacing.lg,
     gap: spacing.md,
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  badge: {
-    backgroundColor: colors.goldSoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  badgeText: { color: colors.gold },
-  badgeSoldOut: { backgroundColor: 'rgba(248, 113, 113, 0.14)' },
-  badgeSoldOutText: { color: colors.danger },
-  route: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   path: { flex: 1, alignItems: 'center', gap: spacing.xs },
-  line: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', gap: spacing.xs },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.gold },
-  dash: { flex: 1, height: 1, backgroundColor: colors.border },
-  end: { alignItems: 'flex-end' },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  line: { alignSelf: 'stretch', height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
+  price: { alignItems: 'flex-end', marginLeft: spacing.sm },
+  soldOut: { color: colors.danger },
 });

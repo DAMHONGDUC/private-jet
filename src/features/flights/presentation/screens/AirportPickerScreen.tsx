@@ -51,7 +51,7 @@ export function AirportPickerScreen({ field, onDone }: Props) {
           query.trim() ? undefined : (
             <Option
               testID="airport-option-any"
-              code="—"
+              code=""
               title={field === 'origin' ? 'Any airport' : 'Anywhere'}
               subtitle="Show every route"
               selected={selected === null}
@@ -111,20 +111,17 @@ function Option({ code, title, subtitle, selected, onPress, testID }: OptionProp
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.option, selected && styles.optionSelected]}
+      style={styles.option}
     >
-      <View style={styles.codeBadge}>
-        <AppText variant="subtitle" gold>
-          {code}
-        </AppText>
-      </View>
       <View style={styles.optionText}>
-        <AppText variant="subtitle">{title}</AppText>
+        <AppText gold={selected}>{title}</AppText>
         <AppText variant="caption" muted numberOfLines={1}>
           {subtitle}
         </AppText>
       </View>
-      {selected ? <AppText gold>✓</AppText> : null}
+      <AppText variant="caption" gold={selected} muted={!selected}>
+        {code}
+      </AppText>
     </PressableScale>
   );
 }
@@ -135,30 +132,18 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     fontSize: 16,
   },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm, flexGrow: 1 },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, flexGrow: 1 },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-  },
-  optionSelected: { borderColor: colors.gold },
-  codeBadge: {
-    width: 52,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: radius.sm,
-    backgroundColor: colors.goldSoft,
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   optionText: { flex: 1, gap: 2 },
 });

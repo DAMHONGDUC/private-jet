@@ -5,11 +5,11 @@ import { originSelected } from '@/features/flights/presentation/flight-search-sl
 import { FlightSearchScreen } from '@/features/flights/presentation/screens/FlightSearchScreen';
 
 function setup() {
-  const props = { onPickAirport: jest.fn(), onSearch: jest.fn(), onOpenFlight: jest.fn() };
+  const props = { onPickAirport: jest.fn(), onSearch: jest.fn() };
   return { props, render: () => renderWithStore(<FlightSearchScreen {...props} today={TEST_NOW} />) };
 }
 
-test('fills the form and searches, then offers the search again', async () => {
+test('fills the form through its sheets and searches, then offers the search again', async () => {
   const { props, render } = setup();
   const { store } = await render();
   const day = toDayKey(addDays(TEST_NOW, 2));
@@ -17,9 +17,19 @@ test('fills the form and searches, then offers the search again', async () => {
   await fireEvent.press(screen.getByTestId('pick-destination'));
   expect(props.onPickAirport).toHaveBeenCalledWith('destination');
 
+  await fireEvent.press(screen.getByTestId('pick-date'));
   await fireEvent.press(screen.getByTestId(`date-${day}`));
+  expect(screen.getByTestId('pick-date')).toHaveTextContent(/Departure date.+\d/);
+
+  await fireEvent.press(screen.getByTestId('pick-passengers'));
   await fireEvent.press(screen.getByTestId('search-passengers-increment'));
-  await fireEvent.press(screen.getByTestId('category-heavy'));
+  await fireEvent.press(screen.getByTestId('passengers-done'));
+  expect(screen.getByTestId('pick-passengers')).toHaveTextContent('Passengers2 passengers');
+
+  await fireEvent.press(screen.getByTestId('pick-jet'));
+  await fireEvent.press(screen.getByTestId('jet-option-heavy'));
+  expect(screen.getByTestId('pick-jet')).toHaveTextContent('Jet typeHeavy jet');
+
   await fireEvent.press(screen.getByTestId('search-flights'));
 
   expect(props.onSearch).toHaveBeenCalledTimes(1);
@@ -30,24 +40,24 @@ test('fills the form and searches, then offers the search again', async () => {
   expect(props.onSearch).toHaveBeenCalledTimes(2);
 });
 
+test('does not offer days before today', async () => {
+  const { render } = setup();
+  await render();
+
+  await fireEvent.press(screen.getByTestId('pick-date'));
+
+  expect(screen.getByTestId(`date-${toDayKey(addDays(TEST_NOW, -1))}`)).toBeDisabled();
+  expect(screen.getByTestId(`date-${toDayKey(TEST_NOW)}`)).toBeEnabled();
+});
+
 test('shows the chosen airports by city and swaps them', async () => {
   const { render } = setup();
   const { store } = await render();
 
   await act(() => store.dispatch(originSelected('HEL')));
-  expect(await screen.findByText('Helsinki')).toBeOnTheScreen();
+  expect(await screen.findByText('Helsinki (HEL)')).toBeOnTheScreen();
 
   await fireEvent.press(screen.getByTestId('swap-airports'));
 
   expect(store.getState().flightSearch).toMatchObject({ origin: null, destination: 'HEL' });
-});
-
-test('lists the next departures and opens one', async () => {
-  const { props, render } = setup();
-  await render();
-
-  await fireEvent.press(await screen.findByTestId('flight-card-BJ-101'));
-
-  expect(props.onOpenFlight).toHaveBeenCalledWith('BJ-101');
-  expect(screen.queryByTestId('flight-card-BJ-104')).not.toBeOnTheScreen();
 });

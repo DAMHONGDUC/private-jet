@@ -1,6 +1,6 @@
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { colors, radius, spacing } from '@/core/theme/theme';
+import { colors, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -39,7 +39,7 @@ export function FlightResultsScreen({ onOpenFlight, onEditSearch }: Props) {
           </AppText>
         </View>
         <AppText variant="caption" gold>
-          Edit
+          Change
         </AppText>
       </PressableScale>
       <CategoryChips inset value={criteria.category} onChange={category => dispatch(categorySelected(category))} />
@@ -100,11 +100,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
   },
   summaryText: { flex: 1, gap: 2 },
   list: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
