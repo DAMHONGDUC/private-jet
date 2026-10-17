@@ -29,7 +29,7 @@ function DashboardRoute({ navigation }: BottomTabScreenProps<RootTabParamList, '
   return (
     <DashboardScreen
       onOpenTrips={() => navigation.navigate('TripsTab')}
-      onFindFlights={() => navigation.navigate('FlightsTab', { screen: 'FlightList' })}
+      onFindFlights={() => navigation.navigate('FlightsTab', { screen: 'FlightSearch' })}
     />
   );
 }

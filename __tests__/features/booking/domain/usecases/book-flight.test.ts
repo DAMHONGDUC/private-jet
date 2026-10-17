@@ -24,6 +24,7 @@ const flight: Flight = {
 function setup(overrides: Partial<Flight> = {}) {
   const flights: jest.Mocked<FlightRepository> = {
     searchFlights: jest.fn(),
+    getAirports: jest.fn(),
     getFlightById: jest.fn().mockResolvedValue({ ...flight, ...overrides }),
     reserveSeats: jest.fn().mockResolvedValue(flight),
   };

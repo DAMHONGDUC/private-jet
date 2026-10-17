@@ -1,18 +1,28 @@
 import { DomainError } from '@/core/error/app-error';
-import type { Flight, FlightSearchParams } from '../../domain/entities/flight';
+import { toDayKey } from '@/core/utils/date';
+import type { Airport, Flight, FlightSearchParams } from '../../domain/entities/flight';
 import type { FlightRepository } from '../../domain/repositories/flight-repository';
 import type { FlightDataSource } from '../datasources/flight-data-source';
-import { toFlight } from '../mappers/flight-mapper';
+import { toAirport, toFlight } from '../mappers/flight-mapper';
 
 export class FlightRepositoryImpl implements FlightRepository {
   constructor(private readonly dataSource: FlightDataSource) {}
 
-  async searchFlights({ origin, category }: FlightSearchParams): Promise<Flight[]> {
+  // The mock filters here; a real backend would take these as query parameters.
+  async searchFlights({ origin, destination, date, passengers, category }: FlightSearchParams): Promise<Flight[]> {
     const dtos = await this.dataSource.getFlights();
     return dtos
       .map(toFlight)
       .filter(flight => !origin || flight.origin.code === origin)
+      .filter(flight => !destination || flight.destination.code === destination)
+      .filter(flight => !date || toDayKey(new Date(flight.departureAt)) === date)
+      .filter(flight => !passengers || flight.seatsAvailable >= passengers)
       .filter(flight => !category || flight.aircraft.category === category);
+  }
+
+  async getAirports(): Promise<Airport[]> {
+    const dtos = await this.dataSource.getAirports();
+    return dtos.map(toAirport).sort((a, b) => a.city.localeCompare(b.city));
   }
 
   async getFlightById(id: string): Promise<Flight> {

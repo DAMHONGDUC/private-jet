@@ -9,6 +9,7 @@ test('books a flight from the dashboard to the confirmation', async () => {
   expect(screen.getByTestId('stat-upcoming')).toHaveTextContent(/^1/);
 
   await fireEvent.press(screen.getByTestId('find-flights'));
+  await fireEvent.press(await screen.findByTestId('search-flights'));
   await fireEvent.press(await screen.findByTestId('flight-card-BJ-101'));
   await fireEvent.press(await screen.findByTestId('book-button'));
 

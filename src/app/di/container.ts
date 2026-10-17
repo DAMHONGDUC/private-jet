@@ -9,6 +9,7 @@ import { GetDashboardSummary } from '@/features/dashboard/domain/usecases/get-da
 import type { DashboardDependencies } from '@/features/dashboard/presentation/dashboard-api';
 import { FlightMockDataSource } from '@/features/flights/data/datasources/flight-mock-data-source';
 import { FlightRepositoryImpl } from '@/features/flights/data/repositories/flight-repository-impl';
+import { GetAirports } from '@/features/flights/domain/usecases/get-airports';
 import { GetFlightById } from '@/features/flights/domain/usecases/get-flight-by-id';
 import { SearchFlights } from '@/features/flights/domain/usecases/search-flights';
 import type { FlightsDependencies } from '@/features/flights/presentation/flights-api';
@@ -43,6 +44,7 @@ export function createDependencies({
   return {
     searchFlights: new SearchFlights(flightRepository, now),
     getFlightById: new GetFlightById(flightRepository),
+    getAirports: new GetAirports(flightRepository),
     bookFlight: new BookFlight(bookingRepository, flightRepository, now),
     getBookings: new GetBookings(bookingRepository),
     getDashboardSummary: new GetDashboardSummary(dashboardRepository, bookingRepository, now),

@@ -1,3 +1,5 @@
+import { MAX_SEARCH_PASSENGERS } from '@/features/flights/domain/entities/flight';
+
 export type Passenger = { fullName: string };
 
 export type Booking = {
@@ -28,7 +30,7 @@ export type BookingRequest = {
 /** A booking before the backend gives it an id, a reference and a timestamp. */
 export type NewBooking = Omit<Booking, 'id' | 'reference' | 'bookedAt'>;
 
-export const MAX_PASSENGERS = 8;
+export const MAX_PASSENGERS = MAX_SEARCH_PASSENGERS;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

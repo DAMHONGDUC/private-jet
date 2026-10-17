@@ -18,7 +18,7 @@ describe('BookingScreen', () => {
     await renderWithStore(<BookingScreen flightId="BJ-101" onBooked={onBooked} />);
 
     await fireEvent.press(await screen.findByTestId('passengers-increment'));
-    expect(screen.getByTestId('passenger-count')).toHaveTextContent('2');
+    expect(screen.getByTestId('passengers-count')).toHaveTextContent('2');
     expect(screen.getByTestId('booking-total')).toHaveTextContent('€5,800');
 
     await fireEvent.changeText(screen.getByTestId('passenger-name-0'), 'Duc Dam');
@@ -36,6 +36,6 @@ describe('BookingScreen', () => {
     await fireEvent.press(increment);
     await fireEvent.press(increment);
 
-    expect(screen.getByTestId('passenger-count')).toHaveTextContent('2');
+    expect(screen.getByTestId('passengers-count')).toHaveTextContent('2');
   });
 });

@@ -51,7 +51,7 @@ flowchart LR
 - Every endpoint's `queryFn` calls a use case, which it receives as the thunk `extra` (`createAppStore` injects the use cases).
 - RTK Query still owns caching, request de-duplication, tags, refetching and the `useXxxQuery` / `useXxxMutation` hooks.
 - Errors thrown below are mapped to a serializable `AppError` by `runQuery` (`src/core/query/run-query.ts`).
-- Slices hold UI state only (the flight filters); server data lives in the RTK Query cache.
+- Slices hold UI state only (the flight search form and recent searches); server data lives in the RTK Query cache.
 
 ### Cache invalidation
 
@@ -68,7 +68,7 @@ Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` 
 | Feature | Screens | Reanimated |
 |---|---|---|
 | Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, tier progress fill, bars ease to height |
-| Flights | List with filters, detail | Press-scale cards, plane flying the route |
+| Flights | Search (from/to with swap, date strip, passengers, jet type, recent searches, departing soon), airport picker, results with jet filter, detail | Press-scale cards, plane flying the route |
 | Booking | Form, confirmation, Trips | Success mark (disc, tick, one ring pulse); error message fades in |
 
 ## Folder layout

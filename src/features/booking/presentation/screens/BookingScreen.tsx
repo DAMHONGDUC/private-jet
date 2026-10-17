@@ -7,22 +7,29 @@ import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Screen } from '@/core/ui/Screen';
+import { Stepper } from '@/core/ui/Stepper';
 import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
 import { formatDate, formatMoney, formatTime } from '@/core/utils/format';
 import { useGetFlightQuery } from '@/features/flights/presentation/flights-api';
 import { MAX_PASSENGERS, validateBookingRequest } from '../../domain/entities/booking';
 import { useBookFlightMutation } from '../booking-api';
 import { FormField } from '../components/FormField';
-import { PassengerStepper } from '../components/PassengerStepper';
 
-type Props = { flightId: string; onBooked: (bookingId: string) => void };
+type Props = {
+  flightId: string;
+  /** Seats asked for in the search; the form starts with this many passengers. */
+  initialPassengers?: number;
+  onBooked: (bookingId: string) => void;
+};
 
-export function BookingScreen({ flightId, onBooked }: Props) {
+export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Props) {
   const insets = useSafeAreaInsets();
   const { data: flight, error: flightError, isLoading, refetch } = useGetFlightQuery(flightId);
   const [bookFlight, { isLoading: isBooking, error: bookingError, reset }] = useBookFlightMutation();
 
-  const [names, setNames] = useState<string[]>(['']);
+  const [names, setNames] = useState<string[]>(() =>
+    Array<string>(Math.max(1, Math.min(MAX_PASSENGERS, initialPassengers))).fill(''),
+  );
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -101,7 +108,7 @@ export function BookingScreen({ flightId, onBooked }: Props) {
                   Up to {maxPassengers} on this flight
                 </AppText>
               </View>
-              <PassengerStepper value={names.length} min={1} max={maxPassengers} onChange={setPassengerCount} />
+              <Stepper testID="passengers" value={names.length} min={1} max={maxPassengers} onChange={setPassengerCount} />
             </View>
 
             {names.map((name, index) => (

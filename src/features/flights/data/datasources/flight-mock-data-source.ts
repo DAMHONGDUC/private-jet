@@ -1,7 +1,8 @@
 import { delay } from '@/core/utils/delay';
+import type { AirportDto } from '../models/airport-dto';
 import type { FlightDto } from '../models/flight-dto';
 import type { FlightDataSource } from './flight-data-source';
-import { buildMockFlights } from './mock/flights.mock';
+import { buildMockAirports, buildMockFlights } from './mock/flights.mock';
 
 /** In-memory flights with a fake network delay; seats taken stay taken. */
 export class FlightMockDataSource implements FlightDataSource {
@@ -17,6 +18,11 @@ export class FlightMockDataSource implements FlightDataSource {
   async getFlights(): Promise<FlightDto[]> {
     await delay(this.latencyMs);
     return this.flights.map(flight => ({ ...flight }));
+  }
+
+  async getAirports(): Promise<AirportDto[]> {
+    await delay(this.latencyMs);
+    return buildMockAirports();
   }
 
   async getFlight(id: string): Promise<FlightDto | undefined> {

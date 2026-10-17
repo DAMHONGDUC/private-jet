@@ -31,9 +31,19 @@ export type Flight = {
 };
 
 export type FlightSearchParams = {
+  /** IATA code; any origin when absent. */
   origin?: string;
+  /** IATA code; anywhere when absent. */
+  destination?: string;
+  /** Local departure day, `YYYY-MM-DD`; any day when absent. */
+  date?: string;
+  /** Seats needed; flights with fewer seats left are left out. */
+  passengers?: number;
   category?: JetCategory;
 };
+
+/** The most seats one search asks for, which is also the most one booking holds. */
+export const MAX_SEARCH_PASSENGERS = 8;
 
 export function isSoldOut(flight: Flight): boolean {
   return flight.seatsAvailable === 0;

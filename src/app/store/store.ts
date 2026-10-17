@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { baseApi } from '@/core/store/base-api';
-import { flightsFilterSlice } from '@/features/flights/presentation/flights-filter-slice';
+import { flightSearchSlice } from '@/features/flights/presentation/flight-search-slice';
 import type { AppDependencies } from '../di/container';
 
 type StoreOptions = {
@@ -16,7 +16,7 @@ export function createAppStore(dependencies: AppDependencies, { autoBatch = 'raf
   return configureStore({
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer,
-      [flightsFilterSlice.name]: flightsFilterSlice.reducer,
+      [flightSearchSlice.name]: flightSearchSlice.reducer,
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({ thunk: { extraArgument: dependencies } }).concat(baseApi.middleware),

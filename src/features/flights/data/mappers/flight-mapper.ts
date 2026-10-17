@@ -1,4 +1,5 @@
-import type { Flight } from '../../domain/entities/flight';
+import type { Airport, Flight } from '../../domain/entities/flight';
+import type { AirportDto } from '../models/airport-dto';
 import type { FlightDto } from '../models/flight-dto';
 
 export function toFlight(dto: FlightDto): Flight {
@@ -27,4 +28,8 @@ export function toFlight(dto: FlightDto): Flight {
     seatsAvailable: dto.seats_left,
     amenities: dto.amenities,
   };
+}
+
+export function toAirport(dto: AirportDto): Airport {
+  return { code: dto.iata, city: dto.city, name: dto.name };
 }

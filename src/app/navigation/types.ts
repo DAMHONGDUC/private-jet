@@ -1,7 +1,10 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { AirportField } from '@/features/flights/presentation/screens/AirportPickerScreen';
 
 export type FlightsStackParamList = {
-  FlightList: undefined;
+  FlightSearch: undefined;
+  AirportPicker: { field: AirportField };
+  FlightResults: undefined;
   FlightDetail: { flightId: string };
   Booking: { flightId: string };
   BookingConfirmation: { bookingId: string };

@@ -1,6 +1,7 @@
 import { runQuery } from '@/core/query/run-query';
 import { baseApi } from '@/core/store/base-api';
-import type { Flight, FlightSearchParams } from '../domain/entities/flight';
+import type { Airport, Flight, FlightSearchParams } from '../domain/entities/flight';
+import type { GetAirports } from '../domain/usecases/get-airports';
 import type { GetFlightById } from '../domain/usecases/get-flight-by-id';
 import type { SearchFlights } from '../domain/usecases/search-flights';
 
@@ -8,6 +9,7 @@ import type { SearchFlights } from '../domain/usecases/search-flights';
 export type FlightsDependencies = {
   searchFlights: SearchFlights;
   getFlightById: GetFlightById;
+  getAirports: GetAirports;
 };
 
 const deps = (extra: unknown) => extra as FlightsDependencies;
@@ -23,6 +25,9 @@ export const flightsApi = baseApi.injectEndpoints({
         FLIGHT_LIST_TAG,
       ],
     }),
+    getAirports: build.query<Airport[], void>({
+      queryFn: (_arg, { extra }) => runQuery(() => deps(extra).getAirports.execute()),
+    }),
     getFlight: build.query<Flight, string>({
       queryFn: (id, { extra }) => runQuery(() => deps(extra).getFlightById.execute(id)),
       providesTags: (_result, _error, id) => [{ type: 'Flight', id }],
@@ -30,4 +35,4 @@ export const flightsApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useSearchFlightsQuery, useGetFlightQuery } = flightsApi;
+export const { useSearchFlightsQuery, useGetFlightQuery, useGetAirportsQuery } = flightsApi;

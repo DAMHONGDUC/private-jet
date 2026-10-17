@@ -1,6 +1,5 @@
+import type { AirportDto } from '../../models/airport-dto';
 import type { FlightDto } from '../../models/flight-dto';
-
-type Airport = { iata: string; city: string; name: string };
 
 const AIRPORTS = {
   HEL: { iata: 'HEL', city: 'Helsinki', name: 'Helsinki-Vantaa' },
@@ -10,7 +9,11 @@ const AIRPORTS = {
   GVA: { iata: 'GVA', city: 'Geneva', name: 'Geneva Cointrin' },
   DXB: { iata: 'DXB', city: 'Dubai', name: 'Dubai International' },
   OLB: { iata: 'OLB', city: 'Olbia', name: 'Olbia Costa Smeralda' },
-} satisfies Record<string, Airport>;
+} satisfies Record<string, AirportDto>;
+
+export function buildMockAirports(): AirportDto[] {
+  return Object.values(AIRPORTS).map(airport => ({ ...airport }));
+}
 
 type Seed = {
   id: string;

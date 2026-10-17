@@ -1,18 +1,25 @@
 import { StyleSheet, View } from 'react-native';
 import { colors, radius, spacing } from '@/core/theme/theme';
-import { AppText } from '@/core/ui/AppText';
-import { PressableScale } from '@/core/ui/PressableScale';
+import { AppText } from './AppText';
+import { PressableScale } from './PressableScale';
 
-type Props = { value: number; min: number; max: number; onChange: (value: number) => void };
+type Props = {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+  /** Prefix for `<testID>-decrement`, `<testID>-increment` and `<testID>-count`. */
+  testID: string;
+};
 
-export function PassengerStepper({ value, min, max, onChange }: Props) {
+export function Stepper({ value, min, max, onChange, testID }: Props) {
   return (
     <View style={styles.row}>
-      <StepButton label="−" testID="passengers-decrement" disabled={value <= min} onPress={() => onChange(value - 1)} />
-      <AppText variant="title" testID="passenger-count" style={styles.value}>
+      <StepButton label="−" testID={`${testID}-decrement`} disabled={value <= min} onPress={() => onChange(value - 1)} />
+      <AppText variant="title" testID={`${testID}-count`} style={styles.value}>
         {value}
       </AppText>
-      <StepButton label="+" testID="passengers-increment" disabled={value >= max} onPress={() => onChange(value + 1)} />
+      <StepButton label="+" testID={`${testID}-increment`} disabled={value >= max} onPress={() => onChange(value + 1)} />
     </View>
   );
 }
