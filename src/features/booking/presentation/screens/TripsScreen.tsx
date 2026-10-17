@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -49,12 +50,13 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
     body = <ErrorView error={error} onRetry={refetch} />;
   } else {
     body = (
-      <FlatList
+      <Animated.FlatList
         key={tab}
         testID="trip-list"
         data={trips}
         keyExtractor={booking => booking.id}
         contentContainerStyle={styles.list}
+        itemLayoutAnimation={LinearTransition.duration(250)}
         refreshControl={
           <RefreshControl
             refreshing={isFetching && !isLoading}

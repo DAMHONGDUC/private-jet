@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { makeStyles } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
@@ -17,6 +17,9 @@ import { formatDate, formatDuration, formatMoney, formatTime } from '@/core/util
 import { CANCELLATION_WINDOW_HOURS, canCancel, firstLeg, lastLeg, type BookingLeg } from '../../domain/entities/booking';
 import { useCancelBookingMutation, useGetBookingQuery } from '../booking-api';
 import { kindLabel, tripState } from '../trip-labels';
+
+/** Sections slide into place when cancelling changes the hero or the actions. */
+const LAYOUT = LinearTransition.duration(250);
 
 type Props = {
   bookingId: string;
@@ -67,13 +70,15 @@ export function TripDetailScreen({ bookingId, onContactConcierge, now: nowProp }
   return (
     <Screen>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}>
-        <Animated.View entering={FadeIn.duration(400)}>
+        <Animated.View entering={FadeIn.duration(350)} layout={LAYOUT}>
           <Card style={styles.hero}>
             <View style={styles.row}>
               <AppText variant="label" muted>
                 {kindLabel(booking)}
               </AppText>
-              <StatusPill testID="trip-status" label={state.label} tone={state.tone} />
+              <Animated.View key={state.label} entering={FadeIn.duration(250)}>
+                <StatusPill testID="trip-status" label={state.label} tone={state.tone} />
+              </Animated.View>
             </View>
             <View style={styles.row}>
               <View>
@@ -139,20 +144,22 @@ export function TripDetailScreen({ bookingId, onContactConcierge, now: nowProp }
           ) : null}
         </Section>
 
-        <Animated.View entering={FadeInDown.duration(450).delay(4 * 80)} style={styles.actions}>
+        <Animated.View entering={FadeInDown.duration(450).delay(4 * 80)} layout={LAYOUT} style={styles.actions}>
           {onContactConcierge ? (
             <Button testID="contact-concierge" title="Message your concierge" variant="secondary" onPress={onContactConcierge} />
           ) : null}
           {cancellable ? (
-            <Button
-              testID="cancel-trip"
-              title="Cancel trip"
-              variant="danger"
-              onPress={() => {
-                haptics.selection();
-                setConfirming(true);
-              }}
-            />
+            <Animated.View exiting={FadeOut.duration(200)}>
+              <Button
+                testID="cancel-trip"
+                title="Cancel trip"
+                variant="danger"
+                onPress={() => {
+                  haptics.selection();
+                  setConfirming(true);
+                }}
+              />
+            </Animated.View>
           ) : booking.status === 'confirmed' && state.tone === 'success' ? (
             <AppText variant="caption" muted style={styles.centered}>
               Within {CANCELLATION_WINDOW_HOURS} hours of departure, changes go through your concierge.
@@ -183,7 +190,7 @@ export function TripDetailScreen({ bookingId, onContactConcierge, now: nowProp }
 function Section({ title, index, children }: { title: string; index: number; children: ReactNode }) {
   const styles = useStyles();
   return (
-    <Animated.View entering={FadeInDown.duration(450).delay(index * 80)}>
+    <Animated.View entering={FadeInDown.duration(450).delay(index * 80)} layout={LAYOUT}>
       <Card style={styles.section}>
         <AppText variant="subtitle">{title}</AppText>
         {children}
