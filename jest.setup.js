@@ -13,6 +13,16 @@ jest.mock('lottie-react-native', () => {
 });
 jest.mock('react-native-haptic-feedback', () => ({ __esModule: true, default: { trigger: jest.fn() } }));
 
+// Numbers settle at once: CountUp's frame loop would otherwise update state outside act().
+jest.mock('@/core/ui/CountUp', () => {
+  const { createElement } = require('react');
+  const { AppText } = require('@/core/ui/AppText');
+  return {
+    CountUp: ({ value, format, duration: _duration, variant = 'title', ...text }) =>
+      createElement(AppText, { variant, ...text }, format(Math.round(value))),
+  };
+});
+
 jest.mock('react-native-safe-area-context', () => {
   const actual = jest.requireActual('react-native-safe-area-context');
   const insets = { top: 0, right: 0, bottom: 0, left: 0 };

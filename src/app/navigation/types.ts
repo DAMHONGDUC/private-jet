@@ -29,8 +29,18 @@ export type TripsStackParamList = {
   TripDetail: { bookingId: string };
 };
 
+export type ProfileStackParamList = {
+  Profile: undefined;
+  EditProfile: undefined;
+  PaymentMethods: undefined;
+  AddCard: undefined;
+  Help: undefined;
+  Legal: undefined;
+};
+
 export type RootTabParamList = {
   DashboardTab: NavigatorScreenParams<HomeStackParamList>;
   FlightsTab: NavigatorScreenParams<FlightsStackParamList>;
   TripsTab: NavigatorScreenParams<TripsStackParamList>;
+  ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
 };

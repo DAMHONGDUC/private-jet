@@ -3,6 +3,7 @@ import { baseApi } from '@/core/store/base-api';
 import { sessionSlice } from '@/features/auth/presentation/session-slice';
 import { charterSearchSlice } from '@/features/dashboard/presentation/charter-search-slice';
 import { flightSearchSlice } from '@/features/flights/presentation/flight-search-slice';
+import { settingsSlice } from '@/features/profile/presentation/settings-slice';
 import type { AppDependencies } from '../di/container';
 
 type StoreOptions = {
@@ -21,6 +22,7 @@ export function createAppStore(dependencies: AppDependencies, { autoBatch = 'raf
       [flightSearchSlice.name]: flightSearchSlice.reducer,
       [charterSearchSlice.name]: charterSearchSlice.reducer,
       [sessionSlice.name]: sessionSlice.reducer,
+      [settingsSlice.name]: settingsSlice.reducer,
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({ thunk: { extraArgument: dependencies } }).concat(baseApi.middleware),

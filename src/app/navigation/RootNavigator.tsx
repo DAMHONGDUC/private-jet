@@ -9,6 +9,7 @@ import { selectSession } from '@/features/auth/presentation/session-slice';
 import { BlackJetTabBar } from './BlackJetTabBar';
 import { FlightsNavigator } from './FlightsNavigator';
 import { HomeNavigator } from './HomeNavigator';
+import { ProfileNavigator } from './ProfileNavigator';
 import { TripsNavigator } from './TripsNavigator';
 import type { AppStackParamList, RootTabParamList } from './types';
 
@@ -32,6 +33,7 @@ function MainTabs() {
       <Tab.Screen name="DashboardTab" component={HomeNavigator} options={{ title: 'Home' }} />
       <Tab.Screen name="FlightsTab" component={FlightsNavigator} options={{ title: 'Flights' }} />
       <Tab.Screen name="TripsTab" component={TripsNavigator} options={{ title: 'Trips' }} />
+      <Tab.Screen name="ProfileTab" component={ProfileNavigator} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );
 }
