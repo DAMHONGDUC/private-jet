@@ -7,6 +7,7 @@ import {
   passengersChanged,
   searchSubmitted,
   selectFlightSearchParams,
+  timeSelected,
   type FlightSearchState,
 } from '@/features/flights/presentation/flight-search-slice';
 
@@ -38,7 +39,11 @@ test('remembers the last searches, newest first and without duplicates', () => {
 });
 
 test('turns the form into search params, leaving out what is "any"', () => {
-  const state = reduce(initial(), destinationSelected('DXB'));
+  const state = reduce(reduce(initial(), destinationSelected('DXB')), timeSelected('morning'));
 
-  expect(selectFlightSearchParams({ flightSearch: state })).toEqual({ destination: 'DXB', passengers: 1 });
+  expect(selectFlightSearchParams({ flightSearch: state })).toEqual({
+    destination: 'DXB',
+    time: 'morning',
+    passengers: 1,
+  });
 });

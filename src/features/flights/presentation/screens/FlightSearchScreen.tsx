@@ -10,7 +10,12 @@ import { Screen } from '@/core/ui/Screen';
 import { Stepper } from '@/core/ui/Stepper';
 import { fromDayKey } from '@/core/utils/date';
 import { formatDate } from '@/core/utils/format';
-import { JET_CATEGORIES, MAX_SEARCH_PASSENGERS, type Airport } from '../../domain/entities/flight';
+import {
+  DEPARTURE_WINDOW_ORDER,
+  JET_CATEGORIES,
+  MAX_SEARCH_PASSENGERS,
+  type Airport,
+} from '../../domain/entities/flight';
 import { CATEGORY_LABELS } from '../components/CategoryChips';
 import { DateSheet } from '../components/DateSheet';
 import { SearchField } from '../components/SearchField';
@@ -22,13 +27,20 @@ import {
   recentSearchApplied,
   searchSubmitted,
   selectFlightSearch,
+  timeSelected,
   type SearchCriteria,
 } from '../flight-search-slice';
 import { useGetAirportsQuery } from '../flights-api';
-import { airportsByCode, describeDetails, describeRoute } from '../search-summary';
+import {
+  DEPARTURE_WINDOW_LABELS,
+  airportsByCode,
+  describeDetails,
+  describeRoute,
+  describeWindowHours,
+} from '../search-summary';
 import type { AirportField } from './AirportPickerScreen';
 
-type Sheet = 'date' | 'passengers' | 'jet' | null;
+type Sheet = 'date' | 'time' | 'passengers' | 'jet' | null;
 
 type Props = {
   onPickAirport: (field: AirportField) => void;
@@ -95,13 +107,23 @@ export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }
             </PressableScale>
           </View>
           <View style={styles.divider} />
-          <SearchField
-            testID="pick-date"
-            label="Departure date"
-            value={search.date ? formatDate(fromDayKey(search.date).toISOString()) : null}
-            placeholder="Any date"
-            onPress={() => setSheet('date')}
-          />
+          <View style={styles.pair}>
+            <SearchField
+              testID="pick-date"
+              label="Departure date"
+              value={search.date ? formatDate(fromDayKey(search.date).toISOString()) : null}
+              placeholder="Any date"
+              onPress={() => setSheet('date')}
+            />
+            <View style={styles.vertical} />
+            <SearchField
+              testID="pick-time"
+              label="Time"
+              value={search.time ? DEPARTURE_WINDOW_LABELS[search.time] : null}
+              placeholder="Any time"
+              onPress={() => setSheet('time')}
+            />
+          </View>
           <View style={styles.divider} />
           <View style={styles.pair}>
             <SearchField
@@ -155,6 +177,21 @@ export function FlightSearchScreen({ onPickAirport, onSearch, today: todayProp }
         onChange={day => dispatch(dateSelected(day))}
         onClose={closeSheet}
       />
+
+      <BottomSheet visible={sheet === 'time'} title="Departure time" onClose={closeSheet} testID="time-sheet">
+        {[null, ...DEPARTURE_WINDOW_ORDER].map(window => (
+          <SheetOption
+            key={window ?? 'any'}
+            testID={`time-option-${window ?? 'any'}`}
+            label={window ? `${DEPARTURE_WINDOW_LABELS[window]} · ${describeWindowHours(window)}` : 'Any time'}
+            selected={search.time === window}
+            onPress={() => {
+              dispatch(timeSelected(window));
+              closeSheet();
+            }}
+          />
+        ))}
+      </BottomSheet>
 
       <BottomSheet visible={sheet === 'passengers'} title="Passengers" onClose={closeSheet} testID="passengers-sheet">
         <View style={styles.stepperRow}>

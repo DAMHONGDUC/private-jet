@@ -33,6 +33,8 @@ describe('FlightRepositoryImpl on the mock data source', () => {
     expect(await ids({ destination: 'DXB' })).toEqual(['BJ-105', 'BJ-106', 'BJ-108']);
     expect(await ids({ date: toDayKey(addDays(NOW, 2)) })).toEqual(['BJ-102', 'BJ-103']);
     expect(await ids({ origin: 'HEL', passengers: 3 })).toEqual(['BJ-101', 'BJ-108']);
+    expect(await ids({ time: 'evening' })).toEqual(['BJ-105']);
+    expect(await ids({ time: 'afternoon' })).toEqual(['BJ-102', 'BJ-107']);
   });
 
   it('lists airports by city', async () => {
