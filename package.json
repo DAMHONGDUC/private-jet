@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "setup": "node scripts/setup.js",
+    "setup:ios": "node scripts/setup.js ios",
+    "setup:android": "node scripts/setup.js android",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",

@@ -18,7 +18,7 @@
 
 | # | Command | What it does |
 |---|---|---|
-| 1 | `npm run setup` | `npm ci`, then on macOS `bundle install` + `pod install` ([scripts/setup.js](../scripts/setup.js)) |
+| 1 | `npm run setup` | `git pull --ff-only`, `npm ci`, then on macOS `bundle install`, removes `ios/Pods`, `ios/Podfile.lock` and `ios/build`, and runs `pod install --repo-update` ([scripts/setup.js](../scripts/setup.js)). `npm run setup:ios` / `npm run setup:android` also build and open the app; add `-- --no-pull` to skip the pull |
 | 2 | `npm run android` | Build, install and open the app on an emulator or device; starts Metro if it is not running |
 | 3 | `npm run ios` | Build and open the app in the iOS Simulator (macOS only); starts Metro if it is not running |
 
@@ -38,7 +38,9 @@ flowchart LR
 
 | Command | What it does |
 |---|---|
-| `npm run setup` | Install JS deps and iOS pods |
+| `npm run setup` | Pull, install JS deps, clean-install iOS pods |
+| `npm run setup:ios` | Setup, then `npm run ios` |
+| `npm run setup:android` | Setup, then `npm run android` |
 | `npm start` | Start the Metro bundler on its own |
 | `npm start -- --reset-cache` | Start Metro with a clean cache |
 | `npm run android` | Build and install the debug app on Android |
