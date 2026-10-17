@@ -17,8 +17,13 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<RootTabParamList>;
 };
 
+export type TripsStackParamList = {
+  TripList: undefined;
+  TripDetail: { bookingId: string };
+};
+
 export type RootTabParamList = {
   DashboardTab: undefined;
   FlightsTab: NavigatorScreenParams<FlightsStackParamList>;
-  TripsTab: undefined;
+  TripsTab: NavigatorScreenParams<TripsStackParamList>;
 };

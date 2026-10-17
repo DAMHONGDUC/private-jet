@@ -13,7 +13,8 @@ import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
 import { formatDate, formatMoney, formatTime } from '@/core/utils/format';
 import { useGetFlightQuery } from '@/features/flights/presentation/flights-api';
 import { MAX_PASSENGERS, validateBookingRequest } from '../../domain/entities/booking';
-import { useBookFlightMutation } from '../booking-api';
+import { useBookFlightMutation, useGetPaymentMethodsQuery } from '../booking-api';
+import { PaymentMethodPicker } from '../components/PaymentMethodPicker';
 import { FormField } from '../components/FormField';
 
 type Props = {
@@ -32,6 +33,8 @@ export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Pro
   const [names, setNames] = useState<string[]>(() =>
     Array<string>(Math.max(1, Math.min(MAX_PASSENGERS, initialPassengers))).fill(''),
   );
+  const { data: methods } = useGetPaymentMethodsQuery();
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -66,6 +69,7 @@ export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Pro
       flightId,
       passengers: names.map(fullName => ({ fullName })),
       contactEmail: email,
+      ...(paymentMethodId ? { paymentMethodId } : {}),
     };
     // The domain rule, checked before the round trip; the use case checks it again.
     const problem = validateBookingRequest(request);
@@ -138,6 +142,17 @@ export function BookingScreen({ flightId, initialPassengers = 1, onBooked }: Pro
               autoCorrect={false}
               value={email}
               onChangeText={setEmail}
+            />
+          </Card>
+
+          <Card style={styles.section}>
+            <AppText variant="subtitle">Payment</AppText>
+            <PaymentMethodPicker
+              methods={methods}
+              value={paymentMethodId}
+              onChange={setPaymentMethodId}
+              amount={total}
+              currency={flight.currency}
             />
           </Card>
 

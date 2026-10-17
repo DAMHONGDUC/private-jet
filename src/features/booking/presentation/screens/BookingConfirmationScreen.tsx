@@ -1,22 +1,32 @@
-import { StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { makeStyles } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Screen } from '@/core/ui/Screen';
 import { LoadingView } from '@/core/ui/StateViews';
-import { formatDate, formatMoney, formatTime } from '@/core/utils/format';
+import { haptics } from '@/core/ui/haptics';
+import { formatMoney } from '@/core/utils/format';
 import { firstLeg, lastLeg } from '../../domain/entities/booking';
-import { useGetBookingsQuery } from '../booking-api';
+import { useGetBookingQuery } from '../booking-api';
 import { SuccessMark } from '../components/SuccessMark';
+import { departureLabel, kindLabel, routeCodes } from '../trip-labels';
 
-type Props = { bookingId: string; onViewTrips: () => void; onDone: () => void };
+type Props = { bookingId: string; onViewTrip: () => void; onDone: () => void };
 
-export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Props) {
-  // Read from the bookings cache, which the mutation just invalidated.
-  const { booking } = useGetBookingsQuery(undefined, {
-    selectFromResult: ({ data }) => ({ booking: data?.find(item => item.id === bookingId) }),
-  });
+/** The tick, the reference and the trip in one card; then on to the trip or back. */
+export function BookingConfirmationScreen({ bookingId, onViewTrip, onDone }: Props) {
+  const styles = useStyles();
+  const { data: booking } = useGetBookingQuery(bookingId);
+
+  useEffect(() => {
+    if (booking) {
+      haptics.success();
+    }
+  }, [booking]);
 
   if (!booking) {
     return (
@@ -30,42 +40,44 @@ export function BookingConfirmationScreen({ bookingId, onViewTrips, onDone }: Pr
     <Screen top>
       <View style={styles.content}>
         <SuccessMark />
-        <View style={styles.center}>
+        <Animated.View entering={FadeInDown.duration(500).delay(300)} style={styles.center}>
           <AppText variant="display">You're booked</AppText>
           <AppText muted>Reference</AppText>
-          <AppText variant="title" accent testID="booking-reference">
+          <AppText variant="title" testID="booking-reference" style={styles.code}>
             {booking.reference}
           </AppText>
-        </View>
+        </Animated.View>
 
-        <View style={styles.full}>
+        <Animated.View entering={FadeInDown.duration(500).delay(450)} style={styles.full}>
           <Card style={styles.card}>
-            <AppText variant="subtitle">
-              {firstLeg(booking).originCity} → {lastLeg(booking).destinationCity}
+            <AppText variant="label" muted>
+              {kindLabel(booking)}
             </AppText>
+            <AppText variant="title">{routeCodes(booking)}</AppText>
             <AppText muted>
-              {formatDate(firstLeg(booking).departureAt)} · {formatTime(firstLeg(booking).departureAt)}
+              {firstLeg(booking).originCity} → {lastLeg(booking).destinationCity} · {departureLabel(booking)}
             </AppText>
             <AppText muted>
               {booking.passengers.length} passenger{booking.passengers.length > 1 ? 's' : ''} ·{' '}
-              {formatMoney(booking.totalPrice, booking.currency)}
+              {formatMoney(booking.totalPrice, booking.currency)} · {booking.paymentLabel}
             </AppText>
           </Card>
-        </View>
+        </Animated.View>
 
-        <View style={[styles.full, styles.actions]}>
-          <Button testID="view-trips" title="View my trips" onPress={onViewTrips} />
-          <Button title="Back to flights" variant="secondary" onPress={onDone} />
-        </View>
+        <Animated.View entering={FadeInDown.duration(500).delay(600)} style={[styles.full, styles.actions]}>
+          <Button testID="view-trip" title="View trip" onPress={onViewTrip} />
+          <Button testID="booking-done" title="Done" variant="secondary" onPress={onDone} />
+        </Animated.View>
       </View>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => ({
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.lg },
   center: { alignItems: 'center', gap: spacing.xs },
+  code: { letterSpacing: 4 },
   full: { alignSelf: 'stretch' },
   card: { gap: spacing.xs },
   actions: { gap: spacing.md },
-});
+}));

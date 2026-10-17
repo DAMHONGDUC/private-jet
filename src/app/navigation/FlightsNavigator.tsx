@@ -75,9 +75,10 @@ function BookingConfirmationRoute({ route }: Props<'BookingConfirmation'>) {
   return (
     <BookingConfirmationScreen
       bookingId={route.params.bookingId}
-      onViewTrips={() => {
+      onViewTrip={() => {
         navigation.popToTop();
-        navigation.navigate('TripsTab');
+        // initial: false keeps the trip list under the trip, so Back lands on it.
+        navigation.navigate('TripsTab', { screen: 'TripDetail', params: { bookingId: route.params.bookingId }, initial: false });
       }}
       onDone={() => navigation.popToTop()}
     />

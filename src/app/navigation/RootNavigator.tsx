@@ -6,10 +6,10 @@ import { useRestoreSessionQuery } from '@/features/auth/presentation/auth-api';
 import { LoginScreen } from '@/features/auth/presentation/screens/LoginScreen';
 import { SplashScreen } from '@/features/auth/presentation/screens/SplashScreen';
 import { selectSession } from '@/features/auth/presentation/session-slice';
-import { TripsScreen } from '@/features/booking/presentation/screens/TripsScreen';
 import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 import { BlackJetTabBar } from './BlackJetTabBar';
 import { FlightsNavigator } from './FlightsNavigator';
+import { TripsNavigator } from './TripsNavigator';
 import type { AppStackParamList, RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -35,7 +35,7 @@ function MainTabs() {
     >
       <Tab.Screen name="DashboardTab" component={DashboardRoute} options={{ title: 'Home' }} />
       <Tab.Screen name="FlightsTab" component={FlightsNavigator} options={{ title: 'Flights' }} />
-      <Tab.Screen name="TripsTab" component={TripsScreen} options={{ title: 'Trips' }} />
+      <Tab.Screen name="TripsTab" component={TripsNavigator} options={{ title: 'Trips' }} />
     </Tab.Navigator>
   );
 }
