@@ -1,6 +1,38 @@
 # BackJet
 
-A private jet booking app: a charter-search home, a flight search and a booking flow, on mock data.
+A private jet booking app built as a client demo. It covers:
+- charters (the whole aircraft on any route)
+- seats on shared flights
+- trips with cancellation
+- payment cards and a wallet
+- a concierge chat and notifications
+- a member profile
+
+Everything runs on in-memory mock data, so the app works offline with no backend.
+
+## Demo account
+
+The app opens already signed in as **Alexander Reed** (Black Card). After signing out, the login screen offers:
+- **Continue with Demo Account**
+- Apple and Google buttons, which also sign in to the demo account
+- the form with `demo@blackjet.app` / `blackjet123`
+
+## What to show in a demo
+
+1. **Home.** Search a round trip (for example GVA → NCE, 2 passengers).
+   - The form collapses as the jets scroll up.
+   - Open a jet and choose it for both legs; the selection bar counts up the total.
+2. **Checkout.** Pick departure times and the party, then pay with a card or the wallet.
+   - The confirmation draws a success mark.
+   - **View trip** opens it in Trips.
+3. **Trips.** Upcoming and past trips as boarding passes.
+   - A trip more than 24 h away can be cancelled.
+4. **Flights tab.** Book seats on a scheduled shared flight.
+5. **Inbox** (chat and bell on Home).
+   - The concierge chat answers by topic: try "catering", "dog" or "car".
+   - In notifications, a crew update opens its trip.
+   - Tap a news story for the full article.
+6. **Profile.** Edit personal information, add a card (it turns over while the security code is typed), set the default, toggle notifications, read the FAQ, sign out.
 
 | | |
 |---|---|
@@ -57,7 +89,13 @@ flowchart LR
 
 | Mutation | Invalidates | Refetches |
 |---|---|---|
-| `bookFlight` | `Flight:<id>`, `Flight:LIST`, `Booking` | The flight's seats, the flight list and Trips |
+| `bookFlight` | `Flight:<id>`, `Flight:LIST`, `Booking`, `Payment:LIST` | The flight's seats, the flight list, Trips and the wallet balance |
+| `bookCharter` | `Booking`, `Payment:LIST` | Trips and the wallet balance |
+| `cancelBooking` | `Booking:<id>`, `Booking` | The trip and Trips |
+| `addCard`, `setDefaultPayment`, `removeCard` | `Payment:LIST` | Payment methods everywhere |
+| `markNotificationRead`, `markMessagesRead` | `Notification`, `Message` | The lists and the home badges (marking read is optimistic) |
+| `sendMessage` | none | Optimistic: the member's bubble shows at once, then the thread with the reply replaces the cache |
+| `signIn`, `signOut`, `updateProfile` | none | The session slice follows them through matchers |
 
 ### Mock data
 
@@ -65,11 +103,16 @@ Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` 
 
 ## Features
 
-| Feature | Screens | Reanimated |
+More detail per screen: [feature-docs/app/README.md](feature-docs/app/README.md).
+
+| Feature | Screens | Animation |
 |---|---|---|
-| Dashboard | BlackJet home: one-way, round-trip and multi-city charter search, jet quotes listed under the form, news carousel ([spec](feature-docs/dashboard/README.md)) | Search panel collapses into a summary bar on scroll and snaps, card resizes over 2 s, sheets fade up in turn, shimmer skeletons, Lottie empty state |
-| Flights | Search card (from/to with swap; departure date, time of day, passengers and jet type in bottom sheets; recent searches), airport picker, results with jet filter, detail | Press-scale cards, plane flying the route |
-| Booking | Form, confirmation, Trips | Success mark (disc, tick, one ring pulse); error message fades in |
+| Auth | Splash, login (form, demo account, Apple/Google) | Ken Burns photo, form shakes on error, fade between signed-in and signed-out stacks |
+| Dashboard | Charter search (one-way, round-trip, multi-city); jets listed under the form; jet quote; charter checkout; news carousel and full story ([spec](feature-docs/dashboard/README.md)) | Search panel collapses into a summary bar; parallax photo headers; selection bar springs in and counts up; shimmer skeletons; Lottie empty state |
+| Flights | Shared-flight search, airport picker, results with jet filter, detail, seat booking | Press-scale cards, plane flying the route |
+| Booking | Trips (upcoming/past), trip detail with cancellation, confirmation, payment picker | Boarding-pass cards cascade in, segmented control slides, success mark |
+| Inbox | Notifications, concierge chat | Unread dots fade out, typing dots, send button springs in |
+| Profile | Profile with stats, personal information, payment cards, add card, help/FAQ, terms | Count-up stats, card flips while the CVC is typed, FAQ accordion, spring tab indicator |
 
 ## Folder layout
 
@@ -88,4 +131,13 @@ __tests__/        same tree as src/ (core/, features/<feature>/...), plus smoke.
 
 Screens take callbacks (`onOpenFlight`, `onBooked`) instead of a navigation prop; `src/app/navigation` adapts routes to them.
 
-The dashboard and the tab bar use the BlackJet look (`src/core/theme/blackjet.ts`: light and dark palettes, KnulTrial and icon fonts from `src/assets/fonts`); the other screens keep `src/core/theme/theme.ts`.
+Every screen uses the BlackJet look from `src/core/theme/blackjet.ts`:
+- light and dark palettes that follow the system, through `useBlackJetTheme()`
+- `makeStyles()` for themed style sheets
+- KnulTrial and the icon fonts from `src/assets/fonts`
+
+`src/core/theme/theme.ts` holds only spacing, radii and press timing.
+
+## Remaining work
+
+See [docs/remaining-work.md](docs/remaining-work.md).

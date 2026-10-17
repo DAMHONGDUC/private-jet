@@ -53,7 +53,8 @@ flowchart LR
 
 | Item | Value |
 |---|---|
-| Env variables | None; all data comes from in-memory mocks (`src/features/*/data/datasources/mock/`) |
+| Env variables | None; all data comes from in-memory mocks (`src/features/*/data/datasources/mock/`) and resets when the app restarts |
+| Demo account | Signed in at launch; after signing out use `demo@blackjet.app` / `blackjet123` or **Continue with Demo Account** |
 | Data source swap | `src/app/di/container.ts` |
 | Import alias | `@/` → `src/` (`babel.config.js`, `tsconfig.json`) |
 | Fonts | `src/assets/fonts`, linked into `android/app/src/main/assets/fonts` and the iOS project by `npx react-native-asset` (`react-native.config.js`); re-run it after adding a font. File names match PostScript names, so `fontFamily` is the same on both platforms |

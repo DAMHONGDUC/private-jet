@@ -20,22 +20,24 @@ Branch `feature/flight-booking`. Update this file with every commit, so whoever 
 - Inbox, opened from the home app bar badges:
   - notifications: today / earlier, unread dots, mark all read; a notification about a trip opens it
   - concierge chat: quick replies, typing indicator, replies matched to the topic
-- Tab bar with the avatar and a spring indicator.
+- Tab bar with the avatar and a spring indicator; pull to refresh on Profile.
+- Docs:
+  - `README.md`: demo account, demo script, features, cache table
+  - `docs/setup.md`
+  - `feature-docs/app/README.md`: navigation, session, booking model, seeds, inbox, motion
 - Checks: `npx jest` (94 tests), `npx eslint src __tests__` and `npx tsc --noEmit` all clean.
 
 ## Still to do
-1. **Polish**
-   - `RefreshControl` on the Profile screen.
-   - Optional: a smoother TripCard → TripDetail transition, using `FadeIn` on the header plus `LinearTransition`.
-2. **Docs**
-   - `README.md`:
-     - feature list
-     - demo credentials
-     - screenshots (iOS simulator, light and dark)
-     - architecture overview
-     - `npm run setup`
-   - `docs/setup.md`.
-   - `feature-docs/` entries for profile, trips and inbox.
+1. **Screenshots** for the README and the Upwork listing. Take them on a device or simulator, which this repo's CI cannot do:
+   - Home
+   - jet quote
+   - checkout
+   - Trips
+   - chat
+   - Profile
+   - add card
+   - each in light and dark
+2. **Optional polish:** a smoother TripCard → TripDetail transition, using `FadeIn` on the header plus `LinearTransition`.
 3. **Repo hygiene (important)**
    - `black-jet-apk/` holds the original APK, which embeds real third-party API tokens. Remove it from the repo, and from its history with `git filter-repo` plus a force push, because the repo is public.
    - Never reuse those keys.

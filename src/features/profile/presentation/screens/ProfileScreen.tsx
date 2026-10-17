@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ScrollView, Switch, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, Switch, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
@@ -49,8 +49,16 @@ export function ProfileScreen({ onEditProfile, onOpenPayments, onOpenHelp, onOpe
   const prefs = useSelector(selectNotificationPrefs);
   const [now] = useState(() => nowProp ?? new Date());
   const [confirming, setConfirming] = useState(false);
-  const { data: bookings } = useGetBookingsQuery();
-  const { data: methods } = useGetPaymentMethodsQuery();
+  const { data: bookings, isFetching: fetchingTrips, refetch: refetchTrips } = useGetBookingsQuery();
+  const { data: methods, isFetching: fetchingMethods, refetch: refetchMethods } = useGetPaymentMethodsQuery();
+  // Only a pull shows the spinner; background refetches stay quiet.
+  const [pulled, setPulled] = useState(false);
+  const fetching = fetchingTrips || fetchingMethods;
+  useEffect(() => {
+    if (!fetching) {
+      setPulled(false);
+    }
+  }, [fetching]);
   const [signOut, { isLoading: signingOut }] = useSignOutMutation();
 
   if (!user) {
@@ -76,7 +84,20 @@ export function ProfileScreen({ onEditProfile, onOpenPayments, onOpenHelp, onOpe
 
   return (
     <Screen top>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={pulled && fetching}
+            onRefresh={() => {
+              setPulled(true);
+              refetchTrips();
+              refetchMethods();
+            }}
+            tintColor={palette.jetBlack}
+          />
+        }
+      >
         <View style={styles.header}>
           <Animated.View entering={ZoomIn.springify().damping(14)}>
             <Avatar testID="profile-avatar" name={user.fullName} size={84} ring={palette.iron} ringWidth={2} />
