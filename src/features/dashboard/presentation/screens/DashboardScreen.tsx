@@ -8,18 +8,29 @@ import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { Snackbar } from '@/core/ui/Snackbar';
 import { errorMessage } from '@/core/ui/StateViews';
 import { checkDraft, type CharterRequest } from '../../domain/entities/charter';
-import { searchSubmitted, selectCharterDraft, selectSubmittedCharter } from '../charter-search-slice';
+import {
+  searchSubmitted,
+  selectCharterDraft,
+  selectQuoteSelections,
+  selectSubmittedCharter,
+} from '../charter-search-slice';
 import { HeroText, HomeAppBar } from '../components/HomeHeader';
 import { JetResults } from '../components/JetResults';
 import { NewsCarousel } from '../components/NewsCarousel';
 import { SearchPanel } from '../components/SearchPanel';
 import { SearchSummaryBar } from '../components/SearchSummaryBar';
 import { useSearchChartersQuery } from '../dashboard-api';
+import { SelectionBar } from '../components/SelectionBar';
+import { useCharterSelection } from '../use-charter-selection';
 import { useCollapsibleSearch } from '../use-collapsible-search';
 
 type Props = {
   onOpenMessages?: () => void;
   onOpenNotifications?: () => void;
+  /** A jet card was tapped. */
+  onOpenQuote?: (legIndex: number, quoteId: string) => void;
+  /** Every leg has a jet; on to checkout. */
+  onCheckout?: () => void;
   /** The first day the calendar allows; tests pin it. */
   today?: Date;
 };
@@ -31,7 +42,13 @@ const sameRequest = (a: CharterRequest | null, b: CharterRequest) => JSON.string
  * which collapses into a summary bar as the results scroll up
  * (feature-docs/dashboard §2 and §12).
  */
-export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: todayProp }: Props) {
+export function DashboardScreen({
+  onOpenMessages,
+  onOpenNotifications,
+  onOpenQuote,
+  onCheckout,
+  today: todayProp,
+}: Props) {
   const palette = useBlackJetTheme();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
@@ -41,6 +58,9 @@ export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: to
   const [notice, setNotice] = useState<string | null>(null);
   const hideNotice = useCallback(() => setNotice(null), []);
   const collapsible = useCollapsibleSearch();
+  const selections = useSelector(selectQuoteSelections);
+  const selection = useCharterSelection();
+  const showBar = !!submitted && selection.chosenCount > 0;
 
   const { currentData: results, error, isFetching, refetch } = useSearchChartersQuery(submitted ?? skipToken);
 
@@ -70,7 +90,11 @@ export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: to
           onScroll={collapsible.onScroll}
           scrollEventThrottle={16}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[styles.content, { minHeight: collapsible.minContentHeight }]}
+          contentContainerStyle={[
+            styles.content,
+            showBar && styles.withBar,
+            { minHeight: collapsible.minContentHeight },
+          ]}
           refreshControl={
             submitted ? (
               <RefreshControl
@@ -109,6 +133,8 @@ export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: to
               onRetry={() => {
                 refetch();
               }}
+              selections={selections}
+              onOpenQuote={onOpenQuote}
             />
           ) : (
             <NewsCarousel />
@@ -122,7 +148,18 @@ export function DashboardScreen({ onOpenMessages, onOpenNotifications, today: to
           <SearchSummaryBar request={submitted ?? checkDraft(draft).request ?? null} onPress={collapsible.expand} />
         </Animated.View>
 
-        <Snackbar message={notice} onHide={hideNotice} bottom={16} />
+        {showBar && selection.results ? (
+          <SelectionBar
+            chosen={selection.chosenCount}
+            legs={selection.results.length}
+            total={selection.total}
+            currency={selection.currency}
+            complete={selection.complete}
+            onContinue={() => onCheckout?.()}
+          />
+        ) : null}
+
+        <Snackbar message={notice} onHide={hideNotice} bottom={showBar ? 110 : 16} />
       </View>
     </View>
   );
@@ -132,5 +169,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
   content: { paddingBottom: 32 },
+  withBar: { paddingBottom: 120 },
   summary: { position: 'absolute', top: 0, left: 0, right: 0 },
 });

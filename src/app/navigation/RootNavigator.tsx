@@ -6,9 +6,9 @@ import { useRestoreSessionQuery } from '@/features/auth/presentation/auth-api';
 import { LoginScreen } from '@/features/auth/presentation/screens/LoginScreen';
 import { SplashScreen } from '@/features/auth/presentation/screens/SplashScreen';
 import { selectSession } from '@/features/auth/presentation/session-slice';
-import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 import { BlackJetTabBar } from './BlackJetTabBar';
 import { FlightsNavigator } from './FlightsNavigator';
+import { HomeNavigator } from './HomeNavigator';
 import { TripsNavigator } from './TripsNavigator';
 import type { AppStackParamList, RootTabParamList } from './types';
 
@@ -17,10 +17,6 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 
 /** Built once, so no component is created during render. */
 const renderTabBar = (props: Parameters<typeof BlackJetTabBar>[0]) => <BlackJetTabBar {...props} />;
-
-function DashboardRoute() {
-  return <DashboardScreen />;
-}
 
 function MainTabs() {
   const palette = useBlackJetTheme();
@@ -33,7 +29,7 @@ function MainTabs() {
         sceneStyle: { backgroundColor: palette.secondaryBackground },
       }}
     >
-      <Tab.Screen name="DashboardTab" component={DashboardRoute} options={{ title: 'Home' }} />
+      <Tab.Screen name="DashboardTab" component={HomeNavigator} options={{ title: 'Home' }} />
       <Tab.Screen name="FlightsTab" component={FlightsNavigator} options={{ title: 'Flights' }} />
       <Tab.Screen name="TripsTab" component={TripsNavigator} options={{ title: 'Trips' }} />
     </Tab.Navigator>

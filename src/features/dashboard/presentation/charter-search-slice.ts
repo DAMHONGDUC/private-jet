@@ -21,6 +21,8 @@ export type CharterSearchState = {
   submitted: CharterRequest | null;
   /** IATA codes, most recent first. */
   recentAirports: string[];
+  /** The quote chosen for each leg of `submitted`, by leg index. */
+  selections: Record<number, string>;
 };
 
 export const MAX_RECENT_AIRPORTS = 5;
@@ -32,7 +34,12 @@ const freshDraft = (tripType: TripType): CharterDraft => ({
   legs: tripType === 'multiCity' ? [emptyDraftLeg()] : [],
 });
 
-const initialState: CharterSearchState = { draft: freshDraft('oneWay'), submitted: null, recentAirports: [] };
+const initialState: CharterSearchState = {
+  draft: freshDraft('oneWay'),
+  submitted: null,
+  recentAirports: [],
+  selections: {},
+};
 
 function legOf(draft: CharterDraft, target: LegTarget): DraftLeg | undefined {
   return target === 'outbound' ? draft.outbound : draft.legs[target];
@@ -47,6 +54,7 @@ export const charterSearchSlice = createSlice({
       if (action.payload !== state.draft.tripType) {
         state.draft = freshDraft(action.payload);
         state.submitted = null;
+        state.selections = {};
       }
     },
     airportSelected(state, action: PayloadAction<{ target: LegTarget; end: AirportEnd; code: string }>) {
@@ -97,8 +105,26 @@ export const charterSearchSlice = createSlice({
         state.draft.legs.splice(action.payload, 1);
       }
     },
+    /** A new search starts with no jet chosen. */
     searchSubmitted(state, action: PayloadAction<CharterRequest>) {
       state.submitted = action.payload;
+      state.selections = {};
+    },
+    /** Choosing the quote already chosen for a leg leaves the leg open again. */
+    quoteToggled(state, action: PayloadAction<{ legIndex: number; quoteId: string }>) {
+      const { legIndex, quoteId } = action.payload;
+      if (state.selections[legIndex] === quoteId) {
+        delete state.selections[legIndex];
+      } else {
+        state.selections[legIndex] = quoteId;
+      }
+    },
+    quoteChosen(state, action: PayloadAction<{ legIndex: number; quoteId: string }>) {
+      state.selections[action.payload.legIndex] = action.payload.quoteId;
+    },
+    /** After booking: the same search stays on screen, nothing chosen. */
+    selectionsCleared(state) {
+      state.selections = {};
     },
   },
 });
@@ -113,6 +139,9 @@ export const {
   legAdded,
   legRemoved,
   searchSubmitted,
+  quoteToggled,
+  quoteChosen,
+  selectionsCleared,
 } = charterSearchSlice.actions;
 
 type WithCharterSearch = { [charterSearchSlice.name]: CharterSearchState };
@@ -120,6 +149,7 @@ type WithCharterSearch = { [charterSearchSlice.name]: CharterSearchState };
 export const selectCharterSearch = (state: WithCharterSearch) => state.charterSearch;
 export const selectCharterDraft = (state: WithCharterSearch) => state.charterSearch.draft;
 export const selectSubmittedCharter = (state: WithCharterSearch) => state.charterSearch.submitted;
+export const selectQuoteSelections = (state: WithCharterSearch) => state.charterSearch.selections;
 
 /** True when the form no longer matches the results on screen, so searching again would change them. */
 export const selectDraftChanged = createSelector(

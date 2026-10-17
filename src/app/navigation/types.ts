@@ -17,13 +17,20 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<RootTabParamList>;
 };
 
+export type HomeStackParamList = {
+  Home: undefined;
+  JetQuote: { legIndex: number; quoteId: string };
+  CharterCheckout: undefined;
+  CharterConfirmation: { bookingId: string };
+};
+
 export type TripsStackParamList = {
   TripList: undefined;
   TripDetail: { bookingId: string };
 };
 
 export type RootTabParamList = {
-  DashboardTab: undefined;
+  DashboardTab: NavigatorScreenParams<HomeStackParamList>;
   FlightsTab: NavigatorScreenParams<FlightsStackParamList>;
   TripsTab: NavigatorScreenParams<TripsStackParamList>;
 };

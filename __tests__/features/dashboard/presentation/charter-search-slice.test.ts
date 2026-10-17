@@ -7,6 +7,8 @@ import {
   legAdded,
   legRemoved,
   passengersSelected,
+  quoteChosen,
+  quoteToggled,
   searchSubmitted,
   selectDraftChanged,
   tripTypeSelected,
@@ -69,4 +71,16 @@ test('tells when the form no longer matches the results on screen', () => {
 
   const edited = reduce([passengersSelected({ target: 'outbound', count: 3 })], searched);
   expect(selectDraftChanged({ charterSearch: edited })).toBe(true);
+});
+
+test('remembers one jet per leg, toggles it off, and forgets them on a new search', () => {
+  const request = checkDraft(filled().draft).request!;
+  let state = reduce([searchSubmitted(request), quoteToggled({ legIndex: 0, quoteId: 'a' }), quoteChosen({ legIndex: 1, quoteId: 'b' })], filled());
+  expect(state.selections).toEqual({ 0: 'a', 1: 'b' });
+
+  state = reduce([quoteToggled({ legIndex: 0, quoteId: 'a' })], state);
+  expect(state.selections).toEqual({ 1: 'b' });
+
+  state = reduce([searchSubmitted(request)], state);
+  expect(state.selections).toEqual({});
 });

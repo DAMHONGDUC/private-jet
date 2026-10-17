@@ -19,16 +19,19 @@ type Jet = {
   cruiseKmh: number;
   rangeKm: number;
   hourlyEur: number;
+  baggageM3: number;
+  cabin: string;
+  amenities: string[];
   photos: string[];
 };
 
 const FLEET: Jet[] = [
-  { model: 'Pilatus PC-24', category: 'light', seats: 6, cruiseKmh: 790, rangeKm: 3300, hourlyEur: 4800, photos: ['jet-1', 'jet-3'] },
-  { model: 'Embraer Phenom 300E', category: 'light', seats: 7, cruiseKmh: 830, rangeKm: 3600, hourlyEur: 5200, photos: ['jet-3', 'jet-2'] },
-  { model: 'Bombardier Challenger 350', category: 'midsize', seats: 9, cruiseKmh: 850, rangeKm: 5900, hourlyEur: 7900, photos: ['jet-2', 'jet-4'] },
-  { model: 'Gulfstream G280', category: 'midsize', seats: 9, cruiseKmh: 860, rangeKm: 6600, hourlyEur: 8400, photos: ['jet-4', 'jet-1'] },
-  { model: 'Dassault Falcon 8X', category: 'heavy', seats: 14, cruiseKmh: 880, rangeKm: 11900, hourlyEur: 12500, photos: ['jet-4', 'jet-2', 'jet-3'] },
-  { model: 'Gulfstream G650ER', category: 'heavy', seats: 16, cruiseKmh: 900, rangeKm: 13900, hourlyEur: 14500, photos: ['jet-2', 'jet-1', 'jet-4'] },
+  { model: 'Pilatus PC-24', category: 'light', seats: 6, cruiseKmh: 790, rangeKm: 3300, hourlyEur: 4800, baggageM3: 2.5, cabin: 'Flat-floor cabin · 1.55 m', amenities: ['Wi-Fi', 'Refreshment centre', 'Private lavatory'], photos: ['jet-1', 'jet-3'] },
+  { model: 'Embraer Phenom 300E', category: 'light', seats: 7, cruiseKmh: 830, rangeKm: 3600, hourlyEur: 5200, baggageM3: 2.2, cabin: 'Oval cabin · 1.50 m', amenities: ['Wi-Fi', 'Catering', 'Private lavatory'], photos: ['jet-3', 'jet-2'] },
+  { model: 'Bombardier Challenger 350', category: 'midsize', seats: 9, cruiseKmh: 850, rangeKm: 5900, hourlyEur: 7900, baggageM3: 3.0, cabin: 'Stand-up cabin · 1.83 m', amenities: ['Wi-Fi', 'Hot catering', 'Flight attendant', 'Lie-flat seats'], photos: ['jet-2', 'jet-4'] },
+  { model: 'Gulfstream G280', category: 'midsize', seats: 9, cruiseKmh: 860, rangeKm: 6600, hourlyEur: 8400, baggageM3: 4.0, cabin: 'Stand-up cabin · 1.85 m', amenities: ['Wi-Fi', 'Hot catering', 'Flight attendant', 'Lie-flat seats'], photos: ['jet-4', 'jet-1'] },
+  { model: 'Dassault Falcon 8X', category: 'heavy', seats: 14, cruiseKmh: 880, rangeKm: 11900, hourlyEur: 12500, baggageM3: 3.8, cabin: 'Three-zone cabin · 1.88 m', amenities: ['Wi-Fi', 'Chef on board', 'Flight attendant', 'Bedroom', 'Shower'], photos: ['jet-4', 'jet-2', 'jet-3'] },
+  { model: 'Gulfstream G650ER', category: 'heavy', seats: 16, cruiseKmh: 900, rangeKm: 13900, hourlyEur: 14500, baggageM3: 5.4, cabin: 'Four-zone cabin · 1.91 m', amenities: ['Wi-Fi', 'Chef on board', 'Flight attendant', 'Bedroom', 'Shower'], photos: ['jet-2', 'jet-1', 'jet-4'] },
 ];
 
 const TAXI_MINUTES = 20;
@@ -62,6 +65,11 @@ export function buildMockQuotes({ origin, destination, date, passengers }: Quote
       aircraft_model: jet.model,
       aircraft_class: jet.category,
       aircraft_seats: jet.seats,
+      cruise_kmh: jet.cruiseKmh,
+      range_km: jet.rangeKm,
+      baggage_m3: jet.baggageM3,
+      cabin: jet.cabin,
+      amenities: [...jet.amenities],
       photo_keys: [...jet.photos],
       non_stop: nonStop,
       flight_minutes: minutes,

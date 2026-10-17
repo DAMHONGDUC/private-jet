@@ -8,6 +8,8 @@ const NOW = new Date(2026, 9, 16, 8, 0);
 const quote = (price: number, seats = 9): JetQuote => ({
   id: `q-${price}`,
   aircraft: { model: 'Gulfstream G280', category: 'midsize', totalSeats: seats },
+  specs: { cruiseKmh: 860, rangeKm: 6600, baggageM3: 4, cabin: 'Stand-up cabin · 1.85 m' },
+  amenities: ['Wi-Fi'],
   photos: ['jet-1'],
   nonStop: true,
   durationMinutes: 95,

@@ -4,6 +4,11 @@ export type JetQuoteDto = {
   aircraft_model: string;
   aircraft_class: 'light' | 'midsize' | 'heavy';
   aircraft_seats: number;
+  cruise_kmh: number;
+  range_km: number;
+  baggage_m3: number;
+  cabin: string;
+  amenities: string[];
   photo_keys: string[];
   non_stop: boolean;
   flight_minutes: number;

@@ -17,10 +17,21 @@ export type CharterLeg = {
 
 export type CharterRequest = { tripType: TripType; legs: CharterLeg[] };
 
+export type JetSpecs = {
+  cruiseKmh: number;
+  rangeKm: number;
+  /** Hold space, cubic metres. */
+  baggageM3: number;
+  /** "Stand-up cabin · 1.88 m" */
+  cabin: string;
+};
+
 /** What one aircraft would cost on one leg. */
 export type JetQuote = {
   id: string;
   aircraft: Aircraft;
+  specs: JetSpecs;
+  amenities: string[];
   /** Keys of bundled photos; the presentation layer turns them into image sources. */
   photos: string[];
   nonStop: boolean;

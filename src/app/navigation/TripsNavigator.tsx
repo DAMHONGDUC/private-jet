@@ -23,7 +23,7 @@ function TripListRoute({ navigation }: Props<'TripList'>) {
   return (
     <TripsScreen
       onOpenTrip={bookingId => navigation.navigate('TripDetail', { bookingId })}
-      onPlanTrip={() => tabs.navigate('DashboardTab')}
+      onPlanTrip={() => tabs.navigate('DashboardTab', { screen: 'Home' })}
     />
   );
 }

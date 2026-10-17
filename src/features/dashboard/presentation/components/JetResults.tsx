@@ -19,6 +19,9 @@ type Props = {
   error: unknown;
   onNewRequest: () => void;
   onRetry: () => void;
+  /** The quote chosen per leg. */
+  selections?: Record<number, string>;
+  onOpenQuote?: (legIndex: number, quoteId: string) => void;
 };
 
 const legTitle = (request: CharterRequest, index: number) => {
@@ -29,7 +32,7 @@ const legTitle = (request: CharterRequest, index: number) => {
 };
 
 /** "Available Jets" under the search, with one group per leg (feature-docs/dashboard §12.2). */
-export function JetResults({ request, results, error, onNewRequest, onRetry }: Props) {
+export function JetResults({ request, results, error, onNewRequest, onRetry, selections = {}, onOpenQuote }: Props) {
   const total = results?.reduce((sum, group) => sum + group.quotes.length, 0) ?? 0;
 
   let body;
@@ -39,7 +42,13 @@ export function JetResults({ request, results, error, onNewRequest, onRetry }: P
         <NoListings onNewRequest={onNewRequest} />
       ) : (
         results.map((group, index) => (
-          <LegGroup key={`${group.leg.origin}-${group.leg.destination}-${index}`} group={group} title={legTitle(request, index)} />
+          <LegGroup
+            key={`${group.leg.origin}-${group.leg.destination}-${index}`}
+            group={group}
+            title={legTitle(request, index)}
+            selectedId={selections[index]}
+            onOpenQuote={onOpenQuote && (quoteId => onOpenQuote(index, quoteId))}
+          />
         ))
       );
   } else if (error) {
@@ -63,7 +72,14 @@ export function JetResults({ request, results, error, onNewRequest, onRetry }: P
   );
 }
 
-function LegGroup({ group, title }: { group: LegQuotes; title: string | null }) {
+type LegGroupProps = {
+  group: LegQuotes;
+  title: string | null;
+  selectedId?: string;
+  onOpenQuote?: (quoteId: string) => void;
+};
+
+function LegGroup({ group, title, selectedId, onOpenQuote }: LegGroupProps) {
   const { leg, quotes } = group;
   return (
     <View style={styles.group}>
@@ -77,7 +93,15 @@ function LegGroup({ group, title }: { group: LegQuotes; title: string | null }) 
           No aircraft can fly this leg with {leg.passengers} on board.
         </BJText>
       ) : (
-        quotes.map((quote, index) => <JetCard key={quote.id} quote={quote} index={index} />)
+        quotes.map((quote, index) => (
+          <JetCard
+            key={quote.id}
+            quote={quote}
+            index={index}
+            selected={quote.id === selectedId}
+            onPress={onOpenQuote && (() => onOpenQuote(quote.id))}
+          />
+        ))
       )}
     </View>
   );

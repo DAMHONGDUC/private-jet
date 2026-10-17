@@ -13,6 +13,8 @@ const request: CharterRequest = {
 const quote = {
   id: 'q1',
   aircraft: { model: 'Gulfstream G280', category: 'midsize' as const, totalSeats: 9 },
+  specs: { cruiseKmh: 860, rangeKm: 6600, baggageM3: 4, cabin: 'Stand-up cabin · 1.85 m' },
+  amenities: ['Wi-Fi'],
   photos: ['jet-1', 'jet-2'],
   nonStop: true,
   durationMinutes: 95,

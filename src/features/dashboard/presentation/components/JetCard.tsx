@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { PressableScale } from '@/core/ui/PressableScale';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 import { blackJetCurves } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
@@ -16,61 +17,127 @@ const STAGGERED = 5;
 const OVERLAY =
   'linear-gradient(180deg, rgba(0, 0, 0, 0.41) 25%, rgba(25, 25, 25, 0) 50%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0.7) 100%)';
 
-type Props = { quote: JetQuote; index: number };
+type Props = {
+  quote: JetQuote;
+  index: number;
+  selected?: boolean;
+  onPress?: () => void;
+};
 
 /** One aircraft quote, as the original app's jet card (feature-docs/dashboard §12.3). */
-export function JetCard({ quote, index }: Props) {
+export function JetCard({ quote, index, selected = false, onPress }: Props) {
   const entering = FadeIn.duration(600)
     .delay(Math.min(index, STAGGERED) * 80)
     .easing(Easing.bezier(...blackJetCurves.easeInOut));
 
   return (
-    <Animated.View entering={entering} testID={`jet-card-${quote.id}`} style={styles.card}>
-      <PhotoPager
-        testID={`jet-card-${quote.id}-photos`}
-        photos={quote.photos.map(imageFor)}
-        height={JET_CARD_HEIGHT}
-        dotsBottom={12}
-      />
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundImage: OVERLAY }]} />
-      <View pointerEvents="none" style={styles.content}>
-        <View style={styles.row}>
-          <View style={styles.flex}>
-            <BJText size={16} tone="white" numberOfLines={1}>
-              {quote.aircraft.model}
-            </BJText>
-            <BJText size={12} tone="white">
-              {quote.nonStop ? 'Non Stop' : '1 Fuel Stop'}
-            </BJText>
-          </View>
-          <BJText size={12} tone="white">
-            Up to {quote.aircraft.totalSeats} seats
-          </BJText>
-        </View>
-        <View style={styles.row}>
-          <BJText size={12} tone="white">
-            {CATEGORY_LABELS[quote.aircraft.category]}
-          </BJText>
-          <View style={styles.end}>
-            <View style={styles.price}>
-              <BJText testID={`jet-card-${quote.id}-price`} size={14} weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={styles.priceText}>
-                {formatMoney(quote.price, quote.currency)}
+    <Animated.View entering={entering}>
+      <PressableScale
+        testID={`jet-card-${quote.id}`}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={`${quote.aircraft.model}, ${formatMoney(
+          quote.price,
+          quote.currency,
+        )}`}
+        disabled={!onPress}
+        onPress={onPress}
+        scaleTo={0.985}
+        style={[styles.card, selected && styles.selected]}
+      >
+        <PhotoPager
+          testID={`jet-card-${quote.id}-photos`}
+          photos={quote.photos.map(imageFor)}
+          height={JET_CARD_HEIGHT}
+          dotsBottom={12}
+        />
+        <View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { backgroundImage: OVERLAY }]}
+        />
+        <View pointerEvents="none" style={styles.content}>
+          <View style={styles.row}>
+            <View style={styles.flex}>
+              <BJText size={16} tone="white" numberOfLines={1}>
+                {quote.aircraft.model}
+              </BJText>
+              <BJText size={12} tone="white">
+                {quote.nonStop ? 'Non Stop' : '1 Fuel Stop'}
               </BJText>
             </View>
             <BJText size={12} tone="white">
-              {formatDuration(quote.durationMinutes)}
+              Up to {quote.aircraft.totalSeats} seats
             </BJText>
           </View>
+          <View style={styles.row}>
+            <BJText size={12} tone="white">
+              {CATEGORY_LABELS[quote.aircraft.category]}
+            </BJText>
+            <View style={styles.end}>
+              <View style={styles.price}>
+                <BJText
+                  testID={`jet-card-${quote.id}-price`}
+                  size={14}
+                  weight="bold"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                  style={styles.priceText}
+                >
+                  {formatMoney(quote.price, quote.currency)}
+                </BJText>
+              </View>
+              <BJText size={12} tone="white">
+                {formatDuration(quote.durationMinutes)}
+              </BJText>
+            </View>
+          </View>
         </View>
-      </View>
+        {selected ? (
+          <View
+            pointerEvents="none"
+            testID={`jet-card-${quote.id}-selected`}
+            style={styles.badge}
+          >
+            <BJText size={12} weight="bold" style={styles.badgeText}>
+              ✓ Selected
+            </BJText>
+          </View>
+        ) : null}
+      </PressableScale>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { height: JET_CARD_HEIGHT, borderRadius: 20, overflow: 'hidden', backgroundColor: '#191919' },
-  content: { ...StyleSheet.absoluteFill, padding: 12, justifyContent: 'space-between' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12 },
+  card: {
+    height: JET_CARD_HEIGHT,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#191919',
+  },
+  selected: { borderWidth: 3, borderColor: '#FFFFFF' },
+  badge: {
+    position: 'absolute',
+    top: '42%',
+    alignSelf: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 100,
+    backgroundColor: '#FFFFFF',
+  },
+  badgeText: { color: '#000000' },
+  content: {
+    ...StyleSheet.absoluteFill,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    gap: 12,
+  },
   flex: { flex: 1, gap: 4 },
   end: { alignItems: 'flex-end', gap: 8 },
   price: {
