@@ -9,6 +9,10 @@
 
 ## 0. Tóm tắt trong 30 giây
 
+> **Bản luyện tập khác app gốc ở 2 điểm** (chi tiết ở **mục 12**):
+> 1. Kết quả tìm kiếm hiện **ngay trên Dashboard**, không chuyển sang màn `JetListings`.
+> 2. Khu search **thu gọn thành thanh tóm tắt** khi user cuộn xuống.
+
 Dashboard của khách hàng là route `Home` (`components/home/home_widget.dart`). Nó **không phải** màn thống kê; nó là màn **"tìm và đặt chuyên cơ"**:
 
 ```
@@ -309,6 +313,7 @@ else:
     Round Trip → SubmitRoundTripRequest(… + returnDateUTC, ret* pax)
 
     if statusCode == 200:
+        // ⚠ Bản luyện tập KHÔNG làm nhánh này, mà hiển thị kết quả ngay trên Dashboard: xem mục 12.
         goNamed("JetListings", params: {
             tripType, departureAirport(JSON), arrivalAirport(JSON),
             departureDate(DateTime), triprequestid(flightRequestID),
@@ -520,12 +525,15 @@ src/features/dashboard/
       HomeAppBar.tsx  HeroText.tsx  BookingCard.tsx  TripTypeRadio.tsx
       AirportField.tsx  DateField.tsx  PaxField.tsx  MultiLegList.tsx
       FindJetButton.tsx  NewsCarousel.tsx  BlackJetTabBar.tsx
+      SearchSummaryBar.tsx  JetResultList.tsx  JetCard.tsx  JetCardSkeleton.tsx   ← mục 12
+    hooks/ useCollapsibleSearch.ts   ← mục 12.4
     sheets/ AirportSearchSheet.tsx  CountSelectorSheet.tsx
+  domain/entities/jet-listing.ts  domain/usecases/search-jets.ts  data/datasources/mock/jets.mock.ts  ← mục 12
 ```
 
 Validation 3.4 nên đặt trong `domain/usecases/submit-flight-request.ts` (pure function trả về lỗi đầu tiên), để viết unit test dễ.
 
-Thứ tự luyện tập đề xuất: (1) theme và font → (2) tab bar → (3) layout tĩnh Home → (4) radio + co giãn 2s → (5) sheet chọn sân bay + FadeUp → (6) đếm khách → (7) validation + submit mock → (8) carousel + shimmer.
+Thứ tự luyện tập đề xuất: (1) theme và font → (2) tab bar → (3) layout tĩnh Home → (4) radio + co giãn 2s → (5) sheet chọn sân bay + FadeUp → (6) đếm khách → (7) validation + submit mock → (8) carousel + shimmer → (9) danh sách kết quả + JetCard (12.2–12.3) → (10) thu gọn search khi cuộn (12.4).
 
 ---
 
@@ -539,6 +547,8 @@ Thứ tự luyện tập đề xuất: (1) theme và font → (2) tab bar → (3
 | `fonts/KnulTrial-*.otf` | font chính | |
 | `fonts/BlackJet_Custom_Icons.ttf`, `fonts/BlackJet_NewIcons.ttf` | icon font | icon 1.4 |
 | `icons/*.png`, `icons/_icon_sheet.png` | render từ icon font | xem nhanh từng icon |
+| `lottie/no_plane_found_light.json` | `No_Plane_Found_-_Black.json` (nét đen, 576×576, 30fps, 3s) | empty state kết quả, light mode |
+| `lottie/no_plane_found_dark.json` | `No_Plane_Found_-_White.json` (nét trắng) | empty state kết quả, dark mode |
 
 Ảnh carousel và avatar lấy từ mạng (Webflow CDN / Bubble CDN), không có trong APK.
 
@@ -555,3 +565,277 @@ Thứ tự luyện tập đề xuất: (1) theme và font → (2) tab bar → (3
 - Chính xác thời lượng page transition fade (FlutterFlow mặc định).
 - Hình dạng response đầy đủ của `SearchAirportsCall` (chỉ thấy các field dùng ở UI: `uniqueid`, `APPMAINCODE`, `FAACode`, `FullAirportName`, `AirportCity`, `TimezoneID`).
 - Giao diện thực tế (khoảng cách pixel tuyệt đối có thể lệch vài px do `AutoSizeText` và `screenWidth × 0.405`). Nếu bạn có video quay màn hình, mình có thể đối chiếu và chỉnh lại.
+
+---
+
+## 12. Biến thể luyện tập: kết quả ngay trên Dashboard + search thu gọn khi cuộn
+
+> Mục này là **thiết kế mới** cho bản luyện tập, không có trong app gốc. Những phần lấy từ app gốc (thẻ máy bay, empty state, shimmer, pull-to-refresh) ghi rõ **[gốc]**; phần còn lại là **[mới]**, bạn có thể chỉnh tuỳ ý.
+
+### 12.1 Luồng mới
+
+```
+idle ──Find──▶ loading ──200 + có data──▶ results
+  ▲               │  └──200 + rỗng────────▶ empty
+  │               └──lỗi────────────────────▶ error (giữ kết quả cũ nếu có)
+  └──────── "New Flight Request" / sửa form rồi Find lại ─────────┘
+```
+
+| | App gốc | Bản luyện tập |
+|---|---|---|
+| Sau khi submit thành công | `goNamed("JetListings")` rồi reset form | **Ở lại Dashboard**, form **giữ nguyên** giá trị |
+| Hiển thị kết quả | màn riêng | section "Available Jets" ngay dưới khu search |
+| News carousel | luôn hiện | chỉ hiện khi `idle` (chưa search); có kết quả thì ẩn |
+| Hero text | luôn hiện | cuộn đi trước, sau đó khu search mới thu gọn |
+| Tap 1 thẻ máy bay | `pushNamed("Jet_Details")` | giữ nguyên, vẫn sang màn chi tiết (ngoài phạm vi) |
+
+Gọi API (mock), giữ đúng 2 bước như app gốc:
+1. `submitFlightRequest(search)` → `flightRequestId` (gốc: `SubmitOneWay/RoundTrip/MultiRequest`).
+2. `getAircraftListings(flightRequestId)` → `JetListing[]` (gốc: `GetAircraftListingsCall`, đọc `$.response.flightrequest`).
+
+State thêm vào `dashboard-slice`:
+
+```ts
+type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+interface DashboardSearchState {
+  status: SearchStatus;
+  results: JetListing[];
+  lastQuery?: FlightSearch;      // dùng cho pull-to-refresh và thanh tóm tắt
+  flightRequestId?: string;
+  error?: string;
+}
+```
+
+Quy tắc:
+- Bấm **Find Your Jet**: validate như 3.4 → `status = loading` (giữ `results` cũ để không nháy) → gọi API → `success`/`empty`/`error`.
+- Khi chuyển sang `loading`, tự cuộn xuống để khu search **thu gọn** và section kết quả hiện ngay dưới thanh tóm tắt (12.4, A17).
+- Sửa form sau khi đã có kết quả thì **giữ kết quả** cho đến khi bấm Find lại. Gợi ý: đổi chữ nút thành **"Update Results"** khi form khác `lastQuery`.
+- Đổi loại chuyến (radio) thì vẫn reset form như 3.3 và đưa `status` về `idle` (xoá kết quả).
+- Lỗi: SnackBar như 3.4; nếu đã có kết quả trước đó thì giữ nguyên list.
+- **Pull-to-refresh** **[gốc]**: chỉ bật khi `status ∈ {success, empty}`, chạy lại `lastQuery`. Gốc dùng `RefreshIndicator(displacement 40, strokeWidth 2, triggerMode onEdge)`.
+
+### 12.2 Section kết quả
+
+```
+┌───────────────────────────────────────┐
+│ SGN → HAN   ·  20 Nov · 2 · One Way  ✎│  ← thanh tóm tắt (khu search đã thu gọn)
+├───────────────────────────────────────┤
+│ Available Jets                    12  │  ← header section
+│ ╭───────────────────────────────────╮ │
+│ │ Gulfstream G650        Non Stop   │ │  JetCard [gốc]
+│ │ (ảnh, vuốt ngang)                 │ │
+│ │ Heavy Jet              5h 20m     │ │
+│ │                     [ 42,000 USD ]│ │
+│ ╰───────────────────────────────────╯ │
+│ ╭───────────────────────────────────╮ │
+│ │ …                                 │ │
+```
+
+- Header **[mới]**: `"Available Jets"` 18/w500 `primaryText` + số lượng 14/w500 `secondaryText`, padding `(12, 16, 12, 8)`.
+- List: các thẻ cách nhau **16** (gốc dùng `ListView.separated`; khoảng cách đúng chưa xác định được), padding ngang 12; cuối list đệm 130 (cho bottom nav).
+- **Loading** **[gốc]**: 3 thẻ skeleton cao 250, radius 20, nền `primaryBackground`, các thanh `loadStateColour` radius 100 (40×8 và 80×8…), shimmer 800ms / 30° / easeInOut như A5.
+- **Empty** **[gốc]**: Lottie `assets/lottie/no_plane_found_light.json` (light) / `…_dark.json` (dark), chạy loop; tiêu đề `"No Listings Available"`, mô tả `"Sorry, no aircraft listings are available now. Submit a new flight request to find the right aircraft and start the process!"`, nút `"New Flight Request"` (style như Find Your Jet). Bấm nút thì **mở rộng lại khu search** (12.4).
+- **Error** **[mới]**: nếu chưa có kết quả nào thì hiện dòng `"Couldn't load jets. Pull to retry."` (secondaryText 14) thay cho list.
+
+### 12.3 JetCard **[gốc]** (`components/jet_card_widget.dart`)
+
+| Thuộc tính | Giá trị |
+|---|---|
+| Kích thước | full width, cao **250**, radius **20**, `ClipRRect` |
+| Ảnh | `PageView` các ảnh máy bay (`appGetAircraftPhotosFromQuote`); ảnh fade-in khi tải (2000ms) |
+| Dot ảnh | giống carousel 2.4: `SlideEffect` 6×6, spacing 4, `#555553` / `#FFFFFF`, căn phải dưới, padding 12; tap dot `animateToPage` 500ms `Curves.ease` |
+| Overlay | `LinearGradient` trên → dưới: `#69000000` → `#00191919` → `#80000000` → `#B2000000`, stops `[0.25, 0.5, 0.75, 1.0]` (tối ở mép trên để đọc chữ, trong ở giữa, tối dần xuống đáy) |
+| Góc trên trái | tên máy bay `app_aircraft_description_text`, 16/w500 trắng |
+| Dưới tên | `"Non Stop"` 12/w500 trắng |
+| Góc trên phải | 1 dòng 12/w500 trắng (chưa rõ field) |
+| Góc dưới trái | hạng máy bay `app_aircraft_class_text` (vd "Heavy Jet") 12/w500 trắng |
+| Góc dưới phải | thời gian bay `formatFlightDuration(...)` (vd "5h 20m") 12/w500 trắng |
+| Chip giá | `Align(1, 0.8)`, **80×25**, nền `#FFFFFF`, radius **5**, padding `(5, 2.5)`, text `updatedprice` hoặc `calculateTotalPriceForAircraft(...)`, mặc định `"0 USD"`, 14/w700 `#000000`, AutoSize (min 10) |
+| Padding nội dung | 12 |
+| Container | `AnimatedContainer`, curve `Curves.easeIn` = cubic(0.42, 0, 1, 1) |
+| Xuất hiện | Fade 0→1, **600ms**, easeInOut (giống `rowOnPageLoadAnimation` của màn JetListings). **[mới]** stagger 80ms theo index, tối đa 5 thẻ đầu |
+| Tap | `HapticFeedback.selectionClick` → màn chi tiết |
+
+Mock entity:
+
+```ts
+export type JetListing = {
+  id: string;                 // $._id
+  name: string;               // app_aircraft_description_text, vd "Gulfstream G650"
+  aircraftClass: string;      // app_aircraft_class_text, vd "Heavy Jet"
+  photos: string[];           // ảnh
+  nonStop: boolean;
+  flightDurationMin: number;  // → "5h 20m"
+  price: number;              // updatedprice
+  currency: 'USD';
+  seats?: number;             // gợi ý cho dòng góc trên phải
+};
+```
+
+### 12.4 Thu gọn khu search khi cuộn **[mới]**
+
+**Hai trạng thái:**
+
+| | Expanded | Collapsed |
+|---|---|---|
+| Nội dung | hero + booking card đầy đủ (mục 2.3) | **thanh tóm tắt** cao **56** |
+| Thanh tóm tắt | n/a | nền `secondaryBackground`, border dưới 1px `iron`, padding ngang 12. Trái: `"SGN → HAN"` 16/w500 `primaryText` (Multi City: `"SGN → HAN → +2"`). Dưới: `"20 Nov 2026 · 2 pax · One Way"` 12/w500 `secondaryText` (Round Trip thêm `"– 24 Nov"`). Phải: nút tròn 36, nền `primaryBackground`, icon bút ✎ hoặc chevron ⌄ 18 `primaryText` |
+
+Thanh tóm tắt đọc `lastQuery` nếu có, không thì đọc giá trị form hiện tại.
+
+**Cơ chế** (cuộn tới đâu thu gọn tới đó, không phải bật/tắt):
+
+```
+heroH = chiều cao hero text   (đo bằng onLayout)
+H     = chiều cao booking card (đo bằng onLayout; đổi khi đổi trip type)
+C     = 56                     (thanh tóm tắt)
+R     = H − C                  (quãng thu gọn)
+
+y = scrollY
+1. 0 ≤ y ≤ heroH            → hero trượt lên và mờ dần (opacity 1→0); card chưa đổi.
+2. heroH < y ≤ heroH + R    → p = (y − heroH) / R  (0→1)
+                              chiều cao vùng search = H − p·R  (H → 56)
+                              form đầy đủ: opacity 1→0 khi p ∈ [0, 0.6], translateY 0→−16
+                              thanh tóm tắt: opacity 0→1 khi p ∈ [0.5, 1], translateY 8→0
+3. y > heroH + R            → collapsed, thanh 56 dính ở đỉnh (dưới AppBar), list cuộn tiếp bên dưới.
+```
+
+**Snap:** khi thả tay (`onScrollEndDrag` không có momentum, hoặc `onMomentumScrollEnd`) mà `heroH < y < heroH + R` (đang lửng lơ) thì `scrollTo` về đầu gần hơn: `p < 0.5` về `heroH`, ngược lại về `heroH + R`. Thời gian ~250ms (RN `scrollTo animated` dùng thời lượng hệ thống).
+
+**Mở rộng lại:**
+- Tap thanh tóm tắt, nút ✎ hoặc nút `"New Flight Request"` → `scrollTo({y: 0, animated: true})`; vùng search tự mở theo scroll.
+- Cuộn ngược lên đầu cũng tự mở.
+- Android back khi đang collapsed thì mở rộng trước, chưa thoát **[gợi ý]**.
+
+**Khi nào cho thu gọn:** mọi trạng thái đều thu gọn theo cuộn. Ở `idle` nội dung bên dưới là news carousel, ở `success` là danh sách máy bay.
+
+**Tự thu gọn sau khi bấm Find (A17):** khi chuyển sang `loading`, `scrollTo({y: heroH + R})` để section kết quả (skeleton) hiện ngay dưới thanh tóm tắt.
+
+**Haptic:** `selectionClick` khi tap thanh tóm tắt. **[gợi ý]** `impactLight` một lần mỗi khi vừa chạm trạng thái collapsed.
+
+**Lưu ý triển khai RN** (tránh giật):
+- **Đừng** animate `height` của phần tử nằm *trong* `ScrollView`: chiều cao nội dung đổi thì scroll nhảy.
+- Làm theo kiểu **overlay**: vùng search là `Animated.View` `position: absolute` phía trên list; list có một **spacer** đầu tiên cao `heroH + H` (animated theo `H`, vì card co giãn 2s khi đổi trip type). Khi đó mép dưới vùng search luôn trùng với nội dung bên dưới:
+
+```
+mép dưới overlay = heroH + H − y   (khi y ≤ heroH + R)
+vị trí item đầu list = heroH + H − y   → khớp nhau, không lộ khe hở
+```
+
+- Khi collapsed, overlay chỉ cao 56 (+ hero đã trượt ra), phần form đầy đủ bị `overflow: hidden` cắt.
+- Bottom sheet, date picker, bàn phím không ảnh hưởng, vì chúng mở trên toàn màn hình.
+
+**Code khung** (Reanimated 4):
+
+```tsx
+// presentation/hooks/useCollapsibleSearch.ts
+import { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle,
+         useSharedValue, scrollTo, useAnimatedRef, runOnUI } from 'react-native-reanimated';
+import type Animated from 'react-native-reanimated';
+
+export const COLLAPSED_H = 56;
+
+export function useCollapsibleSearch() {
+  const listRef = useAnimatedRef<Animated.ScrollView>();
+  const y = useSharedValue(0);
+  const heroH = useSharedValue(0);
+  const cardH = useSharedValue(0);              // set từ onLayout của BookingCard
+
+  const range = () => { 'worklet'; return Math.max(cardH.value - COLLAPSED_H, 1); };
+  const progress = () => { 'worklet';
+    return interpolate(y.value, [heroH.value, heroH.value + range()], [0, 1], Extrapolation.CLAMP);
+  };
+
+  const snap = () => { 'worklet';
+    const start = heroH.value, end = heroH.value + range();
+    if (y.value > start && y.value < end) {
+      scrollTo(listRef, 0, progress() < 0.5 ? start : end, true);
+    }
+  };
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: e => { y.value = e.contentOffset.y; },
+    onEndDrag: e => { if ((e.velocity?.y ?? 0) === 0) snap(); },
+    onMomentumEnd: () => snap(),
+  });
+
+  // overlay: hero trượt ra, vùng search co lại
+  const overlayStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -Math.min(y.value, heroH.value) }],
+  }));
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(y.value, [0, heroH.value], [1, 0], Extrapolation.CLAMP),
+  }));
+  const searchBoxStyle = useAnimatedStyle(() => ({
+    height: cardH.value - progress() * range(),
+    overflow: 'hidden',
+  }));
+  const fullFormStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress(), [0, 0.6], [1, 0], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(progress(), [0, 1], [0, -16]) }],
+  }));
+  const summaryStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress(), [0.5, 1], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: interpolate(progress(), [0.5, 1], [8, 0], Extrapolation.CLAMP) }],
+  }));
+  const spacerStyle = useAnimatedStyle(() => ({ height: heroH.value + cardH.value }));
+
+  const expand = () => runOnUI(() => { 'worklet'; scrollTo(listRef, 0, 0, true); })();
+  const collapse = () => runOnUI(() => { 'worklet'; scrollTo(listRef, 0, heroH.value + range(), true); })();
+
+  return { listRef, onScroll, heroH, cardH, overlayStyle, heroStyle, searchBoxStyle,
+           fullFormStyle, summaryStyle, spacerStyle, expand, collapse };
+}
+```
+
+```tsx
+// DashboardScreen (rút gọn)
+<View style={{ flex: 1 }}>
+  <HomeAppBar />
+  <View style={{ flex: 1 }}>
+    <Animated.ScrollView ref={c.listRef} onScroll={c.onScroll} scrollEventThrottle={16}
+      refreshControl={canRefresh ? <RefreshControl onRefresh={refetch} refreshing={refreshing} /> : undefined}>
+      <Animated.View style={c.spacerStyle} />
+      {status === 'idle' ? <NewsCarousel /> : <JetResultList status={status} results={results} />}
+      <View style={{ height: 130 }} />
+    </Animated.ScrollView>
+
+    <Animated.View pointerEvents="box-none" style={[StyleSheet.absoluteFill, { bottom: undefined }, c.overlayStyle]}>
+      <Animated.View style={c.heroStyle} onLayout={e => (c.heroH.value = e.nativeEvent.layout.height)}>
+        <HeroText />
+      </Animated.View>
+      <Animated.View style={c.searchBoxStyle}>
+        <Animated.View style={c.fullFormStyle} onLayout={e => (c.cardH.value = e.nativeEvent.layout.height)}>
+          <BookingCard onFind={() => { c.collapse(); find(); }} />
+        </Animated.View>
+        <Animated.View style={[StyleSheet.absoluteFill, { top: undefined, height: COLLAPSED_H }, c.summaryStyle]}>
+          <SearchSummaryBar onPress={c.expand} />
+        </Animated.View>
+      </Animated.View>
+    </Animated.View>
+  </View>
+  <BlackJetTabBar active="home" />
+</View>
+```
+
+> Thanh tóm tắt nhận tap chỉ khi đã hiện: dùng `pointerEvents` theo `progress > 0.5` (vd `useAnimatedProps`, hoặc state JS cập nhật qua `useAnimatedReaction`). Form đầy đủ thì ngược lại.
+
+### 12.5 Animation bổ sung
+
+| # | Ở đâu | Loại | Trigger | Thời lượng | Curve | Giá trị | Nguồn |
+|---|---|---|---|---|---|---|---|
+| A15 | Hero | opacity + translate | scroll 0→heroH | theo scroll | linear | opacity 1→0 | [mới] |
+| A16 | Khu search | height + crossfade | scroll heroH→heroH+R | theo scroll | linear | H→56; form 1→0 (p 0–0.6); summary 0→1 (p 0.5–1) | [mới] |
+| A17 | List | scrollTo | Find / tap summary / snap | hệ thống (~250–300ms) | hệ thống | tới `heroH+R` hoặc 0 | [mới] |
+| A18 | Skeleton kết quả | Shimmer | loading | 800ms, 30° | easeInOut | `shimmerColour` | [gốc] |
+| A19 | JetCard | Fade | xuất hiện | 600ms | easeInOut | 0→1, stagger 80ms | [gốc] + stagger [mới] |
+| A20 | Ảnh trong JetCard | fade-in ảnh | ảnh tải xong | 2000ms | | 0→1 | [gốc] |
+| A21 | Dot ảnh JetCard | `animateToPage` | tap dot | 500ms | `Curves.ease` | | [gốc] |
+| A22 | Empty state | Lottie | `empty` | 3s, loop | | | [gốc] |
+
+### 12.6 Test gợi ý
+
+- `search-jets` usecase: validate (mọi message 3.4), 200 có data → `success`, 200 rỗng → `empty`, lỗi → `error` và giữ `results` cũ.
+- Reducer: đổi trip type thì `status → idle` và `results = []`; sửa field không xoá kết quả.
+- `SearchSummaryBar`: format đúng cho One Way, Round Trip ("– 24 Nov") và Multi City ("→ +n").
+- UI: bấm Find hiện skeleton rồi hiện thẻ; empty hiện Lottie + nút; bấm "New Flight Request" gọi `expand()`.
