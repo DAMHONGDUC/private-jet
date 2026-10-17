@@ -1,6 +1,6 @@
 # BackJet
 
-A private jet booking app: a dashboard, a flight search and a booking flow, on mock data.
+A private jet booking app: a charter-search home, a flight search and a booking flow, on mock data.
 
 | | |
 |---|---|
@@ -51,13 +51,13 @@ flowchart LR
 - Every endpoint's `queryFn` calls a use case, which it receives as the thunk `extra` (`createAppStore` injects the use cases).
 - RTK Query still owns caching, request de-duplication, tags, refetching and the `useXxxQuery` / `useXxxMutation` hooks.
 - Errors thrown below are mapped to a serializable `AppError` by `runQuery` (`src/core/query/run-query.ts`).
-- Slices hold UI state only (the flight search form and recent searches); server data lives in the RTK Query cache.
+- Slices hold UI state only (the flight and charter search forms, recent searches and airports); server data lives in the RTK Query cache.
 
 ### Cache invalidation
 
 | Mutation | Invalidates | Refetches |
 |---|---|---|
-| `bookFlight` | `Flight:<id>`, `Flight:LIST`, `Booking` | The flight's seats, the flight list, Trips, and the Dashboard (it provides `Booking` too) |
+| `bookFlight` | `Flight:<id>`, `Flight:LIST`, `Booking` | The flight's seats, the flight list and Trips |
 
 ### Mock data
 
@@ -67,7 +67,7 @@ Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` 
 
 | Feature | Screens | Reanimated |
 |---|---|---|
-| Dashboard | Loyalty, stats, next trip, monthly spend | Collapsing header on scroll, tier progress fill, bars ease to height |
+| Dashboard | BlackJet home: one-way, round-trip and multi-city charter search, jet quotes listed under the form, news carousel ([spec](feature-docs/dashboard/README.md)) | Search panel collapses into a summary bar on scroll and snaps, card resizes over 2 s, sheets fade up in turn, shimmer skeletons, Lottie empty state |
 | Flights | Search card (from/to with swap; departure date, time of day, passengers and jet type in bottom sheets; recent searches), airport picker, results with jet filter, detail | Press-scale cards, plane flying the route |
 | Booking | Form, confirmation, Trips | Success mark (disc, tick, one ring pulse); error message fades in |
 
@@ -87,3 +87,5 @@ __tests__/        same tree as src/ (core/, features/<feature>/...), plus smoke.
 ```
 
 Screens take callbacks (`onOpenFlight`, `onBooked`) instead of a navigation prop; `src/app/navigation` adapts routes to them.
+
+The dashboard and the tab bar use the BlackJet look (`src/core/theme/blackjet.ts`: light and dark palettes, KnulTrial and icon fonts from `src/assets/fonts`); the other screens keep `src/core/theme/theme.ts`.

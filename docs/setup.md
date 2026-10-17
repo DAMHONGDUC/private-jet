@@ -54,6 +54,7 @@ flowchart LR
 | Env variables | None; all data comes from in-memory mocks (`src/features/*/data/datasources/mock/`) |
 | Data source swap | `src/app/di/container.ts` |
 | Import alias | `@/` → `src/` (`babel.config.js`, `tsconfig.json`) |
+| Fonts | `src/assets/fonts`, linked into `android/app/src/main/assets/fonts` and the iOS project by `npx react-native-asset` (`react-native.config.js`); re-run it after adding a font. File names match PostScript names, so `fontFamily` is the same on both platforms |
 | New Architecture / Hermes | Enabled (`android/gradle.properties`) |
 
 ## Troubleshooting
@@ -65,3 +66,5 @@ flowchart LR
 | iOS build fails on missing pods | `npm run setup` |
 | Android build cannot find SDK | Set `ANDROID_HOME`, or add `sdk.dir` to `android/local.properties` |
 | Wrong app after switching branch | Stop Metro, `npm run setup`, then `npm start -- --reset-cache` |
+| Icons show as boxes or text in the wrong font | The fonts are not in the build: `npx react-native-asset`, then rebuild the app (fonts are native assets, Metro reload is not enough) |
+| `lottie-react-native` / `react-native-haptic-feedback` not found at runtime | Native modules: `npm run setup` (pods on iOS), then rebuild |

@@ -526,7 +526,7 @@ src/features/dashboard/
       AirportField.tsx  DateField.tsx  PaxField.tsx  MultiLegList.tsx
       FindJetButton.tsx  NewsCarousel.tsx  BlackJetTabBar.tsx
       SearchSummaryBar.tsx  JetResultList.tsx  JetCard.tsx  JetCardSkeleton.tsx   ← mục 12
-    hooks/ useCollapsibleSearch.ts   ← mục 12.4
+    use-collapsible-search.ts   ← mục 12.4
     sheets/ AirportSearchSheet.tsx  CountSelectorSheet.tsx
   domain/entities/jet-listing.ts  domain/usecases/search-jets.ts  data/datasources/mock/jets.mock.ts  ← mục 12
 ```
@@ -683,149 +683,44 @@ export type JetListing = {
 
 Thanh tóm tắt đọc `lastQuery` nếu có, không thì đọc giá trị form hiện tại.
 
-**Cơ chế** (cuộn tới đâu thu gọn tới đó, không phải bật/tắt):
+**Cơ chế** (cuộn tới đâu thu gọn tới đó, không phải bật/tắt). Đã implement trong `src/features/dashboard/presentation/use-collapsible-search.ts`:
 
 ```
-heroH = chiều cao hero text   (đo bằng onLayout)
-H     = chiều cao booking card (đo bằng onLayout; đổi khi đổi trip type)
+heroH = chiều cao hero text   (onLayout)
+H     = chiều cao khu search   (onLayout; đổi khi đổi trip type)
 C     = 56                     (thanh tóm tắt)
 R     = H − C                  (quãng thu gọn)
 
 y = scrollY
-1. 0 ≤ y ≤ heroH            → hero trượt lên và mờ dần (opacity 1→0); card chưa đổi.
+1. 0 ≤ y ≤ heroH            → hero cuộn đi và mờ dần (opacity 1→0).
 2. heroH < y ≤ heroH + R    → p = (y − heroH) / R  (0→1)
-                              chiều cao vùng search = H − p·R  (H → 56)
-                              form đầy đủ: opacity 1→0 khi p ∈ [0, 0.6], translateY 0→−16
-                              thanh tóm tắt: opacity 0→1 khi p ∈ [0.5, 1], translateY 8→0
-3. y > heroH + R            → collapsed, thanh 56 dính ở đỉnh (dưới AppBar), list cuộn tiếp bên dưới.
+                              khu search cuộn lên theo nội dung, form mờ dần (opacity 1→0 khi p ∈ [0, 0.6])
+                              thanh tóm tắt ghim ở đỉnh hiện dần (opacity 0→1, translateY 8→0 khi p ∈ [0.5, 1])
+3. y > heroH + R            → collapsed: 56pt cuối của khu search nằm đúng dưới thanh tóm tắt, list cuộn tiếp.
 ```
 
-**Snap:** khi thả tay (`onScrollEndDrag` không có momentum, hoặc `onMomentumScrollEnd`) mà `heroH < y < heroH + R` (đang lửng lơ) thì `scrollTo` về đầu gần hơn: `p < 0.5` về `heroH`, ngược lại về `heroH + R`. Thời gian ~250ms (RN `scrollTo animated` dùng thời lượng hệ thống).
+**Snap:** thả tay khi `heroH < y < heroH + R` thì `scrollTo` về đầu gần hơn (`p < 0.5` về `heroH`, ngược lại về `heroH + R`), dùng thời lượng hệ thống.
 
 **Mở rộng lại:**
-- Tap thanh tóm tắt, nút ✎ hoặc nút `"New Flight Request"` → `scrollTo({y: 0, animated: true})`; vùng search tự mở theo scroll.
+- Tap thanh tóm tắt hoặc nút `"New Flight Request"` → `scrollTo(0)`, khu search mở lại theo cuộn.
 - Cuộn ngược lên đầu cũng tự mở.
-- Android back khi đang collapsed thì mở rộng trước, chưa thoát **[gợi ý]**.
+- **[chưa làm]** Android back khi đang collapsed thì mở rộng trước rồi mới thoát.
 
-**Khi nào cho thu gọn:** mọi trạng thái đều thu gọn theo cuộn. Ở `idle` nội dung bên dưới là news carousel, ở `success` là danh sách máy bay.
+**Khi nào cho thu gọn:** mọi trạng thái. Ở `idle` bên dưới là news carousel, ở `success` là danh sách máy bay. Nội dung có `minHeight = viewport + heroH + R`, nên lúc nào cũng cuộn đủ để thu gọn, kể cả khi list ngắn.
 
-**Tự thu gọn sau khi bấm Find (A17):** khi chuyển sang `loading`, `scrollTo({y: heroH + R})` để section kết quả (skeleton) hiện ngay dưới thanh tóm tắt.
+**Tự thu gọn sau khi bấm Find (A17):** gọi `collapse()`, tức `scrollTo(heroH + R)`, nên skeleton/kết quả hiện ngay dưới thanh tóm tắt.
 
-**Haptic:** `selectionClick` khi tap thanh tóm tắt. **[gợi ý]** `impactLight` một lần mỗi khi vừa chạm trạng thái collapsed.
-
-**Lưu ý triển khai RN** (tránh giật):
-- **Đừng** animate `height` của phần tử nằm *trong* `ScrollView`: chiều cao nội dung đổi thì scroll nhảy.
-- Làm theo kiểu **overlay**: vùng search là `Animated.View` `position: absolute` phía trên list; list có một **spacer** đầu tiên cao `heroH + H` (animated theo `H`, vì card co giãn 2s khi đổi trip type). Khi đó mép dưới vùng search luôn trùng với nội dung bên dưới:
-
-```
-mép dưới overlay = heroH + H − y   (khi y ≤ heroH + R)
-vị trí item đầu list = heroH + H − y   → khớp nhau, không lộ khe hở
-```
-
-- Khi collapsed, overlay chỉ cao 56 (+ hero đã trượt ra), phần form đầy đủ bị `overflow: hidden` cắt.
-- Bottom sheet, date picker, bàn phím không ảnh hưởng, vì chúng mở trên toàn màn hình.
-
-**Code khung** (Reanimated 4):
-
-```tsx
-// presentation/hooks/useCollapsibleSearch.ts
-import { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle,
-         useSharedValue, scrollTo, useAnimatedRef, runOnUI } from 'react-native-reanimated';
-import type Animated from 'react-native-reanimated';
-
-export const COLLAPSED_H = 56;
-
-export function useCollapsibleSearch() {
-  const listRef = useAnimatedRef<Animated.ScrollView>();
-  const y = useSharedValue(0);
-  const heroH = useSharedValue(0);
-  const cardH = useSharedValue(0);              // set từ onLayout của BookingCard
-
-  const range = () => { 'worklet'; return Math.max(cardH.value - COLLAPSED_H, 1); };
-  const progress = () => { 'worklet';
-    return interpolate(y.value, [heroH.value, heroH.value + range()], [0, 1], Extrapolation.CLAMP);
-  };
-
-  const snap = () => { 'worklet';
-    const start = heroH.value, end = heroH.value + range();
-    if (y.value > start && y.value < end) {
-      scrollTo(listRef, 0, progress() < 0.5 ? start : end, true);
-    }
-  };
-
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: e => { y.value = e.contentOffset.y; },
-    onEndDrag: e => { if ((e.velocity?.y ?? 0) === 0) snap(); },
-    onMomentumEnd: () => snap(),
-  });
-
-  // overlay: hero trượt ra, vùng search co lại
-  const overlayStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -Math.min(y.value, heroH.value) }],
-  }));
-  const heroStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(y.value, [0, heroH.value], [1, 0], Extrapolation.CLAMP),
-  }));
-  const searchBoxStyle = useAnimatedStyle(() => ({
-    height: cardH.value - progress() * range(),
-    overflow: 'hidden',
-  }));
-  const fullFormStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress(), [0, 0.6], [1, 0], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(progress(), [0, 1], [0, -16]) }],
-  }));
-  const summaryStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress(), [0.5, 1], [0, 1], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(progress(), [0.5, 1], [8, 0], Extrapolation.CLAMP) }],
-  }));
-  const spacerStyle = useAnimatedStyle(() => ({ height: heroH.value + cardH.value }));
-
-  const expand = () => runOnUI(() => { 'worklet'; scrollTo(listRef, 0, 0, true); })();
-  const collapse = () => runOnUI(() => { 'worklet'; scrollTo(listRef, 0, heroH.value + range(), true); })();
-
-  return { listRef, onScroll, heroH, cardH, overlayStyle, heroStyle, searchBoxStyle,
-           fullFormStyle, summaryStyle, spacerStyle, expand, collapse };
-}
-```
-
-```tsx
-// DashboardScreen (rút gọn)
-<View style={{ flex: 1 }}>
-  <HomeAppBar />
-  <View style={{ flex: 1 }}>
-    <Animated.ScrollView ref={c.listRef} onScroll={c.onScroll} scrollEventThrottle={16}
-      refreshControl={canRefresh ? <RefreshControl onRefresh={refetch} refreshing={refreshing} /> : undefined}>
-      <Animated.View style={c.spacerStyle} />
-      {status === 'idle' ? <NewsCarousel /> : <JetResultList status={status} results={results} />}
-      <View style={{ height: 130 }} />
-    </Animated.ScrollView>
-
-    <Animated.View pointerEvents="box-none" style={[StyleSheet.absoluteFill, { bottom: undefined }, c.overlayStyle]}>
-      <Animated.View style={c.heroStyle} onLayout={e => (c.heroH.value = e.nativeEvent.layout.height)}>
-        <HeroText />
-      </Animated.View>
-      <Animated.View style={c.searchBoxStyle}>
-        <Animated.View style={c.fullFormStyle} onLayout={e => (c.cardH.value = e.nativeEvent.layout.height)}>
-          <BookingCard onFind={() => { c.collapse(); find(); }} />
-        </Animated.View>
-        <Animated.View style={[StyleSheet.absoluteFill, { top: undefined, height: COLLAPSED_H }, c.summaryStyle]}>
-          <SearchSummaryBar onPress={c.expand} />
-        </Animated.View>
-      </Animated.View>
-    </Animated.View>
-  </View>
-  <BlackJetTabBar active="home" />
-</View>
-```
-
-> Thanh tóm tắt nhận tap chỉ khi đã hiện: dùng `pointerEvents` theo `progress > 0.5` (vd `useAnimatedProps`, hoặc state JS cập nhật qua `useAnimatedReaction`). Form đầy đủ thì ngược lại.
+**Quyết định triển khai** (khác bản nháp spec trước):
+- Bản nháp đặt khu search là **overlay** `position: absolute` phía trên list. Bỏ cách này: card chiếm gần hết màn hình, mà vuốt trên overlay thì **không cuộn** list bên dưới.
+- Đã làm: hero và khu search **nằm trong `ScrollView`**, cuộn tự nhiên, nên vuốt ở đâu cũng cuộn được. Không animate `height` của phần tử nào trong `ScrollView`; chỉ đổi `opacity`/`transform`, nên scroll không nhảy.
+- Chỉ thanh tóm tắt là overlay (`position: absolute; top: 0`), và chỉ nhận tap khi `p > 0.5`: `useAnimatedReaction` báo về state JS để đổi `pointerEvents`. Form đầy đủ thì ngược lại.
 
 ### 12.5 Animation bổ sung
 
 | # | Ở đâu | Loại | Trigger | Thời lượng | Curve | Giá trị | Nguồn |
 |---|---|---|---|---|---|---|---|
-| A15 | Hero | opacity + translate | scroll 0→heroH | theo scroll | linear | opacity 1→0 | [mới] |
-| A16 | Khu search | height + crossfade | scroll heroH→heroH+R | theo scroll | linear | H→56; form 1→0 (p 0–0.6); summary 0→1 (p 0.5–1) | [mới] |
+| A15 | Hero | opacity | scroll 0→heroH | theo scroll | linear | opacity 1→0 | [mới] |
+| A16 | Khu search | cuộn + crossfade | scroll heroH→heroH+R | theo scroll | linear | form 1→0 (p 0–0.6); summary 0→1, translateY 8→0 (p 0.5–1) | [mới] |
 | A17 | List | scrollTo | Find / tap summary / snap | hệ thống (~250–300ms) | hệ thống | tới `heroH+R` hoặc 0 | [mới] |
 | A18 | Skeleton kết quả | Shimmer | loading | 800ms, 30° | easeInOut | `shimmerColour` | [gốc] |
 | A19 | JetCard | Fade | xuất hiện | 600ms | easeInOut | 0→1, stagger 80ms | [gốc] + stagger [mới] |
@@ -839,3 +734,29 @@ export function useCollapsibleSearch() {
 - Reducer: đổi trip type thì `status → idle` và `results = []`; sửa field không xoá kết quả.
 - `SearchSummaryBar`: format đúng cho One Way, Round Trip ("– 24 Nov") và Multi City ("→ +n").
 - UI: bấm Find hiện skeleton rồi hiện thẻ; empty hiện Lottie + nút; bấm "New Flight Request" gọi `expand()`.
+
+---
+
+## 13. Đã implement trong repo
+
+| Spec | Code |
+|---|---|
+| 1.1–1.4 Token, font, icon | `src/core/theme/blackjet.ts`, `src/core/ui/BJText.tsx`, `src/core/ui/Icon.tsx`; font trong `src/assets/fonts` (link bằng `npx react-native-asset`) |
+| 2.1–2.2 App bar, hero | `presentation/components/HomeHeader.tsx` (badge lấy từ `getInbox`) |
+| 2.3 Booking card | `components/BookingCard.tsx`, `components/SearchFields.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
+| 2.4 News carousel | `components/NewsCarousel.tsx`, `components/PhotoPager.tsx` |
+| 2.5 Bottom nav | `src/app/navigation/BlackJetTabBar.tsx`: 3 tab Home / Flights / Trips. Repo chưa có Blog và Profile nên chưa có tab avatar |
+| 3.4 Validation | `domain/entities/charter.ts` → `checkDraft()`, giữ nguyên câu báo lỗi gốc; thêm 2 luật: 2 sân bay phải khác nhau, các leg Multi City phải theo thứ tự ngày |
+| 4.x Sheets | `components/BJSheet.tsx`, `AirportSheet.tsx` (recent ở trên, rồi tất cả sân bay), `CalendarSheet.tsx`, `CountSheet.tsx` (1–16 khách), `ConfirmSheet.tsx` |
+| 5 Haptics | `src/core/ui/haptics.ts` (`react-native-haptic-feedback`) |
+| 6.2 Fade-up, 6.4 Shimmer | `src/core/ui/FadeUp.tsx`, `src/core/ui/Shimmer.tsx` (gradient bằng `backgroundImage` của RN 0.88) |
+| 12.1 Luồng mới | `presentation/charter-search-slice.ts` (form + search đang hiển thị), `dashboard-api.ts` → `searchCharters` |
+| 12.2–12.3 Kết quả, JetCard | `components/JetResults.tsx`, `components/JetCard.tsx`, `components/Skeletons.tsx`; empty state dùng Lottie |
+| 12.4 Thu gọn khi cuộn | `presentation/use-collapsible-search.ts`, `components/SearchSummaryBar.tsx`, `screens/DashboardScreen.tsx` |
+| Mock | `data/datasources/mock/charter.mock.ts`: 6 máy bay, giá theo khoảng cách great-circle giữa 7 sân bay mock của Flights; `news.mock.ts` |
+
+Khác với spec:
+- Dữ liệu là **charter** (thuê nguyên máy bay, mọi tuyến), không phải chuyến bay theo lịch của tab Flights. Round Trip và Multi City có một nhóm kết quả cho mỗi leg.
+- Nút tròn giữa From/To **đổi chỗ** hai sân bay (app gốc có vẻ chỉ để trang trí).
+- Chỉ dashboard theo light/dark của hệ thống; các màn khác giữ theme tối cũ.
+- Bấm vào JetCard và vào bài tin tức chưa mở màn chi tiết nào (màn chi tiết nằm ngoài phạm vi).
