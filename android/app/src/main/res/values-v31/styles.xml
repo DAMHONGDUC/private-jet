@@ -1,0 +1,10 @@
+<resources>
+
+    <!-- Android 12+: the system splash, the gold mark on the icon's near-black. -->
+    <style name="AppTheme.Launch">
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+
+</resources>

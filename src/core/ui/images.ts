@@ -17,6 +17,10 @@ export function imageFor(key: string): ImageSourcePropType {
   return IMAGES[key] ?? IMAGES['jet-1'];
 }
 
+/** The 1024 px app icon, the source of every launcher and launch-screen image. */
+export const APP_ICON =
+  require('@/assets/images/app-icon.png') as ImageSourcePropType;
+
 /** The wordmark for each theme: dark ink on light, light ink on dark. */
 export const LOGO = {
   light: require('@/assets/images/logo-light.png') as ImageSourcePropType,

@@ -1,21 +1,21 @@
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { blackJetDark } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
-import { LOGO, LOGO_ASPECT } from '@/core/ui/images';
+import { APP_ICON } from '@/core/ui/images';
 
-const LOGO_HEIGHT = 40;
+/** Matches the native launch screen: same icon, same size, same place. */
+const ICON = 120;
 
-/** The wordmark on black while the session is restored, with a small spinner under it. */
+/** The app icon on near-black while the session is restored, with a small spinner under it. */
 export function SplashScreen() {
   return (
     <View testID="splash" style={styles.root}>
       <Image
-        source={LOGO.dark}
-        resizeMode="contain"
-        style={styles.logo}
+        source={APP_ICON}
+        style={styles.icon}
         accessibilityLabel="BlackJet"
       />
-      <ActivityIndicator color={blackJetDark.accent} />
+      <ActivityIndicator color={blackJetDark.accent} style={styles.spinner} />
     </View>
   );
 }
@@ -26,7 +26,13 @@ const styles = StyleSheet.create({
     backgroundColor: blackJetDark.secondaryBackground,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xl,
   },
-  logo: { height: LOGO_HEIGHT, width: LOGO_HEIGHT * LOGO_ASPECT },
+  // iOS rounds its icons by about 22% of the side.
+  icon: { width: ICON, height: ICON, borderRadius: ICON * 0.2237 },
+  // Absolute, so the icon stays exactly where the launch screen drew it.
+  spinner: {
+    position: 'absolute',
+    top: '50%',
+    marginTop: ICON / 2 + spacing.xl,
+  },
 });

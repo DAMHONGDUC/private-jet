@@ -16,10 +16,13 @@ class MainActivity : ReactActivity() {
   override fun getMainComponentName(): String = "BackJet"
 
   /**
-   * react-native-screens: rebuild screen fragments through its factory, so an
-   * Activity restart does not restore stale fragment state and crash.
+   * Leaves the launch theme, then lets react-native-screens rebuild screen
+   * fragments through its factory, so an Activity restart does not restore
+   * stale fragment state and crash.
    */
   override fun onCreate(savedInstanceState: Bundle?) {
+    // The manifest starts on the launch theme; the app itself runs on AppTheme.
+    setTheme(R.style.AppTheme)
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
   }
