@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { RefreshControl, SectionList, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -171,17 +171,17 @@ export function NotificationsScreen({ onOpenTrip, now: nowProp }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  list: { padding: spacing.lg, gap: spacing.sm, flexGrow: 1 },
+  list: { padding: AppSpacing.lg, gap: AppSpacing.sm, flexGrow: 1 },
   top: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  section: { marginTop: spacing.md, marginBottom: spacing.xs },
+  section: { marginTop: AppSpacing.md, marginBottom: AppSpacing.xs },
   row: {
     flexDirection: 'row',
-    gap: spacing.md,
-    padding: spacing.md,
+    gap: AppSpacing.md,
+    padding: AppSpacing.md,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: palette.iron,
@@ -197,7 +197,7 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.iron,
   },
   text: { flex: 1, gap: 4 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.sm },
   title: { flex: 1 },
   dot: {
     width: 8,

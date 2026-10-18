@@ -1,3 +1,4 @@
+import { AppColors } from '@/core/theme/app-colors';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
@@ -14,7 +15,7 @@ import {
   makeStyles,
   useBlackJetTheme,
 } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { BJText } from '@/core/ui/BJText';
 import { Chip } from '@/core/ui/Chip';
@@ -22,7 +23,11 @@ import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
 import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
-import { cleanMessage, type ChatMessage } from '../../domain/entities/inbox';
+import {
+  cleanMessage,
+  MessageAuthor,
+  type ChatMessage,
+} from '../../domain/entities/inbox';
 import { TypingDots } from '../components/TypingDots';
 import {
   useGetMessagesQuery,
@@ -131,7 +136,7 @@ export function ChatScreen() {
               </View>
               <AppText variant="subtitle">Sophie Laurent</AppText>
               <AppText variant="caption" muted>
-                Your BlackJet concierge · usually replies in minutes
+                Your Sovereign concierge · usually replies in minutes
               </AppText>
             </View>
           }
@@ -165,7 +170,7 @@ export function ChatScreen() {
         <View
           style={[
             styles.composer,
-            { paddingBottom: insets.bottom + spacing.sm },
+            { paddingBottom: insets.bottom + AppSpacing.sm },
           ]}
         >
           <TextInput
@@ -201,7 +206,7 @@ export function ChatScreen() {
 
 function Bubble({ message }: { message: ChatMessage }) {
   const styles = useStyles();
-  const mine = message.author === 'member';
+  const mine = message.author === MessageAuthor.Member;
   return (
     <Animated.View
       testID={`message-${message.id}`}
@@ -222,17 +227,17 @@ function Bubble({ message }: { message: ChatMessage }) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  list: { padding: spacing.lg, gap: spacing.md },
+  list: { padding: AppSpacing.lg, gap: AppSpacing.md },
   footerSlot: { minHeight: 8 },
-  intro: { alignItems: 'center', gap: 4, paddingVertical: spacing.lg },
+  intro: { alignItems: 'center', gap: 4, paddingVertical: AppSpacing.lg },
   conciergeAvatar: {
     width: 64,
     height: 64,
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1C1C1C',
-    marginBottom: spacing.sm,
+    backgroundColor: AppColors.fixed.photoBackdrop,
+    marginBottom: AppSpacing.sm,
   },
   online: {
     position: 'absolute',
@@ -261,20 +266,20 @@ const useStyles = makeStyles(palette => ({
   error: {
     color: palette.error,
     textAlign: 'center',
-    paddingBottom: spacing.xs,
+    paddingBottom: AppSpacing.xs,
   },
   quickBar: { flexGrow: 0 },
   quick: {
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingVertical: AppSpacing.sm,
   },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
+    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingTop: AppSpacing.sm,
     borderTopWidth: 1,
     borderTopColor: palette.iron,
     backgroundColor: palette.secondaryBackground,
@@ -283,7 +288,7 @@ const useStyles = makeStyles(palette => ({
     flex: 1,
     minHeight: 44,
     maxHeight: 120,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: AppSpacing.md,
     paddingTop: 12,
     paddingBottom: 12,
     borderRadius: 22,

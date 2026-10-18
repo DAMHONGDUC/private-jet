@@ -1,12 +1,18 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { StatusPill } from '@/core/ui/StatusPill';
 import { formatMoney } from '@/core/utils/format';
-import { firstLeg, lastLeg, type Booking } from '../../domain/entities/booking';
+import {
+  BookingStatus,
+  firstLeg,
+  lastLeg,
+  type Booking,
+} from '../../domain/entities/booking';
 import { departureLabel, kindLabel, tripState } from '../trip-labels';
 
 type Props = { booking: Booking; now: Date; onPress: () => void };
@@ -20,7 +26,7 @@ export function TripCard({ booking, now, onPress }: Props) {
   const from = firstLeg(booking);
   const to = lastLeg(booking);
   const state = tripState(booking, now);
-  const faded = booking.status === 'cancelled';
+  const faded = booking.status === BookingStatus.Cancelled;
 
   return (
     <PressableScale
@@ -92,18 +98,20 @@ export function TripCard({ booking, now, onPress }: Props) {
 
 const useStyles = makeStyles(palette => ({
   card: {
-    backgroundColor: palette.primaryBackground,
-    borderRadius: radius.xl,
+    backgroundColor: palette.cardBackground,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: palette.iron,
     overflow: 'hidden',
   },
   faded: { opacity: 0.6 },
-  top: { padding: spacing.lg, gap: spacing.md },
+  top: { padding: AppSpacing.lg, gap: AppSpacing.md },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  route: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  route: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
   path: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
   dash: {
     flex: 1,
@@ -132,9 +140,9 @@ const useStyles = makeStyles(palette => ({
   notchRight: { right: -NOTCH / 2 },
   bottom: {
     flexDirection: 'row',
-    padding: spacing.lg,
-    paddingTop: spacing.sm,
-    gap: spacing.md,
+    padding: AppSpacing.lg,
+    paddingTop: AppSpacing.sm,
+    gap: AppSpacing.md,
   },
   cell: { flex: 1, gap: 2 },
   wide: { flex: 1.8 },

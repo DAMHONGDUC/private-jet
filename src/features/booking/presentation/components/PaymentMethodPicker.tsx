@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Shimmer } from '@/core/ui/Shimmer';
@@ -8,6 +8,7 @@ import { haptics } from '@/core/ui/haptics';
 import { formatMoney } from '@/core/utils/format';
 import {
   paymentLabel,
+  PaymentMethodKind,
   type PaymentMethod,
 } from '../../domain/entities/payment';
 
@@ -46,7 +47,7 @@ export function PaymentMethodPicker({
       {methods.map(method => {
         const selected = method.id === chosen;
         const short =
-          method.kind === 'wallet' &&
+          method.kind === PaymentMethodKind.Wallet &&
           amount !== undefined &&
           (method.balance ?? 0) < amount;
         return (
@@ -71,10 +72,10 @@ export function PaymentMethodPicker({
                 muted
                 style={short ? styles.short : undefined}
               >
-                {method.kind === 'wallet'
+                {method.kind === PaymentMethodKind.Wallet
                   ? `Balance ${formatMoney(
                       method.balance ?? 0,
-                      method.currency ?? currency ?? 'EUR',
+                      method.currency ?? currency ?? 'AUD',
                     )}${short ? ' · not enough' : ''}`
                   : `Expires ${method.expiry}${
                       method.isDefault ? ' · Default' : ''
@@ -89,12 +90,12 @@ export function PaymentMethodPicker({
 }
 
 const useStyles = makeStyles(palette => ({
-  list: { gap: spacing.sm },
+  list: { gap: AppSpacing.sm },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
+    gap: AppSpacing.md,
+    padding: AppSpacing.md,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: palette.iron,
