@@ -39,7 +39,7 @@ export function FormField({ label, error, ...input }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  field: { gap: AppSpacing.xs },
+  field: { gap: AppSpacing.spacing4 },
   input: {
     color: palette.primaryText,
     backgroundColor: palette.primaryBackground,
@@ -47,8 +47,8 @@ const useStyles = makeStyles(palette => ({
     borderWidth: StyleSheet.hairlineWidth,
     fontFamily: blackJetFonts.regular,
     borderColor: palette.iron,
-    paddingHorizontal: AppSpacing.md,
-    paddingVertical: AppSpacing.md,
+    paddingHorizontal: AppSpacing.spacing12,
+    paddingVertical: AppSpacing.spacing12,
     fontSize: 15,
   },
   invalid: { borderColor: palette.error },

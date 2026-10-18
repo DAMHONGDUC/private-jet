@@ -64,8 +64,8 @@ const useStyles = makeStyles(palette => ({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.md,
-    paddingVertical: AppSpacing.md,
+    gap: AppSpacing.spacing12,
+    paddingVertical: AppSpacing.spacing12,
     minHeight: 56,
   },
   divider: {

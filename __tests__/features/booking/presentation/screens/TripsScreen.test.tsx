@@ -74,6 +74,6 @@ test("a trip's actions are pinned to the bottom, outside its scrolling details",
   const actions = screen.getByTestId('bottom-actions');
   expect(actions).toContainElement(screen.getByTestId('contact-concierge'));
   expect(actions).toContainElement(screen.getByTestId('cancel-trip'));
-  expect(actions).toHaveStyle({ paddingBottom: 16 });
+  expect(actions).toHaveStyle({ paddingBottom: 8 });
   expect(screen.getByTestId('trip-scroll')).not.toContainElement(actions);
 });

@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
-import { Icon } from './Icon';
-import { PressableScale } from './PressableScale';
 
 type Props = {
   visible: boolean;
@@ -44,7 +42,7 @@ export function BottomSheet({
           testID={testID}
           style={[
             styles.sheet,
-            { paddingBottom: insets.bottom + AppSpacing.lg },
+            { paddingBottom: AppSpacing.bottomActionInset(insets.bottom) },
           ]}
         >
           <View style={styles.handle} />
@@ -55,31 +53,6 @@ export function BottomSheet({
         </View>
       </View>
     </Modal>
-  );
-}
-
-type OptionProps = {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-  testID?: string;
-};
-
-/** One choice in a sheet: a plain row with a check when selected. */
-export function SheetOption({ label, selected, onPress, testID }: OptionProps) {
-  const styles = useStyles();
-  const palette = useBlackJetTheme();
-  return (
-    <PressableScale
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      style={styles.option}
-    >
-      <AppText variant={selected ? 'subtitle' : 'body'}>{label}</AppText>
-      {selected ? <Icon name="check" size={20} color={palette.accent} /> : null}
-    </PressableScale>
   );
 }
 
@@ -97,8 +70,8 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
   },
   handle: {
     alignSelf: 'center',
@@ -106,15 +79,7 @@ const useStyles = makeStyles(palette => ({
     height: 4,
     borderRadius: radius.pill,
     backgroundColor: palette.iron,
-    marginBottom: AppSpacing.md,
+    marginBottom: AppSpacing.spacing12,
   },
-  title: { marginBottom: AppSpacing.sm },
-  option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: AppSpacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: palette.iron,
-  },
+  title: { marginBottom: AppSpacing.spacing8 },
 }));

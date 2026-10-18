@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
-import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { haptics } from '@/core/ui/haptics';
 import { BJSheet } from './BJSheet';
+import { RoundButton } from './RoundButton';
 
 type Props = {
   visible: boolean;
@@ -85,34 +85,6 @@ export function CountSheet({
   );
 }
 
-type RoundButtonProps = {
-  icon: IconName;
-  testID: string;
-  disabled: boolean;
-  onPress: () => void;
-};
-
-function RoundButton({ icon, testID, disabled, onPress }: RoundButtonProps) {
-  const palette = useBlackJetTheme();
-  return (
-    <PressableScale
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      scaleTo={0.94}
-      style={[
-        styles.round,
-        { backgroundColor: palette.primaryBackground },
-        disabled && styles.disabled,
-      ]}
-    >
-      <Icon name={icon} size={18} color={palette.primaryText} />
-    </PressableScale>
-  );
-}
-
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
@@ -122,14 +94,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   value: { minWidth: 64, textAlign: 'center' },
-  round: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disabled: { opacity: 0.4 },
   done: {
     height: 52,
     borderRadius: 12,

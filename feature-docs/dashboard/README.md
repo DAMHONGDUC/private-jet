@@ -699,11 +699,17 @@ y = scrollY
 3. y > heroH + R            → collapsed: 56pt cuối của khu search nằm đúng dưới thanh tóm tắt, list cuộn tiếp.
 ```
 
-**Snap:** thả tay khi `heroH < y < heroH + R` thì `scrollTo` về đầu gần hơn (`p < 0.5` về `heroH`, ngược lại về `heroH + R`), dùng thời lượng hệ thống.
+**Không snap nội dung:** trang dừng đúng chỗ thả tay, không bao giờ tự `scrollTo`. Kéo ngược lên một chút (kể cả từ cuối trang) chỉ cuộn đúng quãng đó, không nhảy về đầu.
+
+**Thanh tóm tắt ghim dưới app bar, kiểu `SliverAppBar(pinned: true)` của Flutter:**
+- Khi form đã cuộn đi, thanh hiện ra (220ms) ở đỉnh vùng nội dung, ngay dưới app bar, và đứng yên ở đó dù trang cuộn lên hay xuống, cho tới khi cuộn ngược về tới form.
+- Thanh không bao giờ đè lên app bar: vùng chứa (`body`) có `overflow: hidden`.
+- Màn kết quả (`SearchResultsScreen`) không ghim thanh dưới header mà đưa thẳng lên header, cạnh nút back, thay chỗ tiêu đề "Your search" (`HeaderSearchSlot`, bản `compact` cao 48 của `SearchSummaryBar`). Tiêu đề và thanh cross-fade theo `progress`.
+- Test: `__tests__/features/dashboard/presentation/use-collapsible-search.test.tsx` (thanh ghim, không tự cuộn, chỉ tap mới về đầu) và test bố cục trong `DashboardScreen.test.tsx`.
 
 **Mở rộng lại:**
 - Tap thanh tóm tắt hoặc nút `"New Flight Request"` → `scrollTo(0)`, khu search mở lại theo cuộn.
-- Cuộn ngược lên đầu cũng tự mở.
+- Cuộn ngược lên tới form cũng tự mở.
 - **[chưa làm]** Android back khi đang collapsed thì mở rộng trước rồi mới thoát.
 
 **Khi nào cho thu gọn:** mọi trạng thái. Ở `idle` bên dưới là news carousel, ở `success` là danh sách máy bay. Nội dung có `minHeight = viewport + heroH + R`, nên lúc nào cũng cuộn đủ để thu gọn, kể cả khi list ngắn.
@@ -742,16 +748,16 @@ y = scrollY
 | Spec | Code |
 |---|---|
 | 1.1–1.4 Token, font, icon | `src/core/theme/blackjet.ts`, `src/core/ui/BJText.tsx`, `src/core/ui/Icon.tsx`; font trong `src/assets/fonts` (link bằng `npx react-native-asset`) |
-| 2.1–2.2 App bar, hero | `presentation/components/HomeHeader.tsx` (badge lấy từ `getInbox`) |
-| 2.3 Booking card | `components/BookingCard.tsx`, `components/SearchFields.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
+| 2.1–2.2 App bar, hero | `presentation/components/HomeAppBar.tsx` + `BadgeButton.tsx` (badge lấy từ `getInbox`), `HeroText.tsx` |
+| 2.3 Booking card | `components/BookingCard.tsx`, `LegEditor.tsx`, `RowErrors.tsx`, `TripTypeRadio.tsx`, `RouteRow.tsx`, `AirportBox.tsx`, `FieldButton.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
 | 2.4 News carousel | `components/NewsCarousel.tsx`, `components/PhotoPager.tsx` |
 | 2.5 Bottom nav | `src/app/navigation/BlackJetTabBar.tsx`: 3 tab Home / Flights / Trips. Repo chưa có Blog và Profile nên chưa có tab avatar |
 | 3.4 Validation | `domain/entities/charter.ts` → `checkDraft()`, giữ nguyên câu báo lỗi gốc; thêm 2 luật: 2 sân bay phải khác nhau, các leg Multi City phải theo thứ tự ngày |
-| 4.x Sheets | `components/BJSheet.tsx`, `AirportSheet.tsx` (recent ở trên, rồi tất cả sân bay), `CalendarSheet.tsx`, `CountSheet.tsx` (1–16 khách), `ConfirmSheet.tsx` |
+| 4.x Sheets | `components/BJSheet.tsx`, `AirportSheet.tsx` (recent ở trên, rồi tất cả sân bay), `CalendarSheet.tsx` (lật tháng, lưới tháng/năm tới 24 tháng, giờ khởi hành 06:00–22:00 mỗi 30 phút hoặc "Any time", bấm Done để chọn; `MonthDays`, `MonthYearPicker`, `TimeChips`, `calendar-months.ts`), `CountSheet.tsx` (1–16 khách), `ConfirmSheet.tsx` |
 | 5 Haptics | `src/core/ui/haptics.ts` (`react-native-haptic-feedback`) |
 | 6.2 Fade-up, 6.4 Shimmer | `src/core/ui/FadeUp.tsx`, `src/core/ui/Shimmer.tsx` (gradient bằng `backgroundImage` của RN 0.88) |
 | 12.1 Luồng mới | `presentation/charter-search-slice.ts` (form + search đang hiển thị), `dashboard-api.ts` → `searchCharters` |
-| 12.2–12.3 Kết quả, JetCard | `components/JetResults.tsx`, `components/JetCard.tsx`, `components/Skeletons.tsx`; empty state dùng Lottie |
+| 12.2–12.3 Kết quả, JetCard | `components/JetResults.tsx`, `LegQuoteGroup.tsx`, `NoListings.tsx`, `ResultsLoadError.tsx`, `components/JetCard.tsx`, `JetCardSkeleton.tsx`; empty state dùng Lottie |
 | 12.4 Thu gọn khi cuộn | `presentation/use-collapsible-search.ts`, `components/SearchSummaryBar.tsx`, `screens/DashboardScreen.tsx` |
 | Mock | `data/datasources/mock/charter.mock.ts`: 6 máy bay, giá theo khoảng cách great-circle giữa 7 sân bay mock của Flights; `news.mock.ts` |
 

@@ -7,18 +7,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
-import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Snackbar } from '@/core/ui/Snackbar';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import type { CharterRequest } from '../../domain/entities/charter';
 import {
   searchSubmitted,
   selectQuoteSelections,
   selectSubmittedCharter,
 } from '../charter-search-slice';
-import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
+import { HeaderSearchSlot } from '../components/HeaderSearchSlot';
 import { JetResults } from '../components/JetResults';
 import { SearchPanel } from '../components/SearchPanel';
 import { SelectionBar } from '../components/SelectionBar';
@@ -39,8 +38,9 @@ type Props = {
 
 /**
  * The jets for the search the dashboard ran, one group per leg. The search
- * form sits above them, so it can be changed here, and turns into a pill
- * as the jets scroll, just as on the dashboard. Once a jet is chosen a bar
+ * form sits above them, so it can be changed here, and as the jets scroll
+ * it turns into a pill that takes the title's place in the header, beside
+ * the back button. Once a jet is chosen a bar
  * at the bottom carries the total to checkout.
  */
 export function SearchResultsScreen({
@@ -94,7 +94,7 @@ export function SearchResultsScreen({
         },
       ]}
     >
-      <View style={styles.header}>
+      <View testID="search-results-header" style={styles.header}>
         <PressableScale
           testID="search-results-back"
           accessibilityRole="button"
@@ -104,12 +104,15 @@ export function SearchResultsScreen({
         >
           <Icon name="chevronLeft" size={20} color={palette.jetBlack} />
         </PressableScale>
-        <BJText size={20} style={styles.flex} numberOfLines={1}>
-          {t('results.title')}
-        </BJText>
+        <HeaderSearchSlot
+          progress={collapsible.progress}
+          title={t('results.title')}
+          request={request}
+          onPress={collapsible.expand}
+        />
       </View>
 
-      <View style={styles.flex}>
+      <View style={styles.body}>
         <Animated.ScrollView
           testID="search-results-scroll"
           ref={collapsible.scrollRef}
@@ -118,8 +121,9 @@ export function SearchResultsScreen({
           keyboardShouldPersistTaps="handled"
           onLayout={collapsible.onViewportLayout}
           contentContainerStyle={{
-            paddingTop: AppSpacing.sm,
-            paddingBottom: insets.bottom + (showBar ? BAR_ROOM : AppSpacing.xl),
+            paddingTop: AppSpacing.spacing8,
+            paddingBottom:
+              insets.bottom + (showBar ? BAR_ROOM : AppSpacing.spacing24),
             minHeight: collapsible.minContentHeight,
           }}
           refreshControl={
@@ -152,12 +156,6 @@ export function SearchResultsScreen({
             />
           ) : null}
         </Animated.ScrollView>
-
-        <CollapsedSearchPill
-          progress={collapsible.progress}
-          request={request}
-          onPress={collapsible.expand}
-        />
       </View>
 
       {showBar && selection.results ? (
@@ -176,7 +174,7 @@ export function SearchResultsScreen({
       <Snackbar
         message={notice}
         onHide={hideNotice}
-        bottom={insets.bottom + (showBar ? BAR_ROOM : AppSpacing.lg)}
+        bottom={insets.bottom + (showBar ? BAR_ROOM : AppSpacing.spacing16)}
       />
     </View>
   );
@@ -186,14 +184,15 @@ export function SearchResultsScreen({
 const BAR_ROOM = 112;
 
 const styles = StyleSheet.create({
+  body: { flex: 1 },
   screen: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    paddingBottom: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
+    paddingBottom: AppSpacing.spacing8,
   },
   back: {
     width: 44,
@@ -202,6 +201,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  flex: { flex: 1 },
   barSlot: { position: 'absolute', left: 0, right: 0 },
 });

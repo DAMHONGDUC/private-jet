@@ -105,13 +105,17 @@ const useStyles = makeStyles(palette => ({
     overflow: 'hidden',
   },
   faded: { opacity: 0.6 },
-  top: { padding: AppSpacing.lg, gap: AppSpacing.md },
+  top: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing12 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  route: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
+  route: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
   path: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
   dash: {
     flex: 1,
@@ -140,9 +144,9 @@ const useStyles = makeStyles(palette => ({
   notchRight: { right: -NOTCH / 2 },
   bottom: {
     flexDirection: 'row',
-    padding: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    gap: AppSpacing.md,
+    padding: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
+    gap: AppSpacing.spacing12,
   },
   cell: { flex: 1, gap: 2 },
   wide: { flex: 1.8 },

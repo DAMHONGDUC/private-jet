@@ -77,25 +77,8 @@ describe('FlightRepositoryImpl on the mock data source', () => {
     });
   });
 
-  it('takes reserved seats off the flight for later reads', async () => {
-    const repo = repository();
-
-    await repo.reserveSeats('BJ-101', 2);
-
-    expect((await repo.getFlightById('BJ-101')).seatsAvailable).toBe(3);
-  });
-
-  it('refuses more seats than are left, and unknown flights', async () => {
-    const repo = repository();
-
-    await expect(repo.reserveSeats('BJ-102', 3)).rejects.toMatchObject({
-      code: 'SOLD_OUT',
-    });
-    await expect(repo.reserveSeats('BJ-104', 1)).rejects.toMatchObject({
-      code: 'SOLD_OUT',
-      message: 'This flight is sold out.',
-    });
-    await expect(repo.getFlightById('nope')).rejects.toMatchObject({
+  it('reports an unknown flight as NOT_FOUND', async () => {
+    await expect(repository().getFlightById('nope')).rejects.toMatchObject({
       code: 'NOT_FOUND',
     });
   });

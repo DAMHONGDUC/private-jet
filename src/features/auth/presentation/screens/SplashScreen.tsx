@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
   spinner: {
     position: 'absolute',
     top: '50%',
-    marginTop: ICON / 2 + AppSpacing.xl,
+    marginTop: ICON / 2 + AppSpacing.spacing24,
   },
 });

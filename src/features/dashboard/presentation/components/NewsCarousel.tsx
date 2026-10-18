@@ -7,9 +7,11 @@ import { BJText } from '@/core/ui/BJText';
 import { useGetNewsQuery } from '../dashboard-api';
 import { imageFor } from '@/core/ui/images';
 import { PhotoPager } from './PhotoPager';
-import { NewsSkeleton } from './Skeletons';
+import { NewsSkeleton } from './NewsSkeleton';
 
 const HEIGHT = 220;
+/** How long each story stays before the carousel turns to the next. */
+const AUTO_PLAY_MS = 4000;
 
 /** Darkens towards the bottom, behind the title. */
 const OVERLAY =
@@ -44,6 +46,7 @@ export function NewsCarousel({
           photos={posts.map(post => imageFor(post.image))}
           height={HEIGHT}
           dotsBottom={12}
+          autoPlayInterval={AUTO_PLAY_MS}
           onPressItem={onOpenNews && (index => onOpenNews(posts[index].id))}
           renderOverlay={index => (
             <View
@@ -78,9 +81,9 @@ export function NewsCarousel({
 
 const styles = StyleSheet.create({
   root: {
-    marginHorizontal: AppSpacing.lg,
+    marginHorizontal: AppSpacing.spacing16,
     marginTop: AppSpacing.section,
-    gap: AppSpacing.lg,
+    gap: AppSpacing.spacing16,
   },
   card: {
     height: HEIGHT,
@@ -93,9 +96,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: AppSpacing.lg,
-    paddingBottom: AppSpacing.xxl,
-    gap: AppSpacing.xs,
+    padding: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
+    gap: AppSpacing.spacing4,
   },
   summary: { color: 'rgba(255, 255, 255, 0.89)' },
 });

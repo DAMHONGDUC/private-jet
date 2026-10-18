@@ -21,9 +21,10 @@ type Props = {
 };
 
 /**
- * The search pill pinned over the top of a scroll view once its form has
- * scrolled away. It slides and fades in with `progress` and takes touches
- * only while it is mostly in; only this view re-renders when that flips.
+ * The search pill pinned over the top of a scroll view, right under the app
+ * bar, once its form has scrolled away. It slides and fades in with
+ * `progress` and takes touches only while it is mostly in; only this view
+ * re-renders when that flips.
  */
 export function CollapsedSearchPill({
   progress,
@@ -69,8 +70,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    paddingBottom: AppSpacing.md,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
+    paddingBottom: AppSpacing.spacing12,
   },
 });

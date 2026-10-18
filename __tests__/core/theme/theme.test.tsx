@@ -10,23 +10,27 @@ import { AppSpacing } from '@/core/theme/app-spacing';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { createTestStore } from '@test-utils/test-store';
 
-test('a bottom action sits 16 pt above the safe area', () => {
-  expect(AppSpacing.bottomAction).toBe(16);
-  expect(AppSpacing.bottomActionInset(0)).toBe(16);
-  expect(AppSpacing.bottomActionInset(34)).toBe(50);
+test('a bottom action sits 8 pt above the safe area', () => {
+  expect(AppSpacing.bottomAction).toBe(8);
+  expect(AppSpacing.bottomActionInset(0)).toBe(8);
+  expect(AppSpacing.bottomActionInset(34)).toBe(42);
 });
 
 test('every gap is on the 4 pt grid', () => {
   const steps = [
-    AppSpacing.xs,
-    AppSpacing.sm,
-    AppSpacing.md,
-    AppSpacing.lg,
-    AppSpacing.xl,
-    AppSpacing.xxl,
-    AppSpacing.xxxl,
+    AppSpacing.spacing4,
+    AppSpacing.spacing8,
+    AppSpacing.spacing12,
+    AppSpacing.spacing16,
+    AppSpacing.spacing20,
+    AppSpacing.spacing24,
+    AppSpacing.spacing32,
+    AppSpacing.spacing48,
   ];
   steps.forEach(step => expect(step % 4).toBe(0));
+  // Each step is named by its value.
+  expect(AppSpacing.spacing4).toBe(4);
+  expect(AppSpacing.spacing48).toBe(48);
 });
 
 test('the light and dark palettes name the same roles', () => {

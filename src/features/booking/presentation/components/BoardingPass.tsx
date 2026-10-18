@@ -11,6 +11,7 @@ import { Icon } from '@/core/ui/Icon';
 import { formatMoney } from '@/core/utils/format';
 import { firstLeg, lastLeg, type Booking } from '../../domain/entities/booking';
 import { departureLabel, kindLabel, routeCodes } from '../trip-labels';
+import { BoardingDetail } from './BoardingDetail';
 
 const NOTCH = 20;
 
@@ -68,10 +69,10 @@ export function BoardingPass({ booking }: { booking: Booking }) {
 
       <View style={styles.bottom}>
         <View style={styles.grid}>
-          <Detail label="Departure" value={departureLabel(booking)} />
-          <Detail label="Guests" value={String(guests)} />
-          <Detail label="Paid with" value={booking.paymentLabel} />
-          <Detail
+          <BoardingDetail label="Departure" value={departureLabel(booking)} />
+          <BoardingDetail label="Guests" value={String(guests)} />
+          <BoardingDetail label="Paid with" value={booking.paymentLabel} />
+          <BoardingDetail
             label="Total"
             value={formatMoney(booking.totalPrice, booking.currency)}
           />
@@ -89,20 +90,6 @@ export function BoardingPass({ booking }: { booking: Booking }) {
   );
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
-  const styles = useStyles();
-  return (
-    <View style={styles.detail}>
-      <AppText variant="label" muted>
-        {label}
-      </AppText>
-      <AppText variant="subtitle" numberOfLines={1}>
-        {value}
-      </AppText>
-    </View>
-  );
-}
-
 const useStyles = makeStyles(palette => ({
   pass: {
     alignSelf: 'stretch',
@@ -112,13 +99,17 @@ const useStyles = makeStyles(palette => ({
     borderColor: palette.iron,
     overflow: 'hidden',
   },
-  top: { padding: AppSpacing.card, gap: AppSpacing.lg },
+  top: { padding: AppSpacing.card, gap: AppSpacing.spacing16 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  route: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
+  route: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
   code: {
     fontFamily: blackJetFonts.display,
     fontSize: 36,
@@ -130,7 +121,7 @@ const useStyles = makeStyles(palette => ({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
   },
   line: { flex: 1, height: StyleSheet.hairlineWidth },
   end: { alignItems: 'flex-end' },
@@ -151,12 +142,15 @@ const useStyles = makeStyles(palette => ({
     borderTopWidth: 1,
     borderStyle: 'dashed',
     borderColor: palette.iron,
-    marginHorizontal: AppSpacing.sm,
+    marginHorizontal: AppSpacing.spacing8,
   },
-  bottom: { padding: AppSpacing.card, gap: AppSpacing.lg },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: AppSpacing.md },
-  detail: { width: '50%', gap: AppSpacing.xs, paddingRight: AppSpacing.sm },
-  reference: { alignItems: 'center', gap: AppSpacing.xs },
+  bottom: { padding: AppSpacing.card, gap: AppSpacing.spacing16 },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: AppSpacing.spacing12,
+  },
+  reference: { alignItems: 'center', gap: AppSpacing.spacing4 },
   referenceCode: {
     fontFamily: blackJetFonts.display,
     fontSize: 26,

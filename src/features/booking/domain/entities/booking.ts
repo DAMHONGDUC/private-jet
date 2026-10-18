@@ -51,6 +51,8 @@ export type BookingRequest = {
   contactEmail: string;
   /** The default card when absent. */
   paymentMethodId?: string;
+  /** One per checkout attempt; a retry with the same key cannot book or charge twice. */
+  idempotencyKey: string;
 };
 
 /** A booking before the backend gives it an id, a reference, a status and a timestamp. */
@@ -58,6 +60,14 @@ export type NewBooking = Omit<
   Booking,
   'id' | 'reference' | 'status' | 'bookedAt'
 >;
+
+/** A booking to pay for and record in one backend call. */
+export type BookingOrder = {
+  booking: NewBooking;
+  paymentMethodId: string;
+  /** Sent again on a retry, so the backend returns the first booking instead of charging twice. */
+  idempotencyKey: string;
+};
 
 export const MAX_PASSENGERS = MAX_SEARCH_PASSENGERS;
 

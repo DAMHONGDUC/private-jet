@@ -13,7 +13,16 @@ const IMAGES: Record<string, ImageSourcePropType> = {
   'news-4': require('@/assets/images/news-4.jpg'),
 };
 
+const REMOTE = /^https?:\/\//i;
+
+/**
+ * A photo the data layer names: an http(s) URL from the backend loads over
+ * the network, a bundled key loads from the app, anything else shows jet-1.
+ */
 export function imageFor(key: string): ImageSourcePropType {
+  if (REMOTE.test(key)) {
+    return { uri: key };
+  }
   return IMAGES[key] ?? IMAGES['jet-1'];
 }
 

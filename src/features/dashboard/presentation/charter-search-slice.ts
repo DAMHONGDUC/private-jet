@@ -29,6 +29,7 @@ const freshDraft = (tripType: TripType): CharterDraft => ({
   tripType,
   outbound: emptyDraftLeg(),
   returnDate: null,
+  returnTime: null,
   legs: tripType === TripType.MultiCity ? [emptyDraftLeg()] : [],
 });
 
@@ -82,15 +83,30 @@ export const charterSearchSlice = createSlice({
     },
     dateSelected(
       state,
-      action: PayloadAction<{ target: LegTarget; date: string }>,
+      action: PayloadAction<{
+        target: LegTarget;
+        date: string;
+        /** `HH:MM`, or null for any time; left as it was when absent. */
+        time?: string | null;
+      }>,
     ) {
-      const leg = legOf(state.draft, action.payload.target);
+      const { target, date, time } = action.payload;
+      const leg = legOf(state.draft, target);
       if (leg) {
-        leg.date = action.payload.date;
+        leg.date = date;
+        if (time !== undefined) {
+          leg.time = time;
+        }
       }
     },
-    returnDateSelected(state, action: PayloadAction<string>) {
-      state.draft.returnDate = action.payload;
+    returnDateSelected(
+      state,
+      action: PayloadAction<{ date: string; time?: string | null }>,
+    ) {
+      state.draft.returnDate = action.payload.date;
+      if (action.payload.time !== undefined) {
+        state.draft.returnTime = action.payload.time;
+      }
     },
     passengersSelected(
       state,

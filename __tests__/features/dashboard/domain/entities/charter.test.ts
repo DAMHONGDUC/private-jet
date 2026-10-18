@@ -149,3 +149,17 @@ describe('draftFieldErrors', () => {
     });
   });
 });
+
+test('a chosen time travels with its leg, and the way back keeps its own', () => {
+  const request = checkDraft(
+    draft({
+      tripType: TripType.RoundTrip,
+      outbound: leg({ time: '09:30' }),
+      returnDate: '2026-10-22',
+      returnTime: '18:00',
+    }),
+  ).request;
+  expect(request?.legs.map(item => item.time)).toEqual(['09:30', '18:00']);
+  // Any time leaves the field out, so the request reads as before.
+  expect(checkDraft(draft()).request?.legs[0]).not.toHaveProperty('time');
+});

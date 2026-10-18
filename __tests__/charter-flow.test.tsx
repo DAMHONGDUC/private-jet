@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import App from '@/app/App';
 import { addDays, toDayKey } from '@/core/utils/date';
 import { createTestStore } from '@test-utils/test-store';
+import { pickCalendarDay } from '@test-utils/calendar';
 
 async function pickAirport(field: string, code: string) {
   await fireEvent.press(screen.getByTestId(field));
@@ -17,7 +18,7 @@ test('charters a jet from the home search to the new trip', async () => {
   await pickAirport('outbound-origin', 'SYD');
   await pickAirport('outbound-destination', 'MEB');
   await fireEvent.press(screen.getByTestId('outbound-date'));
-  await fireEvent.press(screen.getByTestId(`calendar-${day}`));
+  await pickCalendarDay(day);
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
   await fireEvent.press(screen.getByTestId('count-increment'));
   await fireEvent.press(screen.getByTestId('count-done'));

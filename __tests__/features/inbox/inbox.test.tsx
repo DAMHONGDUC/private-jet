@@ -1,15 +1,20 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen } from '@testing-library/react-native';
 import {
   TEST_NOW,
+  createTestDependencies,
   createTestStore,
   renderWithStore,
 } from '@test-utils/test-store';
 import {
+  MessageAuthor,
   conciergeReplyTo,
   summarize,
 } from '@/features/inbox/domain/entities/inbox';
 import { inboxApi } from '@/features/inbox/presentation/inbox-api';
-import { ChatScreen } from '@/features/inbox/presentation/screens/ChatScreen';
+import {
+  CHAT_POLL_MS,
+  ChatScreen,
+} from '@/features/inbox/presentation/screens/ChatScreen';
 import { NotificationsScreen } from '@/features/inbox/presentation/screens/NotificationsScreen';
 
 test('the concierge answers by topic', () => {
@@ -111,4 +116,42 @@ test('sends a message and gets the concierge reply', async () => {
     }),
   );
   expect(summary.data?.unreadMessages).toBe(0);
+});
+
+test('the open chat polls, so a reply that arrives later shows up', async () => {
+  jest.useFakeTimers();
+  try {
+    const dependencies = createTestDependencies();
+    const thread = dependencies.getMessages.execute.bind(
+      dependencies.getMessages,
+    );
+    let replied = false;
+    jest.spyOn(dependencies.getMessages, 'execute').mockImplementation(
+      async () => [
+        ...(await thread()),
+        ...(replied
+          ? [
+              {
+                id: 'msg-late',
+                author: MessageAuthor.Concierge,
+                text: 'Your car is confirmed.',
+                sentAt: TEST_NOW.toISOString(),
+                read: true,
+              },
+            ]
+          : []),
+      ],
+    );
+    await renderWithStore(<ChatScreen />, createTestStore(dependencies));
+    expect(
+      await screen.findByText(/Sophie, your Sovereign concierge/),
+    ).toBeOnTheScreen();
+
+    replied = true;
+    await act(() => jest.advanceTimersByTimeAsync(CHAT_POLL_MS));
+
+    expect(await screen.findByText('Your car is confirmed.')).toBeOnTheScreen();
+  } finally {
+    jest.useRealTimers();
+  }
 });

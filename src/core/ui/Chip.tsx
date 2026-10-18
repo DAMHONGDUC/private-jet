@@ -34,8 +34,8 @@ export function Chip({ label, selected, onPress, testID }: Props) {
 
 const useStyles = makeStyles(palette => ({
   chip: {
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingVertical: AppSpacing.spacing8,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: palette.iron,

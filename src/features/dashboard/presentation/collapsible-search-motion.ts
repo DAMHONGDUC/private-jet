@@ -1,8 +1,6 @@
 // The rules behind the collapsible search, kept apart from the hook so they
 // run the same on the UI thread and in tests.
 
-/** How far a drag back up must go before the full form comes back. */
-export const EXPAND_DRAG = 24;
 /** The form starts fading this far before the pill takes its place. */
 export const FADE_BAND = 48;
 /** Scrolling back this far past the collapse point brings the form back, so the pill does not flicker at the edge. */
@@ -30,62 +28,4 @@ export function nextCollapsed(y: number, form: FormBox, wasCollapsed: boolean) {
     return true;
   }
   return wasCollapsed && y > at - HYSTERESIS;
-}
-
-/** The nearer end when a drag stops with the form half hidden, or null when it is not. */
-export function settleTarget(y: number, form: FormBox): number | null {
-  'worklet';
-  const end = form.bottom;
-  if (y <= form.top + 1 || y >= end - 1) {
-    return null;
-  }
-  return y - form.top < (end - form.top) / 2 ? form.top : end;
-}
-
-export type DragEnd = {
-  /** Where the drag started and ended. */
-  from: number;
-  to: number;
-  /** The glide the finger left; 0 when it lifted still. */
-  velocity: number;
-  form: FormBox;
-  /** Android drops a programmatic scroll started during a glide. */
-  glideCancelsScroll: boolean;
-};
-
-/**
- * What to do when the finger lifts: scroll somewhere now, wait for the
- * glide to end before scrolling to the top, or nothing.
- */
-export function onDragEnd({
-  from,
-  to,
-  velocity,
-  form,
-  glideCancelsScroll,
-}: DragEnd): { scrollTo: number | null; expandAfterGlide: boolean } {
-  'worklet';
-  const gliding = velocity !== 0;
-  const wentUp = from - to >= EXPAND_DRAG;
-  if (wentUp && from >= collapseAt(form)) {
-    // A drag back up from the pill asks for the whole form.
-    if (gliding && glideCancelsScroll) {
-      return { scrollTo: null, expandAfterGlide: true };
-    }
-    return { scrollTo: 0, expandAfterGlide: false };
-  }
-  return {
-    scrollTo: gliding ? null : settleTarget(to, form),
-    expandAfterGlide: false,
-  };
-}
-
-/** What to do when a glide comes to rest. */
-export function onGlideEnd(
-  y: number,
-  form: FormBox,
-  expandAfterGlide: boolean,
-): number | null {
-  'worklet';
-  return expandAfterGlide ? 0 : settleTarget(y, form);
 }

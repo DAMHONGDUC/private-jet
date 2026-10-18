@@ -52,15 +52,15 @@ export function SelectionBar({
 const useStyles = makeStyles(palette => ({
   bar: {
     position: 'absolute',
-    left: AppSpacing.lg,
-    right: AppSpacing.lg,
+    left: AppSpacing.spacing16,
+    right: AppSpacing.spacing16,
     // The screen puts its slot on the safe area; this is the bottom-action gap above it.
     bottom: AppSpacing.bottomAction,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.md,
-    padding: AppSpacing.md,
-    paddingLeft: AppSpacing.lg,
+    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing12,
+    paddingLeft: AppSpacing.spacing16,
     borderRadius: radius.xl,
     backgroundColor: palette.raised,
     borderWidth: StyleSheet.hairlineWidth,

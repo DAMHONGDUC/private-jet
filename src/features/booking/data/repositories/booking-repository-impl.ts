@@ -2,7 +2,7 @@ import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import {
   BookingStatus,
   type Booking,
-  type NewBooking,
+  type BookingOrder,
 } from '../../domain/entities/booking';
 import {
   brandOf,
@@ -20,16 +20,19 @@ import type {
 } from '../datasources/booking-data-source';
 import {
   toBooking,
-  toCreateBookingDto,
   toPaymentMethod,
+  toPlaceBookingDto,
 } from '../mappers/booking-mapper';
 
 export class BookingRepositoryImpl implements BookingRepository {
   constructor(private readonly dataSource: BookingDataSource) {}
 
-  async createBooking(booking: NewBooking): Promise<Booking> {
+  async placeBooking(order: BookingOrder): Promise<Booking> {
     return toBooking(
-      await this.dataSource.createBooking(toCreateBookingDto(booking)),
+      await this.dataSource.placeBooking(
+        toPlaceBookingDto(order),
+        order.idempotencyKey,
+      ),
     );
   }
 
@@ -89,19 +92,5 @@ export class PaymentRepositoryImpl implements PaymentRepository {
 
   async removeCard(id: string): Promise<PaymentMethod[]> {
     return (await this.dataSource.removeCard(id)).map(toPaymentMethod);
-  }
-
-  async charge(id: string, amount: number, currency: string): Promise<void> {
-    const ok = await this.dataSource.charge(
-      id,
-      Math.round(amount * 100),
-      currency,
-    );
-    if (!ok) {
-      throw new DomainError(
-        AppErrorCode.Validation,
-        'Not enough in your Sovereign Wallet. Choose a card instead.',
-      );
-    }
   }
 }

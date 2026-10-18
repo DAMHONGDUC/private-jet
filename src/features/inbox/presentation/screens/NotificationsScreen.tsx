@@ -7,7 +7,9 @@ import { AppText } from '@/core/ui/AppText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { EmptyView, ErrorView, LoadingView } from '@/core/ui/StateViews';
+import { EmptyView } from '@/core/ui/EmptyView';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
 import { isToday, type AppNotification } from '../../domain/entities/inbox';
 import {
@@ -171,17 +173,24 @@ export function NotificationsScreen({ onOpenTrip, now: nowProp }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  list: { padding: AppSpacing.lg, gap: AppSpacing.sm, flexGrow: 1 },
+  list: {
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing8,
+    flexGrow: 1,
+  },
   top: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  section: { marginTop: AppSpacing.md, marginBottom: AppSpacing.xs },
+  section: {
+    marginTop: AppSpacing.spacing12,
+    marginBottom: AppSpacing.spacing4,
+  },
   row: {
     flexDirection: 'row',
-    gap: AppSpacing.md,
-    padding: AppSpacing.md,
+    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing12,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: palette.iron,
@@ -197,7 +206,11 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.iron,
   },
   text: { flex: 1, gap: 4 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.sm },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing8,
+  },
   title: { flex: 1 },
   dot: {
     width: 8,

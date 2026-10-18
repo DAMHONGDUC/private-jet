@@ -27,7 +27,8 @@ import {
 } from '../charter-search-slice';
 import { airportsByCode } from '../search-labels';
 import { AirportSheet } from './AirportSheet';
-import { BookingCard, type BookingCardErrors } from './BookingCard';
+import { BookingCard } from './BookingCard';
+import type { BookingCardErrors } from './booking-card-types';
 import { CalendarSheet } from './CalendarSheet';
 import { ConfirmSheet } from './ConfirmSheet';
 import { CountSheet } from './CountSheet';
@@ -188,12 +189,19 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
             ? legAt(dateTarget)?.date ?? null
             : null
         }
-        onPick={day => {
+        time={
+          dateTarget === LegSlot.Return
+            ? draft.returnTime ?? null
+            : dateTarget !== null
+            ? legAt(dateTarget)?.time ?? null
+            : null
+        }
+        onPick={(day, time) => {
           haptics.light();
           if (dateTarget === LegSlot.Return) {
-            dispatch(returnDateSelected(day));
+            dispatch(returnDateSelected({ date: day, time }));
           } else if (dateTarget !== null) {
-            dispatch(dateSelected({ target: dateTarget, date: day }));
+            dispatch(dateSelected({ target: dateTarget, date: day, time }));
           }
           close();
         }}

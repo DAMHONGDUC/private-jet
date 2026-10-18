@@ -20,7 +20,8 @@ import {
   selectSubmittedCharter,
 } from '../charter-search-slice';
 import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
-import { HeroText, HomeAppBar } from '../components/HomeHeader';
+import { HeroText } from '../components/HeroText';
+import { HomeAppBar } from '../components/HomeAppBar';
 import { NewsCarousel } from '../components/NewsCarousel';
 import { PopularRoutes } from '../components/PopularRoutes';
 import { SearchPanel } from '../components/SearchPanel';
@@ -134,6 +135,7 @@ export function DashboardScreen({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  body: { flex: 1 },
+  // Clips the pill as it eases in, so it never reaches over the app bar.
+  body: { flex: 1, overflow: 'hidden' },
   content: { flexGrow: 1 },
 });

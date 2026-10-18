@@ -206,6 +206,6 @@ test('the help screen keeps the concierge at the bottom of the screen', async ()
 
   const actions = screen.getByTestId('bottom-actions');
   expect(actions).toContainElement(screen.getByTestId('help-concierge'));
-  // Under the list, not in it: 16 pt above the (mocked, zero) safe area.
-  expect(actions).toHaveStyle({ paddingBottom: 16 });
+  // Under the list, not in it: 8 pt above the (mocked, zero) safe area.
+  expect(actions).toHaveStyle({ paddingBottom: 8 });
 });

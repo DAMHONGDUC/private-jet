@@ -5,10 +5,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
-  type ImageSourcePropType,
-  type TextInputProps,
 } from 'react-native';
 import Animated, {
   FadeIn,
@@ -20,24 +17,22 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '@/core/theme/app-colors';
-import { blackJetFonts } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
-import { BRAND_ICONS, imageFor } from '@/core/ui/images';
+import { imageFor } from '@/core/ui/images';
 import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
 import { DEMO_CREDENTIALS, credentialErrors } from '../../domain/entities/user';
 import { useSignInMutation } from '../auth-api';
-
-const WHITE = AppColors.fixed.white;
-const MUTED = AppColors.fixed.onPhotoMuted;
-const FIELD = 'rgba(255, 255, 255, 0.12)';
-const BORDER = 'rgba(255, 255, 255, 0.22)';
-const ERROR = '#FF6B6B';
+import { DemoHint } from '../components/DemoHint';
+import { LoginAlternatives } from '../components/LoginAlternatives';
+import { LoginField } from '../components/LoginField';
+import { PasswordField } from '../components/PasswordField';
+import { BORDER, ERROR, MUTED } from '../login-colors';
 
 /**
  * Sign in over a jet photo. Email and password, a one-tap
@@ -49,7 +44,6 @@ export function LoginScreen() {
   const [signIn, { isLoading }] = useSignInMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [hidden, setHidden] = useState(true);
   /** A sign-in failure the fields cannot show, such as a wrong password. */
   const [problem, setProblem] = useState<string | null>(null);
   /** Field errors show once Sign In was tapped, then follow the typing. */
@@ -133,7 +127,7 @@ export function LoginScreen() {
           </View>
 
           <Animated.View style={[styles.form, formStyle]}>
-            <Field
+            <LoginField
               testID="login-email"
               label="Email"
               value={email}
@@ -145,29 +139,12 @@ export function LoginScreen() {
               placeholder="you@example.com"
               error={errors.email}
             />
-            <View>
-              <Field
-                testID="login-password"
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={hidden}
-                textContentType="password"
-                placeholder="••••••••"
-                onSubmitEditing={() => submit({ email, password })}
-                error={errors.password}
-              />
-              <PressableScale
-                testID="login-toggle-password"
-                accessibilityRole="button"
-                onPress={() => setHidden(value => !value)}
-                style={styles.toggle}
-              >
-                <BJText size={13} style={styles.muted}>
-                  {hidden ? 'Show' : 'Hide'}
-                </BJText>
-              </PressableScale>
-            </View>
+            <PasswordField
+              value={password}
+              onChangeText={setPassword}
+              onSubmitEditing={() => submit({ email, password })}
+              error={errors.password}
+            />
 
             {problem ? (
               <Animated.View entering={FadeIn.duration(200)}>
@@ -195,116 +172,13 @@ export function LoginScreen() {
               </BJText>
             </PressableScale>
 
-            <View style={styles.divider}>
-              <View style={styles.line} />
-              <BJText size={13} style={styles.muted}>
-                or
-              </BJText>
-              <View style={styles.line} />
-            </View>
-
-            <PressableScale
-              testID="login-demo"
-              accessibilityRole="button"
-              disabled={isLoading}
-              onPress={() => submit()}
-              style={styles.outlined}
-            >
-              <BJText size={16} tone="white">
-                Continue with Demo Account
-              </BJText>
-            </PressableScale>
-
-            <View style={styles.socialRow}>
-              <SocialButton
-                testID="login-apple"
-                label="Apple"
-                icon={BRAND_ICONS.apple}
-                tint
-                onPress={() => submit()}
-              />
-              <SocialButton
-                testID="login-google"
-                label="Google"
-                icon={BRAND_ICONS.google}
-                onPress={() => submit()}
-              />
-            </View>
+            <LoginAlternatives busy={isLoading} onDemoSignIn={() => submit()} />
           </Animated.View>
 
-          <PressableScale
-            testID="login-fill-demo"
-            accessibilityRole="button"
-            onPress={fillDemo}
-            style={styles.hint}
-          >
-            <BJText size={13} style={styles.muted}>
-              Demo account · tap to fill
-            </BJText>
-            <BJText size={13} tone="white">
-              {DEMO_CREDENTIALS.email} · {DEMO_CREDENTIALS.password}
-            </BJText>
-          </PressableScale>
+          <DemoHint onPress={fillDemo} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-  );
-}
-
-function Field({
-  label,
-  testID,
-  error,
-  ...input
-}: TextInputProps & { label: string; testID: string; error?: string }) {
-  return (
-    <View style={styles.field}>
-      <BJText size={13} style={styles.muted}>
-        {label}
-      </BJText>
-      <TextInput
-        testID={testID}
-        placeholderTextColor="rgba(255, 255, 255, 0.4)"
-        accessibilityHint={error}
-        {...input}
-        style={[styles.input, error ? styles.invalid : null]}
-      />
-      {error ? (
-        <BJText
-          testID={`${testID}-error`}
-          size={13}
-          weight="regular"
-          accessibilityRole="alert"
-          style={styles.error}
-        >
-          {error}
-        </BJText>
-      ) : null}
-    </View>
-  );
-}
-
-type SocialProps = {
-  testID: string;
-  label: string;
-  icon: ImageSourcePropType;
-  tint?: boolean;
-  onPress: () => void;
-};
-
-function SocialButton({ testID, label, icon, tint, onPress }: SocialProps) {
-  return (
-    <PressableScale
-      testID={testID}
-      accessibilityRole="button"
-      onPress={onPress}
-      style={[styles.outlined, styles.social]}
-    >
-      <Image source={icon} style={[styles.socialIcon, tint && styles.tinted]} />
-      <BJText size={16} tone="white">
-        {label}
-      </BJText>
-    </PressableScale>
   );
 }
 
@@ -318,33 +192,20 @@ const styles = StyleSheet.create({
   photo: { width: '100%', height: '100%' },
   content: {
     flexGrow: 1,
-    paddingHorizontal: AppSpacing.lg,
-    gap: AppSpacing.xl,
+    paddingHorizontal: AppSpacing.spacing16,
+    gap: AppSpacing.spacing24,
   },
   spacer: { flex: 1, minHeight: 80 },
-  subtitle: { color: MUTED, marginTop: AppSpacing.sm },
+  subtitle: { color: MUTED, marginTop: AppSpacing.spacing8 },
   form: {
-    gap: AppSpacing.md,
-    padding: AppSpacing.lg,
+    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing16,
     borderRadius: radius.xl,
     backgroundColor: AppColors.fixed.photoScrim,
     borderWidth: 1,
     borderColor: BORDER,
   },
-  field: { gap: 6 },
-  input: {
-    height: 52,
-    borderRadius: radius.md,
-    paddingHorizontal: AppSpacing.lg,
-    backgroundColor: FIELD,
-    color: WHITE,
-    fontFamily: blackJetFonts.regular,
-    fontSize: 16,
-  },
-  toggle: { position: 'absolute', right: 12, bottom: 15 },
-  muted: { color: MUTED },
   error: { color: ERROR },
-  invalid: { borderWidth: 1, borderColor: ERROR },
   primary: {
     height: 52,
     borderRadius: radius.md,
@@ -354,19 +215,4 @@ const styles = StyleSheet.create({
   },
   busy: { opacity: 0.7 },
   onPrimary: { color: AppColors.dark.onPrimaryAction },
-  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: BORDER },
-  outlined: {
-    height: 52,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  socialRow: { flexDirection: 'row', gap: 12 },
-  social: { flex: 1, flexDirection: 'row', gap: 8 },
-  socialIcon: { width: 18, height: 18 },
-  tinted: { tintColor: WHITE },
-  hint: { alignItems: 'center', gap: 4, paddingVertical: 8 },
 });

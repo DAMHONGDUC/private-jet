@@ -23,20 +23,6 @@ export function JetCardSkeleton() {
   );
 }
 
-/** The news carousel while stories load (feature-docs/dashboard §6.4). */
-export function NewsSkeleton() {
-  const palette = useBlackJetTheme();
-  return (
-    <View
-      testID="news-skeleton"
-      style={[styles.news, { backgroundColor: palette.primaryBackground }]}
-    >
-      <Shimmer width={142} height={8} />
-      <Shimmer width={93} height={8} />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   jet: {
     height: JET_CARD_HEIGHT,
@@ -49,12 +35,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-  },
-  news: {
-    height: 220,
-    borderRadius: 24,
-    padding: 16,
-    justifyContent: 'flex-end',
-    gap: 16,
   },
 });

@@ -6,6 +6,7 @@ import {
   TripType,
 } from '@/features/dashboard/domain/entities/charter';
 import { SearchPanel } from '@/features/dashboard/presentation/components/SearchPanel';
+import { pickCalendarDay } from '@test-utils/calendar';
 
 function setup() {
   const props = { onSearch: jest.fn(), onInvalid: jest.fn() };
@@ -40,7 +41,7 @@ test('names what is missing, then searches once the form is complete', async () 
   expect(
     screen.getByTestId(`calendar-${toDayKey(addDays(TEST_NOW, -1))}`),
   ).toBeDisabled();
-  await fireEvent.press(screen.getByTestId(`calendar-${day}`));
+  await pickCalendarDay(day);
 
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
   await fireEvent.press(screen.getByTestId('count-increment'));
@@ -95,4 +96,62 @@ test('the airport search waits for a tap before it takes the keyboard', async ()
 
   const search = await screen.findByTestId('airport-search');
   expect(search.props.autoFocus).toBeFalsy();
+});
+
+test('picks a day months ahead through the month and year grid, with a time', async () => {
+  const { props, render } = setup();
+  await render();
+  await pickAirport('outbound-origin', 'SYD');
+  await pickAirport('outbound-destination', 'MEB');
+
+  await fireEvent.press(screen.getByTestId('outbound-date'));
+  // October 2026 is the first month: no way back from it.
+  expect(screen.getByTestId('calendar-prev-month')).toBeDisabled();
+  expect(screen.getByTestId('calendar-month-title')).toHaveTextContent(
+    /^October 2026/,
+  );
+  // Nothing is confirmed until a day is chosen.
+  expect(screen.getByTestId('calendar-done')).toBeDisabled();
+
+  await fireEvent.press(screen.getByTestId('calendar-month-title'));
+  // Months before October 2026 cannot be picked.
+  expect(screen.getByTestId('calendar-month-8')).toBeDisabled();
+  await fireEvent.press(screen.getByTestId('calendar-year-next'));
+  expect(screen.getByTestId('calendar-year')).toHaveTextContent('2027');
+  await fireEvent.press(screen.getByTestId('calendar-month-2'));
+  expect(screen.getByTestId('calendar-month-title')).toHaveTextContent(
+    /^March 2027/,
+  );
+
+  await pickCalendarDay('2027-03-10', { time: '14:30' });
+  expect(screen.getByTestId('outbound-date')).toHaveTextContent(
+    /10 Mar 2027 · 14:30$/,
+  );
+
+  await fireEvent.press(screen.getByTestId('outbound-passengers'));
+  await fireEvent.press(screen.getByTestId('count-done'));
+  await fireEvent.press(screen.getByTestId('find-jet'));
+  expect(props.onSearch).toHaveBeenCalledWith({
+    tripType: TripType.OneWay,
+    legs: [
+      {
+        origin: 'SYD',
+        destination: 'MEB',
+        date: '2027-03-10',
+        time: '14:30',
+        passengers: 1,
+      },
+    ],
+  });
+});
+
+test('closing the calendar without Done keeps the field as it was', async () => {
+  const { render } = setup();
+  await render();
+
+  await fireEvent.press(screen.getByTestId('outbound-date'));
+  await pickCalendarDay(toDayKey(addDays(TEST_NOW, 2)), { confirm: false });
+  await fireEvent.press(screen.getByTestId('calendar-sheet-close'));
+
+  expect(screen.getByTestId('outbound-date')).toHaveTextContent(/Departure$/);
 });

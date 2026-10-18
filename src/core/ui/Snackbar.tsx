@@ -48,10 +48,10 @@ export function Snackbar({ message, onHide, bottom }: Props) {
 const styles = StyleSheet.create({
   bar: {
     position: 'absolute',
-    left: AppSpacing.md,
-    right: AppSpacing.md,
+    left: AppSpacing.spacing12,
+    right: AppSpacing.spacing12,
     borderRadius: 8,
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.md,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingVertical: AppSpacing.spacing12,
   },
 });

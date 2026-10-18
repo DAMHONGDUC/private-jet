@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, type LayoutChangeEvent } from 'react-native';
+import type { LayoutChangeEvent } from 'react-native';
 import Animated, {
   Easing,
   Extrapolation,
@@ -18,22 +18,22 @@ import {
   PILL_DURATION,
   collapseAt,
   nextCollapsed,
-  onDragEnd,
-  onGlideEnd,
 } from './collapsible-search-motion';
 
-const GLIDE_CANCELS_SCROLL = Platform.OS === 'android';
 const PILL_EASING = Easing.out(Easing.cubic);
 
 /**
- * Swaps a screen's search form for a floating pill as it scrolls away.
+ * Swaps a screen's search form for a pill pinned under the app bar as it
+ * scrolls away, the way Flutter's `SliverAppBar(pinned: true)` keeps a
+ * collapsed bar in place over a tall header.
  *
  * The form stays in the scroll content, so it moves with the page and fades
- * as it leaves. Once it has nearly left the screen the pill eases in on top,
- * on its own clock rather than with the finger, so it never stops half drawn.
- * Dragging back up by `EXPAND_DRAG` while the pill shows scrolls to the top,
- * so the whole form returns at once. Letting go while the form is half
- * hidden settles on the nearer end. Everything runs on the UI thread: the
+ * as it leaves. Once it has nearly left the screen the pill eases in at the
+ * top of the content area, right under the app bar, on its own clock rather
+ * than with the finger, so it never stops half drawn; it stays there for as
+ * long as the form is away, whichever way the page scrolls. The page itself
+ * is never moved by scrolling: a scroll stays where it stops, and only a tap
+ * on the pill goes back to the form. Everything runs on the UI thread: the
  * screen does not re-render while it scrolls.
  *
  * A short page could not scroll the form away, leaving it stuck half faded
@@ -42,9 +42,6 @@ const PILL_EASING = Easing.out(Easing.cubic);
 export function useCollapsibleSearch() {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const y = useSharedValue(0);
-  const dragStart = useSharedValue(0);
-  /** A drag back up asked for the form while the page was still gliding. */
-  const expandPending = useSharedValue(false);
   const form = useSharedValue({ top: 0, bottom: 0 });
   const collapsed = useSharedValue(false);
   /** 0 with the form in view, 1 with the pill in place. */
@@ -52,37 +49,10 @@ export function useCollapsibleSearch() {
   const [formBottom, setFormBottom] = useState(0);
   const [viewport, setViewport] = useState(0);
 
-  const scrollToY = (to: number | null) => {
-    'worklet';
-    if (to !== null) {
-      scrollTo(scrollRef, 0, to, true);
-    }
-  };
-
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
       y.value = event.contentOffset.y;
       collapsed.value = nextCollapsed(y.value, form.value, collapsed.value);
-    },
-    onBeginDrag: event => {
-      dragStart.value = event.contentOffset.y;
-      expandPending.value = false;
-    },
-    onEndDrag: event => {
-      const next = onDragEnd({
-        from: dragStart.value,
-        to: event.contentOffset.y,
-        velocity: event.velocity?.y ?? 0,
-        form: form.value,
-        glideCancelsScroll: GLIDE_CANCELS_SCROLL,
-      });
-      expandPending.value = next.expandAfterGlide;
-      scrollToY(next.scrollTo);
-    },
-    onMomentumEnd: event => {
-      const pending = expandPending.value;
-      expandPending.value = false;
-      scrollToY(onGlideEnd(event.contentOffset.y, form.value, pending));
     },
   });
 

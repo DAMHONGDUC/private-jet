@@ -76,7 +76,7 @@ Nguyên nhân: trong `src/features/dashboard/presentation/use-collapsible-search
 
 ## Phase 6: Logo mới (yêu cầu 4)
 
-1. Thay `src/assets/images/logo-light.png` và `logo-dark.png` (dùng ở Splash, Login, HomeHeader).
+1. Thay `src/assets/images/logo-light.png` và `logo-dark.png` (dùng ở Splash, Login, HomeAppBar).
 2. Thay icon app:
    - iOS: `ios/BackJet/Images.xcassets/AppIcon.appiconset`
    - Android: `android/app/src/main/res/mipmap-*`

@@ -48,11 +48,15 @@ export function BottomActions({
 const useStyles = makeStyles(palette => ({
   bar: {
     paddingHorizontal: AppSpacing.screen,
-    paddingTop: AppSpacing.md,
+    paddingTop: AppSpacing.spacing12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: palette.iron,
     backgroundColor: palette.secondaryBackground,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
-  column: { gap: AppSpacing.sm },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
+  column: { gap: AppSpacing.spacing8 },
 }));

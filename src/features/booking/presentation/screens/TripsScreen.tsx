@@ -7,7 +7,9 @@ import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
 import { SegmentedControl } from '@/core/ui/SegmentedControl';
-import { EmptyView, ErrorView, LoadingView } from '@/core/ui/StateViews';
+import { EmptyView } from '@/core/ui/EmptyView';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { firstLeg, isUpcoming } from '../../domain/entities/booking';
 import { useGetBookingsQuery } from '../booking-api';
 import { TripCard } from '../components/TripCard';
@@ -127,10 +129,18 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
 
 const useStyles = makeStyles(() => ({
   header: {
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.lg,
-    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing16,
+    gap: AppSpacing.spacing8,
   },
-  list: { padding: AppSpacing.lg, gap: AppSpacing.lg, flexGrow: 1 },
-  empty: { flex: 1, gap: AppSpacing.lg, paddingBottom: AppSpacing.xxl },
+  list: {
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing16,
+    flexGrow: 1,
+  },
+  empty: {
+    flex: 1,
+    gap: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
+  },
 }));

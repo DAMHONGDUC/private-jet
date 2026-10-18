@@ -1,56 +1,50 @@
-import { AppColors } from '@/core/theme/app-colors';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  blackJetFonts,
-  makeStyles,
-  useBlackJetTheme,
-} from '@/core/theme/blackjet';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
-import { BJText } from '@/core/ui/BJText';
-import { Chip } from '@/core/ui/Chip';
-import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
-import {
-  cleanMessage,
-  MessageAuthor,
-  type ChatMessage,
-} from '../../domain/entities/inbox';
+import { cleanMessage, type ChatMessage } from '../../domain/entities/inbox';
+import { ChatBubble } from '../components/ChatBubble';
+import { ChatComposer } from '../components/ChatComposer';
+import { ConciergeIntro } from '../components/ConciergeIntro';
+import { QuickReplies } from '../components/QuickReplies';
 import { TypingDots } from '../components/TypingDots';
 import {
   useGetMessagesQuery,
   useMarkMessagesReadMutation,
   useSendMessageMutation,
 } from '../inbox-api';
-import { clockTime } from '../inbox-labels';
 
-export const QUICK_REPLIES = [
-  'Arrange catering',
-  'Book a chauffeur',
-  'Bring my dog',
-  'Change a trip',
-];
+/**
+ * How often the open conversation asks for new messages. The mock answers
+ * inside the send call; a real concierge answers later, and this is how the
+ * reply shows up. A push channel (WebSocket, push notification) can replace
+ * it later through `onCacheEntryAdded` on `getMessages`.
+ */
+export const CHAT_POLL_MS = 5_000;
 
 /** The conversation with the member's concierge: bubbles, quick replies, and a reply that is typed for a moment. */
 export function ChatScreen() {
   const styles = useStyles();
-  const palette = useBlackJetTheme();
-  const insets = useSafeAreaInsets();
-  const { data: messages, error, isLoading, refetch } = useGetMessagesQuery();
   const [sendMessage, { isLoading: waiting, error: sendError }] =
     useSendMessageMutation();
+  // Paused while a message sends, so a poll cannot drop its pending bubble;
+  // RTK Query stops polling when the screen unmounts or the app is in the background.
+  const {
+    data: messages,
+    error,
+    isLoading,
+    refetch,
+  } = useGetMessagesQuery(undefined, {
+    pollingInterval: waiting ? 0 : CHAT_POLL_MS,
+    skipPollingIfUnfocused: true,
+  });
   const [markRead] = useMarkMessagesReadMutation();
   const [draft, setDraft] = useState('');
   const list = useRef<FlatList<ChatMessage>>(null);
@@ -126,21 +120,8 @@ export function ChatScreen() {
               ) : null}
             </View>
           }
-          ListFooterComponent={
-            <View style={styles.intro}>
-              <View style={styles.conciergeAvatar}>
-                <BJText size={20} weight="medium" tone="white">
-                  S
-                </BJText>
-                <View style={styles.online} />
-              </View>
-              <AppText variant="subtitle">Sophie Laurent</AppText>
-              <AppText variant="caption" muted>
-                Your Sovereign concierge · usually replies in minutes
-              </AppText>
-            </View>
-          }
-          renderItem={({ item }) => <Bubble message={item} />}
+          ListFooterComponent={<ConciergeIntro />}
+          renderItem={({ item }) => <ChatBubble message={item} />}
         />
 
         {sendError ? (
@@ -149,162 +130,26 @@ export function ChatScreen() {
           </AppText>
         ) : null}
 
-        <ScrollView
-          horizontal
-          keyboardShouldPersistTaps="handled"
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quick}
-          style={styles.quickBar}
-        >
-          {QUICK_REPLIES.map((reply, index) => (
-            <Chip
-              key={reply}
-              testID={`quick-reply-${index}`}
-              label={reply}
-              selected={false}
-              onPress={() => send(reply)}
-            />
-          ))}
-        </ScrollView>
+        <QuickReplies onPick={send} />
 
-        <View
-          style={[
-            styles.composer,
-            { paddingBottom: insets.bottom + AppSpacing.sm },
-          ]}
-        >
-          <TextInput
-            testID="chat-input"
-            style={styles.input}
-            placeholder="Message your concierge"
-            placeholderTextColor={palette.secondaryText}
-            multiline
-            value={draft}
-            onChangeText={setDraft}
-          />
-          {canSend ? (
-            <View>
-              <PressableScale
-                testID="chat-send"
-                accessibilityRole="button"
-                accessibilityLabel="Send"
-                scaleTo={0.9}
-                onPress={() => send(draft)}
-                style={styles.send}
-              >
-                <BJText size={20} weight="medium" tone="inverse">
-                  ↑
-                </BJText>
-              </PressableScale>
-            </View>
-          ) : null}
-        </View>
+        <ChatComposer
+          value={draft}
+          onChangeText={setDraft}
+          canSend={canSend}
+          onSend={() => send(draft)}
+        />
       </KeyboardAvoidingView>
     </Screen>
   );
 }
 
-function Bubble({ message }: { message: ChatMessage }) {
-  const styles = useStyles();
-  const mine = message.author === MessageAuthor.Member;
-  return (
-    <Animated.View
-      testID={`message-${message.id}`}
-      entering={FadeIn.duration(300)}
-      style={[styles.bubbleRow, mine ? styles.mineRow : styles.theirsRow]}
-    >
-      <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-        <AppText style={mine ? styles.mineText : undefined}>
-          {message.text}
-        </AppText>
-      </View>
-      <AppText variant="caption" muted style={styles.time}>
-        {clockTime(message.sentAt)}
-      </AppText>
-    </Animated.View>
-  );
-}
-
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  list: { padding: AppSpacing.lg, gap: AppSpacing.md },
+  list: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing12 },
   footerSlot: { minHeight: 8 },
-  intro: { alignItems: 'center', gap: 4, paddingVertical: AppSpacing.lg },
-  conciergeAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: AppColors.fixed.photoBackdrop,
-    marginBottom: AppSpacing.sm,
-  },
-  online: {
-    position: 'absolute',
-    right: 2,
-    bottom: 2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: palette.success,
-    borderWidth: 2,
-    borderColor: palette.secondaryBackground,
-  },
-  bubbleRow: { maxWidth: '82%', gap: 2 },
-  mineRow: { alignSelf: 'flex-end', alignItems: 'flex-end' },
-  theirsRow: { alignSelf: 'flex-start', alignItems: 'flex-start' },
-  bubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18 },
-  mine: { backgroundColor: palette.jetBlack, borderBottomRightRadius: 4 },
-  mineText: { color: palette.ghostWhite },
-  theirs: {
-    backgroundColor: palette.primaryBackground,
-    borderWidth: 1,
-    borderColor: palette.iron,
-    borderBottomLeftRadius: 4,
-  },
-  time: { fontSize: 11, paddingHorizontal: 4 },
   error: {
     color: palette.error,
     textAlign: 'center',
-    paddingBottom: AppSpacing.xs,
-  },
-  quickBar: { flexGrow: 0 },
-  quick: {
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.sm,
-  },
-  composer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: palette.iron,
-    backgroundColor: palette.secondaryBackground,
-  },
-  input: {
-    flex: 1,
-    minHeight: 44,
-    maxHeight: 120,
-    paddingHorizontal: AppSpacing.md,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: palette.iron,
-    backgroundColor: palette.primaryBackground,
-    color: palette.primaryText,
-    fontFamily: blackJetFonts.regular,
-    fontSize: 15,
-  },
-  send: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.jetBlack,
+    paddingBottom: AppSpacing.spacing4,
   },
 }));

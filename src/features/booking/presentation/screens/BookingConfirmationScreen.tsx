@@ -7,7 +7,7 @@ import { AppText } from '@/core/ui/AppText';
 import { BottomActions } from '@/core/ui/BottomActions';
 import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
-import { LoadingView } from '@/core/ui/StateViews';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
 import { useGetBookingQuery } from '../booking-api';
 import { BoardingPass } from '../components/BoardingPass';
@@ -73,10 +73,10 @@ const useStyles = makeStyles(() => ({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: AppSpacing.xl,
-    gap: AppSpacing.lg,
+    padding: AppSpacing.spacing24,
+    gap: AppSpacing.spacing16,
   },
-  center: { alignItems: 'center', gap: AppSpacing.xs },
+  center: { alignItems: 'center', gap: AppSpacing.spacing4 },
   /** A quiet ending: no rule over the buttons. */
   actions: { borderTopWidth: 0 },
 }));

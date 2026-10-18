@@ -1,10 +1,18 @@
-import type { BookingDto, CreateBookingDto } from '../models/booking-dto';
+import type { BookingDto, PlaceBookingDto } from '../models/booking-dto';
 import type { PaymentMethodDto } from '../models/payment-dto';
 
 export interface BookingDataSource {
   getBookings(): Promise<BookingDto[]>;
   getBooking(id: string): Promise<BookingDto | undefined>;
-  createBooking(booking: CreateBookingDto): Promise<BookingDto>;
+  /**
+   * Charges, takes seats and records the booking in one call, e.g.
+   * `POST /bookings` with an `Idempotency-Key` header. Throws a `DomainError`
+   * when the backend refuses it, as the HTTP client does.
+   */
+  placeBooking(
+    order: PlaceBookingDto,
+    idempotencyKey: string,
+  ): Promise<BookingDto>;
   /** Returns the updated booking, or undefined when it does not exist. */
   updateStatus(
     id: string,
@@ -19,6 +27,4 @@ export interface PaymentDataSource {
   ): Promise<PaymentMethodDto>;
   setDefault(id: string): Promise<PaymentMethodDto[]>;
   removeCard(id: string): Promise<PaymentMethodDto[]>;
-  /** False when the method cannot cover the amount. */
-  charge(id: string, amountCents: number, currency: string): Promise<boolean>;
 }
