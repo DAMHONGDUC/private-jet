@@ -1,6 +1,6 @@
-# BackJet
+# Sovereign: Private Jet
 
-A private jet booking app built as a client demo. It covers:
+A private jet booking app for Australia, built as a client demo. It covers:
 - charters (the whole aircraft on any route)
 - trips with cancellation
 - payment cards and a wallet
@@ -13,12 +13,15 @@ Everything runs on in-memory mock data, so the app works offline with no backend
 
 | | |
 |---|---|
+| App name (store listing, splash, about line) | **Sovereign: Private Jet** |
+| Display name (under the icon) | **Sovereign**. The full name would be cut off under the icon. |
 | Bundle id (iOS and Android) | `app.dd.private.jet` |
-| Display name | BackJet |
 | App icon | [src/assets/images/app-icon.png](src/assets/images/app-icon.png), 1024 × 1024, the source of every launcher icon |
 | Launch screen | The app icon centred on `#0B0B0C`: `ios/BackJet/LaunchScreen.storyboard`, and the `AppTheme.Launch` theme on Android (the system splash API on Android 12+) |
 
-The Android Kotlin package stays `com.backjet` (`namespace` in `android/app/build.gradle`); only the `applicationId` is `app.dd.private.jet`.
+- The name lives in `src/core/app-identity.ts` (`APP_NAME`, `APP_FULL_NAME`) for the app, `CFBundleDisplayName` in `ios/BackJet/Info.plist`, `app_name` in `android/app/src/main/res/values/strings.xml` and `displayName` in `app.json`.
+- The native project and module keep the old internal name `BackJet` (Xcode target, `app.json` `name`, the Kotlin package `com.backjet`). Users never see it, and renaming it would break the build for nothing.
+- The logo images in `src/assets/images` still show the old BlackJet wordmark and need a new design.
 
 ## Screenshots
 
@@ -158,12 +161,16 @@ __tests__/        same tree as src/ (core/, features/<feature>/...), plus smoke.
 
 Screens take callbacks (`onOpenFlight`, `onBooked`) instead of a navigation prop; `src/app/navigation` adapts routes to them.
 
-Every screen uses the BlackJet look from `src/core/theme/blackjet.ts`:
-- light and dark palettes that follow the system, through `useBlackJetTheme()`
-- `makeStyles()` for themed style sheets
+Every screen uses the same look:
+- colours from `AppColors` (`src/core/theme/app-colors.ts`): light and dark palettes, read through `useBlackJetTheme()`. The member picks System, Light or Dark in Profile.
+- gaps from `AppSpacing` (`src/core/theme/app-spacing.ts`)
+- `makeStyles()` (`src/core/theme/blackjet.ts`) for themed style sheets
 - KnulTrial and the icon fonts from `src/assets/fonts`
+- English and Vietnamese text from `src/core/i18n`
 
-`src/core/theme/theme.ts` holds only spacing, radii and press timing.
+`src/core/theme/theme.ts` holds only radii, the type scale and press timing.
+
+UI rules (colours, spacing, bottom actions, theme, language) are in [feature-docs/app](feature-docs/app/README.md#ui-rules).
 
 ## Remaining work
 

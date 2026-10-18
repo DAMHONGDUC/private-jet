@@ -1,6 +1,7 @@
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
-import { blackJetDark } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { APP_NAME } from '@/core/app-identity';
+import { AppColors } from '@/core/theme/app-colors';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { APP_ICON } from '@/core/ui/images';
 
 /** Matches the native launch screen: same icon, same size, same place. */
@@ -13,9 +14,9 @@ export function SplashScreen() {
       <Image
         source={APP_ICON}
         style={styles.icon}
-        accessibilityLabel="BlackJet"
+        accessibilityLabel={APP_NAME}
       />
-      <ActivityIndicator color={blackJetDark.accent} style={styles.spinner} />
+      <ActivityIndicator color={AppColors.dark.accent} style={styles.spinner} />
     </View>
   );
 }
@@ -23,7 +24,7 @@ export function SplashScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: blackJetDark.secondaryBackground,
+    backgroundColor: AppColors.dark.secondaryBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -33,6 +34,6 @@ const styles = StyleSheet.create({
   spinner: {
     position: 'absolute',
     top: '50%',
-    marginTop: ICON / 2 + spacing.xl,
+    marginTop: ICON / 2 + AppSpacing.xl,
   },
 });
