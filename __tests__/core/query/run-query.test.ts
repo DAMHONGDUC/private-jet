@@ -1,4 +1,4 @@
-import { DomainError } from '@/core/error/app-error';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import { runQuery } from '@/core/query/run-query';
 
 test('wraps a value as data', async () => {
@@ -7,7 +7,7 @@ test('wraps a value as data', async () => {
 
 test('turns a domain error into a plain, serializable AppError', async () => {
   const result = await runQuery(async () => {
-    throw new DomainError('SOLD_OUT', 'Gone.');
+    throw new DomainError(AppErrorCode.SoldOut, 'Gone.');
   });
 
   expect(result).toEqual({ error: { code: 'SOLD_OUT', message: 'Gone.' } });

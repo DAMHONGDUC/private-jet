@@ -18,7 +18,8 @@ export const settingsSlice = createSlice({
   initialState,
   reducers: {
     notificationToggled(state, action: PayloadAction<keyof NotificationPrefs>) {
-      state.notifications[action.payload] = !state.notifications[action.payload];
+      state.notifications[action.payload] =
+        !state.notifications[action.payload];
     },
   },
 });
@@ -27,4 +28,5 @@ export const { notificationToggled } = settingsSlice.actions;
 
 type WithSettings = { [settingsSlice.name]: SettingsState };
 
-export const selectNotificationPrefs = (state: WithSettings) => state.settings.notifications;
+export const selectNotificationPrefs = (state: WithSettings) =>
+  state.settings.notifications;

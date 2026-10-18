@@ -21,7 +21,10 @@ export class AuthMockDataSource implements AuthDataSource {
 
   async signIn(email: string, password: string): Promise<UserDto | null> {
     await delay(this.latencyMs);
-    if (email !== DEMO_CREDENTIALS.email || password !== DEMO_CREDENTIALS.password) {
+    if (
+      email !== DEMO_CREDENTIALS.email ||
+      password !== DEMO_CREDENTIALS.password
+    ) {
       return null;
     }
     this.signedIn = true;
@@ -39,7 +42,10 @@ export class AuthMockDataSource implements AuthDataSource {
     this.signedIn = false;
   }
 
-  async updateUser(id: string, patch: Pick<UserDto, 'full_name' | 'phone'>): Promise<UserDto> {
+  async updateUser(
+    id: string,
+    patch: Pick<UserDto, 'full_name' | 'phone'>,
+  ): Promise<UserDto> {
     await delay(this.latencyMs);
     if (id === this.user.id) {
       this.user = { ...this.user, ...patch };

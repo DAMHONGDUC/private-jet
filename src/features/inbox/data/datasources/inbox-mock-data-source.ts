@@ -1,5 +1,11 @@
+import { NotificationScope } from '@/features/inbox/data/datasources/inbox-data-source';
 import { delay } from '@/core/utils/delay';
-import { conciergeReplyTo, type AppNotification, type ChatMessage } from '../../domain/entities/inbox';
+import {
+  conciergeReplyTo,
+  MessageAuthor,
+  type AppNotification,
+  type ChatMessage,
+} from '../../domain/entities/inbox';
 import type { InboxDataSource } from './inbox-data-source';
 import { buildMockMessages, buildMockNotifications } from './mock/inbox.mock';
 
@@ -26,10 +32,14 @@ export class InboxMockDataSource implements InboxDataSource {
     return this.notifications.map(item => ({ ...item }));
   }
 
-  async markNotificationsRead(ids: string[] | 'all'): Promise<AppNotification[]> {
+  async markNotificationsRead(
+    ids: string[] | NotificationScope.All,
+  ): Promise<AppNotification[]> {
     await delay(this.latencyMs / 2);
     this.notifications = this.notifications.map(item =>
-      ids === 'all' || ids.includes(item.id) ? { ...item, read: true } : item,
+      ids === NotificationScope.All || ids.includes(item.id)
+        ? { ...item, read: true }
+        : item,
     );
     return this.notifications.map(item => ({ ...item }));
   }
@@ -40,11 +50,20 @@ export class InboxMockDataSource implements InboxDataSource {
   }
 
   async sendMessage(text: string): Promise<ChatMessage[]> {
-    this.messages = [...this.messages, this.message('member', text)];
+    this.messages = [
+      ...this.messages,
+      this.message(MessageAuthor.Member, text),
+    ];
     // The concierge "types" for a moment.
     await delay(this.latencyMs * 2);
     // Read at once: the member is looking at the conversation.
-    this.messages = [...this.messages, this.message('concierge', conciergeReplyTo(text, this.memberFirstName))];
+    this.messages = [
+      ...this.messages,
+      this.message(
+        MessageAuthor.Concierge,
+        conciergeReplyTo(text, this.memberFirstName),
+      ),
+    ];
     return this.messages.map(item => ({ ...item }));
   }
 
@@ -56,6 +75,12 @@ export class InboxMockDataSource implements InboxDataSource {
 
   private message(author: ChatMessage['author'], text: string): ChatMessage {
     this.sequence += 1;
-    return { id: `msg-new-${this.sequence}`, author, text, sentAt: this.now().toISOString(), read: true };
+    return {
+      id: `msg-new-${this.sequence}`,
+      author,
+      text,
+      sentAt: this.now().toISOString(),
+      read: true,
+    };
   }
 }

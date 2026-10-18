@@ -1,6 +1,14 @@
-import type { Booking, BookingLeg, NewBooking } from '../../domain/entities/booking';
+import type {
+  Booking,
+  BookingLeg,
+  NewBooking,
+} from '../../domain/entities/booking';
 import type { PaymentMethod } from '../../domain/entities/payment';
-import type { BookingDto, BookingLegDto, CreateBookingDto } from '../models/booking-dto';
+import type {
+  BookingDto,
+  BookingLegDto,
+  CreateBookingDto,
+} from '../models/booking-dto';
 import type { PaymentMethodDto } from '../models/payment-dto';
 
 function toLeg(dto: BookingLegDto): BookingLeg {
@@ -67,7 +75,9 @@ export function toPaymentMethod(dto: PaymentMethodDto): PaymentMethod {
     kind: dto.type,
     ...(dto.brand ? { brand: dto.brand } : {}),
     ...(dto.last4 ? { last4: dto.last4 } : {}),
-    ...(dto.exp_month && dto.exp_year ? { expiry: `${pad(dto.exp_month)}/${pad(dto.exp_year % 100)}` } : {}),
+    ...(dto.exp_month && dto.exp_year
+      ? { expiry: `${pad(dto.exp_month)}/${pad(dto.exp_year % 100)}` }
+      : {}),
     holder: dto.holder,
     ...(dto.balance_cents !== null ? { balance: dto.balance_cents / 100 } : {}),
     ...(dto.currency ? { currency: dto.currency } : {}),

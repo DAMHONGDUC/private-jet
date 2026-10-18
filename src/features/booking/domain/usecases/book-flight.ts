@@ -1,8 +1,16 @@
-import { DomainError } from '@/core/error/app-error';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import type { FlightRepository } from '@/features/flights/domain/repositories/flight-repository';
-import { validateBookingRequest, type Booking, type BookingRequest } from '../entities/booking';
+import {
+  BookingKind,
+  validateBookingRequest,
+  type Booking,
+  type BookingRequest,
+} from '../entities/booking';
 import { paymentLabel } from '../entities/payment';
-import type { BookingRepository, PaymentRepository } from '../repositories/booking-repository';
+import type {
+  BookingRepository,
+  PaymentRepository,
+} from '../repositories/booking-repository';
 import { resolvePaymentMethod } from './payment-choice';
 
 /**
@@ -20,23 +28,38 @@ export class BookFlight {
   async execute(request: BookingRequest): Promise<Booking> {
     const problem = validateBookingRequest(request);
     if (problem) {
-      throw new DomainError('VALIDATION', problem);
+      throw new DomainError(AppErrorCode.Validation, problem);
     }
 
     const flight = await this.flights.getFlightById(request.flightId);
     if (new Date(flight.departureAt).getTime() <= this.now().getTime()) {
-      throw new DomainError('VALIDATION', 'This flight has already departed.');
+      throw new DomainError(
+        AppErrorCode.Validation,
+        'This flight has already departed.',
+      );
     }
     const seats = request.passengers.length;
     if (flight.seatsAvailable < seats) {
-      throw new DomainError('SOLD_OUT', flight.seatsAvailable === 0 ? 'This flight is sold out.' : `Only ${flight.seatsAvailable} seat(s) left on this flight.`);
+      throw new DomainError(
+        AppErrorCode.SoldOut,
+        flight.seatsAvailable === 0
+          ? 'This flight is sold out.'
+          : `Only ${flight.seatsAvailable} seat(s) left on this flight.`,
+      );
     }
-    const payment = await resolvePaymentMethod(this.payments, request.paymentMethodId);
-    await this.payments.charge(payment.id, flight.pricePerSeat * seats, flight.currency);
+    const payment = await resolvePaymentMethod(
+      this.payments,
+      request.paymentMethodId,
+    );
+    await this.payments.charge(
+      payment.id,
+      flight.pricePerSeat * seats,
+      flight.currency,
+    );
     await this.flights.reserveSeats(flight.id, seats);
 
     return this.bookings.createBooking({
-      kind: 'seats',
+      kind: BookingKind.Seats,
       legs: [
         {
           flightId: flight.id,
@@ -49,7 +72,9 @@ export class BookFlight {
           durationMinutes: flight.durationMinutes,
         },
       ],
-      passengers: request.passengers.map(passenger => ({ fullName: passenger.fullName.trim() })),
+      passengers: request.passengers.map(passenger => ({
+        fullName: passenger.fullName.trim(),
+      })),
       contactEmail: request.contactEmail.trim(),
       totalPrice: flight.pricePerSeat * seats,
       currency: flight.currency,

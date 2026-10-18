@@ -1,5 +1,9 @@
-import { DomainError } from '@/core/error/app-error';
-import type { Credentials, ProfileUpdate, User } from '../../domain/entities/user';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
+import type {
+  Credentials,
+  ProfileUpdate,
+  User,
+} from '../../domain/entities/user';
 import type { AuthRepository } from '../../domain/repositories/auth-repository';
 import type { AuthDataSource } from '../datasources/auth-data-source';
 import { toUser } from '../mappers/user-mapper';
@@ -18,7 +22,10 @@ export class AuthRepositoryImpl implements AuthRepository {
   async signIn({ email, password }: Credentials): Promise<User> {
     const dto = await this.dataSource.signIn(email, password);
     if (!dto) {
-      throw new DomainError('UNAUTHORIZED', 'The email or password is incorrect.');
+      throw new DomainError(
+        AppErrorCode.Unauthorized,
+        'The email or password is incorrect.',
+      );
     }
     this.currentId = dto.id;
     return toUser(dto);
@@ -37,8 +44,16 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async updateProfile({ fullName, phone }: ProfileUpdate): Promise<User> {
     if (!this.currentId) {
-      throw new DomainError('UNAUTHORIZED', 'Sign in to edit your profile.');
+      throw new DomainError(
+        AppErrorCode.Unauthorized,
+        'Sign in to edit your profile.',
+      );
     }
-    return toUser(await this.dataSource.updateUser(this.currentId, { full_name: fullName, phone }));
+    return toUser(
+      await this.dataSource.updateUser(this.currentId, {
+        full_name: fullName,
+        phone,
+      }),
+    );
   }
 }

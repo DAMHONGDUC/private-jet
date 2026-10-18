@@ -6,12 +6,17 @@ export interface BookingDataSource {
   getBooking(id: string): Promise<BookingDto | undefined>;
   createBooking(booking: CreateBookingDto): Promise<BookingDto>;
   /** Returns the updated booking, or undefined when it does not exist. */
-  updateStatus(id: string, status: BookingDto['status']): Promise<BookingDto | undefined>;
+  updateStatus(
+    id: string,
+    status: BookingDto['status'],
+  ): Promise<BookingDto | undefined>;
 }
 
 export interface PaymentDataSource {
   getPaymentMethods(): Promise<PaymentMethodDto[]>;
-  addCard(card: Omit<PaymentMethodDto, 'id' | 'is_default'>): Promise<PaymentMethodDto>;
+  addCard(
+    card: Omit<PaymentMethodDto, 'id' | 'is_default'>,
+  ): Promise<PaymentMethodDto>;
   setDefault(id: string): Promise<PaymentMethodDto[]>;
   removeCard(id: string): Promise<PaymentMethodDto[]>;
   /** False when the method cannot cover the amount. */

@@ -1,4 +1,4 @@
-import { DomainError } from '@/core/error/app-error';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import {
   cleanMessage,
   summarize,
@@ -25,7 +25,9 @@ export class GetNotifications {
 
   async execute(): Promise<AppNotification[]> {
     const notifications = await this.repository.getNotifications();
-    return [...notifications].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return [...notifications].sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt),
+    );
   }
 }
 
@@ -34,7 +36,9 @@ export class MarkNotificationRead {
 
   /** No id marks every notification read. */
   execute(id?: string): Promise<AppNotification[]> {
-    return id ? this.repository.markNotificationRead(id) : this.repository.markAllNotificationsRead();
+    return id
+      ? this.repository.markNotificationRead(id)
+      : this.repository.markAllNotificationsRead();
   }
 }
 
@@ -53,7 +57,7 @@ export class SendMessage {
   async execute(text: string): Promise<ChatMessage[]> {
     const message = cleanMessage(text);
     if (!message) {
-      throw new DomainError('VALIDATION', 'Write a message first.');
+      throw new DomainError(AppErrorCode.Validation, 'Write a message first.');
     }
     return this.repository.sendMessage(message);
   }

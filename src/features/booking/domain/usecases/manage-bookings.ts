@@ -1,5 +1,10 @@
-import { DomainError } from '@/core/error/app-error';
-import { CANCELLATION_WINDOW_HOURS, canCancel, type Booking } from '../entities/booking';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
+import {
+  BookingStatus,
+  canCancel,
+  CANCELLATION_WINDOW_HOURS,
+  type Booking,
+} from '../entities/booking';
 import type { BookingRepository } from '../repositories/booking-repository';
 
 export class GetBooking {
@@ -21,8 +26,8 @@ export class CancelBooking {
     const booking = await this.repository.getBooking(id);
     if (!canCancel(booking, this.now())) {
       throw new DomainError(
-        'VALIDATION',
-        booking.status === 'cancelled'
+        AppErrorCode.Validation,
+        booking.status === BookingStatus.Cancelled
           ? 'This trip is already cancelled.'
           : `Trips can be cancelled up to ${CANCELLATION_WINDOW_HOURS} hours before departure.`,
       );

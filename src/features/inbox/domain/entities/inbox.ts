@@ -1,4 +1,14 @@
-export type NotificationKind = 'flight' | 'offer' | 'account' | 'concierge';
+export enum NotificationKind {
+  Flight = 'flight',
+  Offer = 'offer',
+  Account = 'account',
+  Concierge = 'concierge',
+}
+
+export enum MessageAuthor {
+  Member = 'member',
+  Concierge = 'concierge',
+}
 
 /** Something the member was told: a crew update, an empty leg, a wallet top-up. */
 export type AppNotification = {
@@ -16,7 +26,7 @@ export type AppNotification = {
 /** One line of the concierge conversation. */
 export type ChatMessage = {
   id: string;
-  author: 'member' | 'concierge';
+  author: MessageAuthor;
   text: string;
   /** ISO 8601. */
   sentAt: string;
@@ -25,7 +35,10 @@ export type ChatMessage = {
 };
 
 /** Counts behind the badges on the home app bar. */
-export type InboxSummary = { unreadMessages: number; unreadNotifications: number };
+export type InboxSummary = {
+  unreadMessages: number;
+  unreadNotifications: number;
+};
 
 export const MAX_MESSAGE_LENGTH = 1000;
 
@@ -35,10 +48,15 @@ export function cleanMessage(text: string): string | null {
   return trimmed.length > 0 ? trimmed.slice(0, MAX_MESSAGE_LENGTH) : null;
 }
 
-export function summarize(notifications: AppNotification[], messages: ChatMessage[]): InboxSummary {
+export function summarize(
+  notifications: AppNotification[],
+  messages: ChatMessage[],
+): InboxSummary {
   return {
     unreadMessages: messages.filter(message => !message.read).length,
-    unreadNotifications: notifications.filter(notification => !notification.read).length,
+    unreadNotifications: notifications.filter(
+      notification => !notification.read,
+    ).length,
   };
 }
 

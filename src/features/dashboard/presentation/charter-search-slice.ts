@@ -2,16 +2,15 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   MAX_CHARTER_PASSENGERS,
   MAX_MULTI_CITY_LEGS,
+  LegSlot,
+  TripType,
   emptyDraftLeg,
+  type AirportEnd,
   type CharterDraft,
   type CharterRequest,
   type DraftLeg,
-  type TripType,
+  type LegTarget,
 } from '../domain/entities/charter';
-
-/** Which leg a field belongs to: the one-way/round-trip outbound, or a multi-city leg by index. */
-export type LegTarget = 'outbound' | number;
-export type AirportEnd = 'origin' | 'destination';
 
 /** UI state only: the form, the search it last ran and recent airports. Quotes live in RTK Query. */
 export type CharterSearchState = {
@@ -30,18 +29,18 @@ const freshDraft = (tripType: TripType): CharterDraft => ({
   tripType,
   outbound: emptyDraftLeg(),
   returnDate: null,
-  legs: tripType === 'multiCity' ? [emptyDraftLeg()] : [],
+  legs: tripType === TripType.MultiCity ? [emptyDraftLeg()] : [],
 });
 
 const initialState: CharterSearchState = {
-  draft: freshDraft('oneWay'),
+  draft: freshDraft(TripType.OneWay),
   submitted: null,
   recentAirports: [],
   selections: {},
 };
 
 function legOf(draft: CharterDraft, target: LegTarget): DraftLeg | undefined {
-  return target === 'outbound' ? draft.outbound : draft.legs[target];
+  return target === LegSlot.Outbound ? draft.outbound : draft.legs[target];
 }
 
 export const charterSearchSlice = createSlice({

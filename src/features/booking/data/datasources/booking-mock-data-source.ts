@@ -1,8 +1,16 @@
+import { PaymentMethodKind } from '@/features/booking/domain/entities/payment';
+import { BookingStatus } from '@/features/booking/domain/entities/booking';
 import { delay } from '@/core/utils/delay';
 import type { BookingDto, CreateBookingDto } from '../models/booking-dto';
 import type { PaymentMethodDto } from '../models/payment-dto';
-import type { BookingDataSource, PaymentDataSource } from './booking-data-source';
-import { buildMockBookings, buildMockPaymentMethods } from './mock/bookings.mock';
+import type {
+  BookingDataSource,
+  PaymentDataSource,
+} from './booking-data-source';
+import {
+  buildMockBookings,
+  buildMockPaymentMethods,
+} from './mock/bookings.mock';
 
 const PNR_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -38,16 +46,21 @@ export class BookingMockDataSource implements BookingDataSource {
       ...booking,
       id: `bk-${this.sequence}`,
       pnr: this.nextPnr(),
-      status: 'confirmed',
+      status: BookingStatus.Confirmed,
       created_at: this.now().toISOString(),
     };
     this.bookings = [...this.bookings, created];
     return copy(created);
   }
 
-  async updateStatus(id: string, status: BookingDto['status']): Promise<BookingDto | undefined> {
+  async updateStatus(
+    id: string,
+    status: BookingDto['status'],
+  ): Promise<BookingDto | undefined> {
     await delay(this.latencyMs);
-    this.bookings = this.bookings.map(item => (item.id === id ? { ...item, status } : item));
+    this.bookings = this.bookings.map(item =>
+      item.id === id ? { ...item, status } : item,
+    );
     const booking = this.bookings.find(item => item.id === id);
     return booking ? copy(booking) : undefined;
   }
@@ -61,7 +74,10 @@ export class BookingMockDataSource implements BookingDataSource {
   }
 }
 
-const copy = (booking: BookingDto): BookingDto => ({ ...booking, legs: booking.legs.map(leg => ({ ...leg })) });
+const copy = (booking: BookingDto): BookingDto => ({
+  ...booking,
+  legs: booking.legs.map(leg => ({ ...leg })),
+});
 
 /** Two cards and a wallet; paying from the wallet lowers its balance. */
 export class PaymentMockDataSource implements PaymentDataSource {
@@ -75,17 +91,26 @@ export class PaymentMockDataSource implements PaymentDataSource {
     return this.methods.map(method => ({ ...method }));
   }
 
-  async addCard(card: Omit<PaymentMethodDto, 'id' | 'is_default'>): Promise<PaymentMethodDto> {
+  async addCard(
+    card: Omit<PaymentMethodDto, 'id' | 'is_default'>,
+  ): Promise<PaymentMethodDto> {
     await delay(this.latencyMs);
     this.sequence += 1;
-    const created = { ...card, id: `pm-new-${this.sequence}`, is_default: false };
+    const created = {
+      ...card,
+      id: `pm-new-${this.sequence}`,
+      is_default: false,
+    };
     this.methods = [...this.methods, created];
     return { ...created };
   }
 
   async setDefault(id: string): Promise<PaymentMethodDto[]> {
     await delay(this.latencyMs);
-    this.methods = this.methods.map(method => ({ ...method, is_default: method.id === id }));
+    this.methods = this.methods.map(method => ({
+      ...method,
+      is_default: method.id === id,
+    }));
     return this.methods.map(method => ({ ...method }));
   }
 
@@ -101,12 +126,16 @@ export class PaymentMockDataSource implements PaymentDataSource {
     if (!method) {
       return false;
     }
-    if (method.type === 'wallet') {
+    if (method.type === PaymentMethodKind.Wallet) {
       const balance = method.balance_cents ?? 0;
       if (balance < amountCents) {
         return false;
       }
-      this.methods = this.methods.map(item => (item.id === id ? { ...item, balance_cents: balance - amountCents } : item));
+      this.methods = this.methods.map(item =>
+        item.id === id
+          ? { ...item, balance_cents: balance - amountCents }
+          : item,
+      );
     }
     return true;
   }

@@ -1,3 +1,6 @@
+// The wire uses the same values as the domain enums.
+import type { BookingKind, BookingStatus } from '../../domain/entities/booking';
+
 export type BookingLegDto = {
   flight_id: string | null;
   origin_iata: string;
@@ -12,8 +15,8 @@ export type BookingLegDto = {
 export type BookingDto = {
   id: string;
   pnr: string;
-  kind: 'seats' | 'charter';
-  status: 'confirmed' | 'cancelled';
+  kind: BookingKind;
+  status: BookingStatus;
   legs: BookingLegDto[];
   passenger_names: string[];
   contact_email: string;
@@ -24,4 +27,7 @@ export type BookingDto = {
   created_at: string;
 };
 
-export type CreateBookingDto = Omit<BookingDto, 'id' | 'pnr' | 'status' | 'created_at'>;
+export type CreateBookingDto = Omit<
+  BookingDto,
+  'id' | 'pnr' | 'status' | 'created_at'
+>;

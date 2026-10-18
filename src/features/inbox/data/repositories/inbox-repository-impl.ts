@@ -1,7 +1,10 @@
-import { DomainError } from '@/core/error/app-error';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import type { AppNotification, ChatMessage } from '../../domain/entities/inbox';
 import type { InboxRepository } from '../../domain/repositories/inbox-repository';
-import type { InboxDataSource } from '../datasources/inbox-data-source';
+import {
+  NotificationScope,
+  type InboxDataSource,
+} from '../datasources/inbox-data-source';
 
 export class InboxRepositoryImpl implements InboxRepository {
   constructor(private readonly dataSource: InboxDataSource) {}
@@ -13,13 +16,16 @@ export class InboxRepositoryImpl implements InboxRepository {
   async markNotificationRead(id: string): Promise<AppNotification[]> {
     const notifications = await this.dataSource.markNotificationsRead([id]);
     if (!notifications.some(item => item.id === id)) {
-      throw new DomainError('NOT_FOUND', 'This notification no longer exists.');
+      throw new DomainError(
+        AppErrorCode.NotFound,
+        'This notification no longer exists.',
+      );
     }
     return notifications;
   }
 
   markAllNotificationsRead(): Promise<AppNotification[]> {
-    return this.dataSource.markNotificationsRead('all');
+    return this.dataSource.markNotificationsRead(NotificationScope.All);
   }
 
   getMessages(): Promise<ChatMessage[]> {

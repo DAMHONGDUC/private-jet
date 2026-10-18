@@ -1,9 +1,42 @@
 import type { Aircraft } from '@/features/flights/domain/entities/flight';
 
 /** One, two (out and back) or several legs, as the dashboard's radio offers. */
-export type TripType = 'oneWay' | 'roundTrip' | 'multiCity';
+export enum TripType {
+  OneWay = 'oneWay',
+  RoundTrip = 'roundTrip',
+  MultiCity = 'multiCity',
+}
 
-export const TRIP_TYPES: readonly TripType[] = ['oneWay', 'roundTrip', 'multiCity'];
+export const TRIP_TYPES: readonly TripType[] = [
+  TripType.OneWay,
+  TripType.RoundTrip,
+  TripType.MultiCity,
+];
+
+/**
+ * The legs that are not a multi-city leg: the way out, and the way back of
+ * a return trip. A multi-city leg goes by its index instead.
+ */
+export enum LegSlot {
+  Outbound = 'outbound',
+  Return = 'return',
+}
+
+/** Which leg a field belongs to: the outbound leg, or a multi-city leg by index. */
+export type LegTarget = LegSlot.Outbound | number;
+
+export enum AirportEnd {
+  Origin = 'origin',
+  Destination = 'destination',
+}
+
+/** The fields of a leg on the search form. */
+export enum DraftPart {
+  Origin = 'origin',
+  Destination = 'destination',
+  Date = 'date',
+  Passengers = 'passengers',
+}
 
 /** A charter covers any route: the whole aircraft is booked, not seats on a scheduled flight. */
 export type CharterLeg = {
@@ -66,7 +99,12 @@ export type CharterDraft = {
   legs: DraftLeg[];
 };
 
-export const emptyDraftLeg = (): DraftLeg => ({ origin: null, destination: null, date: null, passengers: 0 });
+export const emptyDraftLeg = (): DraftLeg => ({
+  origin: null,
+  destination: null,
+  date: null,
+  passengers: 0,
+});
 
 export const DRAFT_MESSAGES = {
   noOrigin: 'Please Include The Departure Airport.',
@@ -80,7 +118,9 @@ export const DRAFT_MESSAGES = {
   legsOutOfOrder: 'Each Flight Leg must depart on or after the one before it.',
 } as const;
 
-export type DraftCheck = { request: CharterRequest; error?: undefined } | { error: string; request?: undefined };
+export type DraftCheck =
+  | { request: CharterRequest; error?: undefined }
+  | { error: string; request?: undefined };
 
 function checkLeg(leg: DraftLeg, prefix: string): string | CharterLeg {
   if (!leg.origin) {
@@ -98,7 +138,12 @@ function checkLeg(leg: DraftLeg, prefix: string): string | CharterLeg {
   if (leg.passengers < 1) {
     return prefix + DRAFT_MESSAGES.noPassengers;
   }
-  return { origin: leg.origin, destination: leg.destination, date: leg.date, passengers: leg.passengers };
+  return {
+    origin: leg.origin,
+    destination: leg.destination,
+    date: leg.date,
+    passengers: leg.passengers,
+  };
 }
 
 /**
@@ -106,7 +151,7 @@ function checkLeg(leg: DraftLeg, prefix: string): string | CharterLeg {
  * the messages of the original app (feature-docs/dashboard §3.4).
  */
 export function checkDraft(draft: CharterDraft): DraftCheck {
-  if (draft.tripType === 'multiCity') {
+  if (draft.tripType === TripType.MultiCity) {
     const legs: CharterLeg[] = [];
     for (const [index, draftLeg] of draft.legs.entries()) {
       const leg = checkLeg(draftLeg, `Leg #${index + 1}: `);
@@ -119,15 +164,15 @@ export function checkDraft(draft: CharterDraft): DraftCheck {
       }
       legs.push(leg);
     }
-    return { request: { tripType: 'multiCity', legs } };
+    return { request: { tripType: TripType.MultiCity, legs } };
   }
 
   const outbound = checkLeg(draft.outbound, '');
   if (typeof outbound === 'string') {
     return { error: outbound };
   }
-  if (draft.tripType === 'oneWay') {
-    return { request: { tripType: 'oneWay', legs: [outbound] } };
+  if (draft.tripType === TripType.OneWay) {
+    return { request: { tripType: TripType.OneWay, legs: [outbound] } };
   }
   if (!draft.returnDate) {
     return { error: DRAFT_MESSAGES.noReturnDate };
@@ -141,5 +186,78 @@ export function checkDraft(draft: CharterDraft): DraftCheck {
     date: draft.returnDate,
     passengers: outbound.passengers,
   };
-  return { request: { tripType: 'roundTrip', legs: [outbound, inbound] } };
+  return {
+    request: { tripType: TripType.RoundTrip, legs: [outbound, inbound] },
+  };
+}
+
+/** Which problem a field has, by the `DRAFT_MESSAGES` key; the screen words it. */
+export type DraftProblem = keyof typeof DRAFT_MESSAGES;
+/** A form field: `outbound.origin`, `leg1.date`, `return.date`… */
+export type DraftField =
+  | `${LegSlot.Outbound | `leg${number}`}.${DraftPart}`
+  | `${LegSlot.Return}.${DraftPart.Date}`;
+
+/** Where a leg's fields are: the outbound leg, or a multi-city leg by index. */
+export const draftLegKey = (target: LegTarget) =>
+  target === LegSlot.Outbound ? LegSlot.Outbound : (`leg${target}` as const);
+
+/** The key of one field of a leg. */
+export const draftField = (target: LegTarget, part: DraftPart): DraftField =>
+  `${draftLegKey(target)}.${part}`;
+
+export const RETURN_DATE_FIELD: DraftField = `${LegSlot.Return}.${DraftPart.Date}`;
+
+function legProblems(
+  leg: DraftLeg,
+  target: LegTarget,
+): Partial<Record<DraftField, DraftProblem>> {
+  const at = (part: DraftPart) => draftField(target, part);
+  return {
+    ...(leg.origin ? {} : { [at(DraftPart.Origin)]: 'noOrigin' as const }),
+    ...(!leg.destination
+      ? { [at(DraftPart.Destination)]: 'noDestination' as const }
+      : leg.origin === leg.destination
+      ? { [at(DraftPart.Destination)]: 'sameAirports' as const }
+      : {}),
+    ...(leg.date ? {} : { [at(DraftPart.Date)]: 'noDate' as const }),
+    ...(leg.passengers >= 1
+      ? {}
+      : { [at(DraftPart.Passengers)]: 'noPassengers' as const }),
+  };
+}
+
+/**
+ * Every field's problem at once, so the form can mark them all under their
+ * fields; `checkDraft` gives only the first.
+ */
+export function draftFieldErrors(
+  draft: CharterDraft,
+): Partial<Record<DraftField, DraftProblem>> {
+  if (draft.tripType === TripType.MultiCity) {
+    return draft.legs.reduce<Partial<Record<DraftField, DraftProblem>>>(
+      (errors, leg, index) => {
+        const before = draft.legs[index - 1]?.date;
+        const outOfOrder = !!before && !!leg.date && leg.date < before;
+        return {
+          ...errors,
+          ...(outOfOrder
+            ? { [draftField(index, DraftPart.Date)]: 'legsOutOfOrder' as const }
+            : {}),
+          ...legProblems(leg, index),
+        };
+      },
+      {},
+    );
+  }
+  const errors = legProblems(draft.outbound, LegSlot.Outbound);
+  if (draft.tripType === TripType.OneWay) {
+    return errors;
+  }
+  const back = !draft.returnDate
+    ? 'noReturnDate'
+    : draft.outbound.date && draft.returnDate < draft.outbound.date
+    ? 'returnBeforeDeparture'
+    : null;
+  return back ? { ...errors, [RETURN_DATE_FIELD]: back } : errors;
 }

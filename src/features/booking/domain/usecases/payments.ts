@@ -1,5 +1,10 @@
-import { DomainError } from '@/core/error/app-error';
-import { validateNewCard, type NewCard, type PaymentMethod } from '../entities/payment';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
+import {
+  PaymentMethodKind,
+  validateNewCard,
+  type NewCard,
+  type PaymentMethod,
+} from '../entities/payment';
 import type { PaymentRepository } from '../repositories/booking-repository';
 
 /** Default first, then the wallet, then cards. */
@@ -8,7 +13,8 @@ export class GetPaymentMethods {
 
   async execute(): Promise<PaymentMethod[]> {
     const methods = await this.repository.getPaymentMethods();
-    const rank = (method: PaymentMethod) => (method.isDefault ? 0 : method.kind === 'wallet' ? 1 : 2);
+    const rank = (method: PaymentMethod) =>
+      method.isDefault ? 0 : method.kind === PaymentMethodKind.Wallet ? 1 : 2;
     return [...methods].sort((a, b) => rank(a) - rank(b));
   }
 }
@@ -22,7 +28,7 @@ export class AddCard {
   async execute(card: NewCard): Promise<PaymentMethod> {
     const problem = validateNewCard(card, this.now());
     if (problem) {
-      throw new DomainError('VALIDATION', problem);
+      throw new DomainError(AppErrorCode.Validation, problem);
     }
     return this.repository.addCard(card);
   }
@@ -42,11 +48,17 @@ export class RemoveCard {
   async execute(id: string): Promise<PaymentMethod[]> {
     const methods = await this.repository.getPaymentMethods();
     const method = methods.find(item => item.id === id);
-    if (method?.kind === 'wallet') {
-      throw new DomainError('VALIDATION', 'The BlackJet Wallet cannot be removed.');
+    if (method?.kind === PaymentMethodKind.Wallet) {
+      throw new DomainError(
+        AppErrorCode.Validation,
+        'The Sovereign Wallet cannot be removed.',
+      );
     }
     if (method?.isDefault) {
-      throw new DomainError('VALIDATION', 'Choose another default before removing this card.');
+      throw new DomainError(
+        AppErrorCode.Validation,
+        'Choose another default before removing this card.',
+      );
     }
     return this.repository.removeCard(id);
   }

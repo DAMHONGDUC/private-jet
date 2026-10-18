@@ -13,7 +13,12 @@ import {
   tripTypeSelected,
   type CharterSearchState,
 } from '@/features/dashboard/presentation/charter-search-slice';
-import { checkDraft } from '@/features/dashboard/domain/entities/charter';
+import {
+  AirportEnd,
+  checkDraft,
+  LegSlot,
+  TripType,
+} from '@/features/dashboard/domain/entities/charter';
 import type { UnknownAction } from '@reduxjs/toolkit';
 
 const reduce = (actions: UnknownAction[], state?: CharterSearchState) =>
@@ -24,17 +29,25 @@ const reduce = (actions: UnknownAction[], state?: CharterSearchState) =>
 
 const filled = () =>
   reduce([
-    airportSelected({ target: 'outbound', end: 'origin', code: 'GVA' }),
-    airportSelected({ target: 'outbound', end: 'destination', code: 'NCE' }),
-    dateSelected({ target: 'outbound', date: '2026-10-20' }),
-    passengersSelected({ target: 'outbound', count: 2 }),
+    airportSelected({
+      target: LegSlot.Outbound,
+      end: AirportEnd.Origin,
+      code: 'GVA',
+    }),
+    airportSelected({
+      target: LegSlot.Outbound,
+      end: AirportEnd.Destination,
+      code: 'NCE',
+    }),
+    dateSelected({ target: LegSlot.Outbound, date: '2026-10-20' }),
+    passengersSelected({ target: LegSlot.Outbound, count: 2 }),
   ]);
 
 test('fills the outbound leg, swaps it and keeps the passengers in range', () => {
   const state = reduce(
     [
-      airportsSwapped('outbound'),
-      passengersSelected({ target: 'outbound', count: 40 }),
+      airportsSwapped(LegSlot.Outbound),
+      passengersSelected({ target: LegSlot.Outbound, count: 40 }),
     ],
     filled(),
   );
@@ -51,7 +64,11 @@ test('remembers recent airports, newest first and without repeats', () => {
   const codes = ['HEL', 'LBG', 'FAB', 'NCE', 'GVA', 'DXB', 'HEL'];
   const state = reduce(
     codes.map(code =>
-      airportSelected({ target: 'outbound', end: 'origin', code }),
+      airportSelected({
+        target: LegSlot.Outbound,
+        end: AirportEnd.Origin,
+        code,
+      }),
     ),
   );
 
@@ -65,7 +82,7 @@ test('a new trip type starts the form over and drops the results', () => {
     filled(),
   );
 
-  const state = reduce([tripTypeSelected('multiCity')], searched);
+  const state = reduce([tripTypeSelected(TripType.MultiCity)], searched);
 
   expect(state.submitted).toBeNull();
   expect(state.draft.outbound.origin).toBeNull();
@@ -74,8 +91,8 @@ test('a new trip type starts the form over and drops the results', () => {
 
 test('a multi-city leg starts where the last one lands and the last leg stays', () => {
   let state = reduce([
-    tripTypeSelected('multiCity'),
-    airportSelected({ target: 0, end: 'destination', code: 'NCE' }),
+    tripTypeSelected(TripType.MultiCity),
+    airportSelected({ target: 0, end: AirportEnd.Destination, code: 'NCE' }),
     passengersSelected({ target: 0, count: 3 }),
     legAdded(),
   ]);

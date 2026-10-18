@@ -6,5 +6,8 @@ export interface AuthDataSource {
   signIn(email: string, password: string): Promise<UserDto | null>;
   signInAsDemo(): Promise<UserDto>;
   signOut(): Promise<void>;
-  updateUser(id: string, patch: Pick<UserDto, 'full_name' | 'phone'>): Promise<UserDto>;
+  updateUser(
+    id: string,
+    patch: Pick<UserDto, 'full_name' | 'phone'>,
+  ): Promise<UserDto>;
 }

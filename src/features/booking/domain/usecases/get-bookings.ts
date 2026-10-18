@@ -7,6 +7,8 @@ export class GetBookings {
 
   async execute(): Promise<Booking[]> {
     const bookings = await this.repository.getBookings();
-    return [...bookings].sort((a, b) => firstLeg(a).departureAt.localeCompare(firstLeg(b).departureAt));
+    return [...bookings].sort((a, b) =>
+      firstLeg(a).departureAt.localeCompare(firstLeg(b).departureAt),
+    );
   }
 }

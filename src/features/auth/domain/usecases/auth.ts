@@ -1,4 +1,4 @@
-import { DomainError } from '@/core/error/app-error';
+import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import {
   validateCredentials,
   validateProfileUpdate,
@@ -26,9 +26,12 @@ export class SignIn {
     }
     const problem = validateCredentials(credentials);
     if (problem) {
-      throw new DomainError('VALIDATION', problem);
+      throw new DomainError(AppErrorCode.Validation, problem);
     }
-    return this.repository.signIn({ email: credentials.email.trim().toLowerCase(), password: credentials.password });
+    return this.repository.signIn({
+      email: credentials.email.trim().toLowerCase(),
+      password: credentials.password,
+    });
   }
 }
 
@@ -46,8 +49,11 @@ export class UpdateProfile {
   async execute(update: ProfileUpdate): Promise<User> {
     const problem = validateProfileUpdate(update);
     if (problem) {
-      throw new DomainError('VALIDATION', problem);
+      throw new DomainError(AppErrorCode.Validation, problem);
     }
-    return this.repository.updateProfile({ fullName: update.fullName.trim(), phone: update.phone.trim() });
+    return this.repository.updateProfile({
+      fullName: update.fullName.trim(),
+      phone: update.phone.trim(),
+    });
   }
 }

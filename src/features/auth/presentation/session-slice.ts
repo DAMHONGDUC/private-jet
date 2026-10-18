@@ -2,10 +2,22 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { User } from '../domain/entities/user';
 import { authApi } from './auth-api';
 
-/** `restoring` until the launch check answers; the navigator shows the splash meanwhile. */
-export type SessionState = { status: 'restoring' | 'signedIn' | 'signedOut'; user: User | null };
+/** `Restoring` until the launch check answers; the navigator shows the splash meanwhile. */
+export enum SessionStatus {
+  Restoring = 'restoring',
+  SignedIn = 'signedIn',
+  SignedOut = 'signedOut',
+}
 
-const initialState: SessionState = { status: 'restoring', user: null };
+export type SessionState = {
+  status: SessionStatus;
+  user: User | null;
+};
+
+const initialState: SessionState = {
+  status: SessionStatus.Restoring,
+  user: null,
+};
 
 export const sessionSlice = createSlice({
   name: 'session',
@@ -13,24 +25,35 @@ export const sessionSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addMatcher(authApi.endpoints.restoreSession.matchFulfilled, (state, { payload }) => {
-        state.user = payload;
-        state.status = payload ? 'signedIn' : 'signedOut';
-      })
+      .addMatcher(
+        authApi.endpoints.restoreSession.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload;
+          state.status = payload
+            ? SessionStatus.SignedIn
+            : SessionStatus.SignedOut;
+        },
+      )
       .addMatcher(authApi.endpoints.restoreSession.matchRejected, state => {
-        state.status = 'signedOut';
+        state.status = SessionStatus.SignedOut;
       })
-      .addMatcher(authApi.endpoints.signIn.matchFulfilled, (state, { payload }) => {
-        state.user = payload;
-        state.status = 'signedIn';
-      })
+      .addMatcher(
+        authApi.endpoints.signIn.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload;
+          state.status = SessionStatus.SignedIn;
+        },
+      )
       .addMatcher(authApi.endpoints.signOut.matchFulfilled, state => {
         state.user = null;
-        state.status = 'signedOut';
+        state.status = SessionStatus.SignedOut;
       })
-      .addMatcher(authApi.endpoints.updateProfile.matchFulfilled, (state, { payload }) => {
-        state.user = payload;
-      });
+      .addMatcher(
+        authApi.endpoints.updateProfile.matchFulfilled,
+        (state, { payload }) => {
+          state.user = payload;
+        },
+      );
   },
 });
 

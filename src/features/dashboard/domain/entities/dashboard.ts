@@ -7,8 +7,14 @@ export type NewsPost = {
   body: string;
   /** Key of a bundled image. */
   image: string;
-  status: 'published' | 'draft' | 'archived';
+  status: NewsStatus;
 };
+
+export enum NewsStatus {
+  Published = 'published',
+  Draft = 'draft',
+  Archived = 'archived',
+}
 
 /** The most stories the carousel shows. */
 export const MAX_NEWS_POSTS = 5;

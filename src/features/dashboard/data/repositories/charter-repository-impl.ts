@@ -6,8 +6,18 @@ import { toJetQuote } from '../mappers/charter-mapper';
 export class CharterRepositoryImpl implements CharterRepository {
   constructor(private readonly dataSource: CharterDataSource) {}
 
-  async getQuotes({ origin, destination, date, passengers }: CharterLeg): Promise<JetQuote[]> {
-    const dtos = await this.dataSource.getQuotes({ origin, destination, date, passengers });
+  async getQuotes({
+    origin,
+    destination,
+    date,
+    passengers,
+  }: CharterLeg): Promise<JetQuote[]> {
+    const dtos = await this.dataSource.getQuotes({
+      origin,
+      destination,
+      date,
+      passengers,
+    });
     return dtos.map(toJetQuote);
   }
 }

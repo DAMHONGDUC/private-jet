@@ -1,6 +1,14 @@
-export type JetCategory = 'light' | 'midsize' | 'heavy';
+export enum JetCategory {
+  Light = 'light',
+  Midsize = 'midsize',
+  Heavy = 'heavy',
+}
 
-export const JET_CATEGORIES: readonly JetCategory[] = ['light', 'midsize', 'heavy'];
+export const JET_CATEGORIES: readonly JetCategory[] = [
+  JetCategory.Light,
+  JetCategory.Midsize,
+  JetCategory.Heavy,
+];
 
 export type Airport = {
   code: string;
@@ -44,19 +52,35 @@ export type FlightSearchParams = {
   category?: JetCategory;
 };
 
-export type DepartureWindow = 'night' | 'morning' | 'afternoon' | 'evening';
+export enum DepartureWindow {
+  Night = 'night',
+  Morning = 'morning',
+  Afternoon = 'afternoon',
+  Evening = 'evening',
+}
 
 /** Local departure hours per window: `from` included, `to` excluded. */
-export const DEPARTURE_WINDOWS: Record<DepartureWindow, { from: number; to: number }> = {
-  night: { from: 0, to: 6 },
-  morning: { from: 6, to: 12 },
-  afternoon: { from: 12, to: 18 },
-  evening: { from: 18, to: 24 },
+export const DEPARTURE_WINDOWS: Record<
+  DepartureWindow,
+  { from: number; to: number }
+> = {
+  [DepartureWindow.Night]: { from: 0, to: 6 },
+  [DepartureWindow.Morning]: { from: 6, to: 12 },
+  [DepartureWindow.Afternoon]: { from: 12, to: 18 },
+  [DepartureWindow.Evening]: { from: 18, to: 24 },
 };
 
-export const DEPARTURE_WINDOW_ORDER: readonly DepartureWindow[] = ['morning', 'afternoon', 'evening', 'night'];
+export const DEPARTURE_WINDOW_ORDER: readonly DepartureWindow[] = [
+  DepartureWindow.Morning,
+  DepartureWindow.Afternoon,
+  DepartureWindow.Evening,
+  DepartureWindow.Night,
+];
 
-export function departsWithin(flight: Flight, window: DepartureWindow): boolean {
+export function departsWithin(
+  flight: Flight,
+  window: DepartureWindow,
+): boolean {
   const hour = new Date(flight.departureAt).getHours();
   const { from, to } = DEPARTURE_WINDOWS[window];
   return hour >= from && hour < to;
