@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "setup": "node scripts/setup.js",
-    "setup:ios": "node scripts/setup.js ios",
-    "setup:android": "node scripts/setup.js android",
+    "setup": "make set-up",
+    "setup:ios": "make set-up run-ios",
+    "setup:android": "make set-up run-android",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",

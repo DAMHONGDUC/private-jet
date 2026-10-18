@@ -65,12 +65,17 @@ The app opens already signed in as **Alexander Reed** (Black Card). After signin
 
 ## Commands
 
+Clone with the shared scripts: `git clone --recurse-submodules <repo>`, or run `make set-up`, which fetches them. `make` lists every target.
+
 | Task | Command |
 |---|---|
-| Setup | `npm run setup` |
-| Run | `npm run android` / `npm run ios` |
+| Setup | `make set-up` (`NO_PULL=1` skips `git pull`) |
+| Run | `make run-ios` (`SIMULATOR="iPhone 17 Pro"`) / `make run-android` |
+| Release to TestFlight | `make release-ios-dev` (`NOTE="What to test"`), after filling `ios/fastlane/.env` |
 | Checks | `npm run lint && npm run typecheck && npm test` |
 | Full run guide | [docs/setup.md](docs/setup.md) |
+
+The targets come from [script-tools](https://github.com/DAMHONGDUC/script-tools) `react_native/` (submodule at `packages/script-tools`); this app's settings for it are in `script-tools.properties`.
 
 ## Architecture
 
