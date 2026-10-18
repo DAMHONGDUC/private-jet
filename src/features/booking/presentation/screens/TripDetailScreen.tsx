@@ -1,17 +1,18 @@
 import { useState, type ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { BottomSheet } from '@/core/ui/BottomSheet';
-import { Button } from '@/core/ui/Button';
+import { BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { FlightPath } from '@/core/ui/FlightPath';
 import { Screen } from '@/core/ui/Screen';
 import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
-import { StatusPill } from '@/core/ui/StatusPill';
+import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
 import {
   formatDate,
@@ -20,8 +21,9 @@ import {
   formatTime,
 } from '@/core/utils/format';
 import {
-  CANCELLATION_WINDOW_HOURS,
+  BookingStatus,
   canCancel,
+  CANCELLATION_WINDOW_HOURS,
   firstLeg,
   lastLeg,
   type BookingLeg,
@@ -43,7 +45,7 @@ export function TripDetailScreen({
   now: nowProp,
 }: Props) {
   const styles = useStyles();
-  const insets = useSafeAreaInsets();
+  const t = useT();
   const [now] = useState(() => nowProp ?? new Date());
   const [confirming, setConfirming] = useState(false);
   const {
@@ -85,12 +87,19 @@ export function TripDetailScreen({
     }
   };
 
+  /** Too late to cancel here, so the bar says who to ask. */
+  const closeToDeparture =
+    !cancellable &&
+    booking.status === BookingStatus.Confirmed &&
+    state.tone === StatusTone.Success;
+
   return (
     <Screen>
       <ScrollView
+        testID="trip-scroll"
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: insets.bottom + spacing.xxl },
+          { paddingBottom: AppSpacing.xl },
         ]}
       >
         <View>
@@ -143,12 +152,12 @@ export function TripDetailScreen({
           ))}
         </Section>
 
-        <Section title={`Passengers · ${booking.passengers.length}`}>
+        <Section title={`Guests · ${booking.passengers.length}`}>
           {booking.passengers.map((passenger, index) => (
             <View key={`${passenger.fullName}-${index}`} style={styles.line}>
               <AppText>{passenger.fullName}</AppText>
               <AppText variant="caption" muted>
-                {index === 0 ? 'Lead passenger' : `Guest ${index}`}
+                {index === 0 ? 'Lead guest' : `Guest ${index}`}
               </AppText>
             </View>
           ))}
@@ -178,13 +187,15 @@ export function TripDetailScreen({
             </View>
           ) : null}
         </Section>
+      </ScrollView>
 
-        <View style={styles.actions}>
+      {onContactConcierge || cancellable || closeToDeparture ? (
+        <BottomActions>
           {onContactConcierge ? (
             <Button
               testID="contact-concierge"
-              title="Message your concierge"
-              variant="secondary"
+              title={t('actions.messageConcierge')}
+              variant={ButtonVariant.Secondary}
               onPress={onContactConcierge}
             />
           ) : null}
@@ -192,22 +203,21 @@ export function TripDetailScreen({
             <Animated.View exiting={FadeOut.duration(200)}>
               <Button
                 testID="cancel-trip"
-                title="Cancel trip"
-                variant="danger"
+                title={t('actions.cancelTrip')}
+                variant={ButtonVariant.Danger}
                 onPress={() => {
                   haptics.selection();
                   setConfirming(true);
                 }}
               />
             </Animated.View>
-          ) : booking.status === 'confirmed' && state.tone === 'success' ? (
+          ) : closeToDeparture ? (
             <AppText variant="caption" muted style={styles.centered}>
-              Within {CANCELLATION_WINDOW_HOURS} hours of departure, changes go
-              through your concierge.
+              {t('actions.lateChanges', { hours: CANCELLATION_WINDOW_HOURS })}
             </AppText>
           ) : null}
-        </View>
-      </ScrollView>
+        </BottomActions>
+      ) : null}
 
       <BottomSheet
         visible={confirming}
@@ -230,13 +240,13 @@ export function TripDetailScreen({
           <Button
             testID="confirm-cancel"
             title="Cancel trip"
-            variant="danger"
+            variant={ButtonVariant.Danger}
             loading={cancelling}
             onPress={cancel}
           />
           <Button
             title="Keep trip"
-            variant="secondary"
+            variant={ButtonVariant.Secondary}
             onPress={() => setConfirming(false)}
           />
         </View>
@@ -282,8 +292,8 @@ function LegRow({ leg, last }: { leg: BookingLeg; last: boolean }) {
 }
 
 const useStyles = makeStyles(palette => ({
-  content: { padding: spacing.lg, gap: spacing.lg },
-  hero: { gap: spacing.lg },
+  content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
+  hero: { gap: AppSpacing.lg },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -292,7 +302,7 @@ const useStyles = makeStyles(palette => ({
   end: { alignItems: 'flex-end' },
   reference: {
     alignItems: 'center',
-    paddingVertical: spacing.md,
+    paddingVertical: AppSpacing.md,
     borderRadius: 12,
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -300,15 +310,15 @@ const useStyles = makeStyles(palette => ({
     gap: 2,
   },
   code: { letterSpacing: 4 },
-  section: { gap: spacing.md },
+  section: { gap: AppSpacing.md },
   line: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: AppSpacing.md,
   },
   notes: { gap: 2 },
-  leg: { flexDirection: 'row', gap: spacing.md },
+  leg: { flexDirection: 'row', gap: AppSpacing.md },
   rail: { width: 12, alignItems: 'center', paddingTop: 4 },
   dot: {
     width: 10,
@@ -317,9 +327,8 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.accent,
   },
   connector: { flex: 1, width: 2, backgroundColor: palette.iron, marginTop: 4 },
-  legBody: { flex: 1, gap: 2, paddingBottom: spacing.md },
-  actions: { gap: spacing.md },
+  legBody: { flex: 1, gap: 2, paddingBottom: AppSpacing.md },
   centered: { textAlign: 'center' },
-  sheet: { gap: spacing.md, paddingTop: spacing.sm },
+  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
   error: { color: palette.error },
 }));

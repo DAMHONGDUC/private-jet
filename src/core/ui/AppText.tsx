@@ -11,7 +11,7 @@ type Props = TextProps & {
   accent?: boolean;
 };
 
-/** App text in KnulTrial; the variant sets size and font file, from the four sizes in `typeScale`. */
+/** App text: the serif for display and title, KnulTrial for the rest; sizes come from `typeScale`. */
 export function AppText({
   variant = 'body',
   muted,
@@ -42,14 +42,14 @@ const useStyles = makeStyles(palette => ({
   },
   display: {
     fontSize: typeScale.display,
-    lineHeight: 34,
-    fontFamily: blackJetFonts.medium,
-    letterSpacing: -0.4,
+    lineHeight: 36,
+    fontFamily: blackJetFonts.display,
+    letterSpacing: -0.2,
   },
   title: {
     fontSize: typeScale.title,
-    lineHeight: 26,
-    fontFamily: blackJetFonts.medium,
+    lineHeight: 27,
+    fontFamily: blackJetFonts.display,
   },
   subtitle: {
     fontSize: typeScale.body,
@@ -59,10 +59,10 @@ const useStyles = makeStyles(palette => ({
   body: { fontSize: typeScale.body, lineHeight: 22 },
   caption: { fontSize: typeScale.caption, lineHeight: 17 },
   label: {
-    fontSize: typeScale.caption,
-    lineHeight: 17,
+    fontSize: typeScale.label,
+    lineHeight: 16,
     fontFamily: blackJetFonts.medium,
-    letterSpacing: 0.8,
+    letterSpacing: 1.6,
     textTransform: 'uppercase',
   },
   muted: { color: palette.secondaryText },

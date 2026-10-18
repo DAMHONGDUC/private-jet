@@ -1,6 +1,8 @@
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
-import { elevation, radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { elevation, radius } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { formatMoney } from '@/core/utils/format';
@@ -24,11 +26,14 @@ export function SelectionBar({
   onContinue,
 }: Props) {
   const styles = useStyles();
+  const t = useT();
   return (
     <View testID="selection-bar" style={styles.bar}>
       <View style={styles.text}>
         <AppText variant="caption" muted>
-          {legs > 1 ? `${chosen} of ${legs} legs chosen` : 'Your jet'}
+          {legs > 1
+            ? t('results.legsChosen', { chosen, legs })
+            : t('results.yourJet')}
         </AppText>
         <AppText testID="selection-total" variant="title">
           {formatMoney(total, currency)}
@@ -36,7 +41,7 @@ export function SelectionBar({
       </View>
       <Button
         testID="selection-continue"
-        title={complete ? 'Continue' : 'Pick every leg'}
+        title={t(complete ? 'results.continue' : 'results.pickEveryLeg')}
         disabled={!complete}
         onPress={onContinue}
       />
@@ -47,14 +52,15 @@ export function SelectionBar({
 const useStyles = makeStyles(palette => ({
   bar: {
     position: 'absolute',
-    left: spacing.lg,
-    right: spacing.lg,
-    bottom: spacing.lg,
+    left: AppSpacing.lg,
+    right: AppSpacing.lg,
+    // The screen puts its slot on the safe area; this is the bottom-action gap above it.
+    bottom: AppSpacing.bottomAction,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-    paddingLeft: spacing.lg,
+    gap: AppSpacing.md,
+    padding: AppSpacing.md,
+    paddingLeft: AppSpacing.lg,
     borderRadius: radius.xl,
     backgroundColor: palette.raised,
     borderWidth: StyleSheet.hairlineWidth,

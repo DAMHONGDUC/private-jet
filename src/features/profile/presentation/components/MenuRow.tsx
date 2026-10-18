@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
-import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { StyleSheet, View } from 'react-native';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
+import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 
 type Props = {
@@ -16,8 +17,16 @@ type Props = {
 };
 
 /** One line of a settings list: a title, an optional detail and a chevron or control. */
-export function MenuRow({ title, detail, onPress, trailing, last, testID }: Props) {
+export function MenuRow({
+  title,
+  detail,
+  onPress,
+  trailing,
+  last,
+  testID,
+}: Props) {
   const styles = useStyles();
+  const palette = useBlackJetTheme();
   const content = (
     <>
       <View style={styles.text}>
@@ -28,7 +37,10 @@ export function MenuRow({ title, detail, onPress, trailing, last, testID }: Prop
           </AppText>
         ) : null}
       </View>
-      {trailing ?? (onPress ? <AppText style={styles.chevron}>›</AppText> : null)}
+      {trailing ??
+        (onPress ? (
+          <Icon name="chevronRight" size={20} color={palette.secondaryText} />
+        ) : null)}
     </>
   );
 
@@ -52,11 +64,13 @@ const useStyles = makeStyles(palette => ({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
+    gap: AppSpacing.md,
+    paddingVertical: AppSpacing.md,
     minHeight: 56,
   },
-  divider: { borderBottomWidth: 1, borderBottomColor: palette.iron },
+  divider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: palette.iron,
+  },
   text: { flex: 1, gap: 2 },
-  chevron: { fontSize: 26, lineHeight: 28, color: palette.secondaryText },
 }));

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
@@ -11,11 +12,14 @@ import { firstLeg, isUpcoming } from '../../domain/entities/booking';
 import { useGetBookingsQuery } from '../booking-api';
 import { TripCard } from '../components/TripCard';
 
-type Tab = 'upcoming' | 'past';
+enum Tab {
+  Upcoming = 'upcoming',
+  Past = 'past',
+}
 
 const TABS = [
-  { value: 'upcoming', label: 'Upcoming' },
-  { value: 'past', label: 'Past' },
+  { value: Tab.Upcoming, label: 'Upcoming' },
+  { value: Tab.Past, label: 'Past' },
 ] as const;
 
 type Props = {
@@ -28,14 +32,15 @@ type Props = {
 /** Upcoming trips soonest first; past and cancelled ones most recent first. */
 export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
   const styles = useStyles();
+  const insets = useSafeAreaInsets();
   const palette = useBlackJetTheme();
   const [now] = useState(() => nowProp ?? new Date());
-  const [tab, setTab] = useState<Tab>('upcoming');
+  const [tab, setTab] = useState<Tab>(Tab.Upcoming);
   const { data, error, isLoading, isFetching, refetch } = useGetBookingsQuery();
 
   const trips = useMemo(() => {
     const all = data ?? [];
-    return tab === 'upcoming'
+    return tab === Tab.Upcoming
       ? all.filter(booking => isUpcoming(booking, now))
       : all
           .filter(booking => !isUpcoming(booking, now))
@@ -56,7 +61,10 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
         testID="trip-list"
         data={trips}
         keyExtractor={booking => booking.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: AppSpacing.tabContentInset(insets.bottom) },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={isFetching && !isLoading}
@@ -69,14 +77,16 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
         ListEmptyComponent={
           <View style={styles.empty}>
             <EmptyView
-              title={tab === 'upcoming' ? 'No upcoming trips' : 'No past trips'}
+              title={
+                tab === Tab.Upcoming ? 'No upcoming trips' : 'No past trips'
+              }
               message={
-                tab === 'upcoming'
+                tab === Tab.Upcoming
                   ? 'Plan a charter or join a shared flight.'
                   : 'Flown and cancelled trips show up here.'
               }
             />
-            {tab === 'upcoming' ? (
+            {tab === Tab.Upcoming ? (
               <Button
                 testID="plan-trip"
                 title="Plan a trip"
@@ -117,10 +127,10 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
 
 const useStyles = makeStyles(() => ({
   header: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    gap: spacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingTop: AppSpacing.lg,
+    gap: AppSpacing.sm,
   },
-  list: { padding: spacing.lg, gap: spacing.lg, flexGrow: 1 },
-  empty: { flex: 1, gap: spacing.lg, paddingBottom: spacing.xxl },
+  list: { padding: AppSpacing.lg, gap: AppSpacing.lg, flexGrow: 1 },
+  empty: { flex: 1, gap: AppSpacing.lg, paddingBottom: AppSpacing.xxl },
 }));

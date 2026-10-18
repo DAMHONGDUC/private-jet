@@ -1,4 +1,6 @@
-import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
+import { AppColors } from '@/core/theme/app-colors';
+import { View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -9,9 +11,11 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
-import { Button } from '@/core/ui/Button';
+import { ActionsDirection, BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
@@ -25,7 +29,7 @@ import {
   selectQuoteSelections,
 } from '../charter-search-slice';
 import { PhotoPager } from '../components/PhotoPager';
-import { CATEGORY_LABELS, formatDay } from '../search-labels';
+import { CATEGORY_LABELS, formatDay, passengersLabel } from '../search-labels';
 import { useCharterSelection } from '../use-charter-selection';
 
 const HERO = 340;
@@ -50,6 +54,7 @@ export function JetQuoteScreen({
 }: Props) {
   const styles = useStyles();
   const palette = useBlackJetTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const selections = useSelector(selectQuoteSelections);
@@ -98,7 +103,11 @@ export function JetQuoteScreen({
           title="This quote has expired"
           message="Search again to see the jets available now."
         />
-        <Button title="Back" variant="secondary" onPress={onBack} />
+        <Button
+          title="Back"
+          variant={ButtonVariant.Secondary}
+          onPress={onBack}
+        />
       </Screen>
     );
   }
@@ -129,7 +138,7 @@ export function JetQuoteScreen({
     ['Routing', quote.nonStop ? 'Non stop' : '1 fuel stop'],
     ['Seats', `Up to ${quote.aircraft.totalSeats}`],
     ['Cruise', `${quote.specs.cruiseKmh} km/h`],
-    ['Range', `${quote.specs.rangeKm.toLocaleString('en-GB')} km`],
+    ['Range', `${quote.specs.rangeKm.toLocaleString('en-AU')} km`],
     ['Baggage', `${quote.specs.baggageM3} m³`],
   ];
 
@@ -158,7 +167,7 @@ export function JetQuoteScreen({
         <View style={styles.sheet}>
           <View style={styles.block}>
             <AppText variant="label" muted>
-              {CATEGORY_LABELS[quote.aircraft.category]}
+              {t(CATEGORY_LABELS[quote.aircraft.category])}
               {legs > 1 ? ` · Leg ${legIndex + 1} of ${legs}` : ''}
             </AppText>
             <AppText testID="quote-model" variant="display">
@@ -166,8 +175,8 @@ export function JetQuoteScreen({
             </AppText>
             <AppText muted>
               {group.leg.origin} → {group.leg.destination} ·{' '}
-              {formatDay(group.leg.date)} · {group.leg.passengers}{' '}
-              {group.leg.passengers === 1 ? 'passenger' : 'passengers'}
+              {formatDay(group.leg.date, t)} ·{' '}
+              {passengersLabel(group.leg.passengers, t)}
             </AppText>
           </View>
 
@@ -223,19 +232,17 @@ export function JetQuoteScreen({
       <PressableScale
         testID="quote-back"
         accessibilityRole="button"
-        accessibilityLabel="Back"
+        accessibilityLabel={t('common.back')}
         onPress={onBack}
         style={[styles.back, { top: insets.top + 8 }]}
       >
-        <Icon name="chevronLeft" size={20} color="#FFFFFF" />
+        <Icon name="chevronLeft" size={20} color={AppColors.fixed.white} />
       </PressableScale>
 
-      <View
-        style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}
-      >
+      <BottomActions direction={ActionsDirection.Row} style={styles.footer}>
         <View style={styles.price}>
           <AppText variant="caption" muted>
-            Total for this leg
+            {t('actions.totalForLeg')}
           </AppText>
           <AppText testID="quote-price" variant="title">
             {formatMoney(quote.price, quote.currency)}
@@ -245,13 +252,15 @@ export function JetQuoteScreen({
           <>
             <Button
               testID="quote-remove"
-              title="Remove"
-              variant="secondary"
+              title={t('actions.remove')}
+              variant={ButtonVariant.Secondary}
               onPress={choose}
             />
             <Button
               testID="quote-next"
-              title={othersChosen ? 'Checkout' : 'Back to jets'}
+              title={t(
+                othersChosen ? 'actions.checkout' : 'actions.backToJets',
+              )}
               onPress={othersChosen ? onCheckout : onBack}
             />
           </>
@@ -261,14 +270,14 @@ export function JetQuoteScreen({
             title={
               othersChosen
                 ? legs > 1
-                  ? 'Choose & checkout'
-                  : 'Book this jet'
-                : `Choose for leg ${legIndex + 1}`
+                  ? t('actions.chooseAndCheckout')
+                  : t('actions.bookThisJet')
+                : t('actions.chooseForLeg', { number: legIndex + 1 })
             }
             onPress={choose}
           />
         )}
-      </View>
+      </BottomActions>
     </View>
   );
 }
@@ -278,40 +287,40 @@ const SHADE =
 
 const useStyles = makeStyles(palette => ({
   root: { flex: 1 },
-  hero: { height: HERO, backgroundColor: '#191919' },
+  hero: { height: HERO, backgroundColor: AppColors.fixed.photoBackdrop },
   heroShade: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   sheet: {
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
-    padding: spacing.lg,
-    gap: spacing.xl,
+    padding: AppSpacing.lg,
+    gap: AppSpacing.xl,
     minHeight: 600,
     marginTop: -24,
   },
-  block: { gap: spacing.sm },
+  block: { gap: AppSpacing.sm },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: spacing.lg,
-    padding: spacing.lg,
+    rowGap: AppSpacing.lg,
+    padding: AppSpacing.lg,
     borderRadius: radius.lg,
     backgroundColor: palette.primaryBackground,
   },
   fact: {
     width: '33.33%',
-    gap: spacing.xs,
-    paddingRight: spacing.sm,
+    gap: AppSpacing.xs,
+    paddingRight: AppSpacing.sm,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
+    gap: AppSpacing.sm,
+    marginTop: AppSpacing.xs,
   },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: AppSpacing.md,
+    paddingVertical: AppSpacing.sm,
     borderRadius: radius.pill,
     backgroundColor: palette.accentSoft,
   },
@@ -329,27 +338,14 @@ const useStyles = makeStyles(palette => ({
   },
   back: {
     position: 'absolute',
-    left: spacing.md,
+    left: AppSpacing.md,
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: AppColors.fixed.photoScrim,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    backgroundColor: palette.secondaryBackground,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: palette.iron,
-  },
+  footer: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   price: { flex: 1, gap: 2 },
 }));

@@ -1,28 +1,20 @@
-/** Every gap is on the 4/8 pt grid. */
-export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-  xxxl: 48,
-} as const;
+// Gaps live in `AppSpacing` (app-spacing.ts), colours in `AppColors` (app-colors.ts).
 
 export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 24,
+  xl: 20,
   pill: 999,
 } as const;
 
-/** The only four text sizes in the app. */
+/** The only text sizes in the app; `label` is the small tracked capitals. */
 export const typeScale = {
   display: 28,
   title: 20,
   body: 16,
   caption: 13,
+  label: 11,
 } as const;
 
 export type TypeSize = (typeof typeScale)[keyof typeof typeScale];

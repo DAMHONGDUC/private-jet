@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeOut,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { useT } from '@/core/i18n/i18n';
+import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
-import { Button } from '@/core/ui/Button';
+import { BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
+import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
 import { haptics } from '@/core/ui/haptics';
@@ -19,7 +22,7 @@ export const FAQ: { question: string; answer: string }[] = [
   {
     question: 'What is the difference between a charter and a shared flight?',
     answer:
-      'A charter books the whole aircraft on the route and day you choose. A shared flight sells single seats on a scheduled BlackJet departure, so you pay per seat.',
+      'A charter books the whole aircraft on the route and day you choose. A shared flight sells single seats on a scheduled Sovereign departure, so you pay per seat.',
   },
   {
     question: 'How late can I cancel?',
@@ -37,7 +40,7 @@ export const FAQ: { question: string; answer: string }[] = [
       'Each jet lists its hold space in cubic metres. As a guide, a midsize jet takes one large and one cabin bag per passenger; your concierge can arrange more.',
   },
   {
-    question: 'How do I pay with the BlackJet Wallet?',
+    question: 'How do I pay with the Sovereign Wallet?',
     answer:
       'Choose the wallet at checkout. The fare comes off its balance straight away, and a cancellation puts it back.',
   },
@@ -53,6 +56,7 @@ type Props = { onContactConcierge?: () => void };
 /** Answers that open in place, and the concierge for the rest. */
 export function HelpScreen({ onContactConcierge }: Props) {
   const styles = useStyles();
+  const t = useT();
   const [open, setOpen] = useState<number | null>(0);
 
   return (
@@ -79,20 +83,20 @@ export function HelpScreen({ onContactConcierge }: Props) {
             ))}
           </Card>
         </View>
-        {onContactConcierge ? (
-          <View style={styles.concierge}>
-            <AppText muted>
-              Something else? Your concierge answers around the clock.
-            </AppText>
-            <Button
-              testID="help-concierge"
-              title="Message the concierge"
-              variant="secondary"
-              onPress={onContactConcierge}
-            />
-          </View>
-        ) : null}
       </ScrollView>
+      {onContactConcierge ? (
+        <BottomActions>
+          <AppText muted style={styles.concierge}>
+            {t('actions.helpMore')}
+          </AppText>
+          <Button
+            testID="help-concierge"
+            title={t('actions.messageTheConcierge')}
+            variant={ButtonVariant.Secondary}
+            onPress={onContactConcierge}
+          />
+        </BottomActions>
+      ) : null}
     </Screen>
   );
 }
@@ -115,6 +119,7 @@ function Question({
   onPress,
 }: QuestionProps) {
   const styles = useStyles();
+  const palette = useBlackJetTheme();
   const chevron = useAnimatedStyle(() => ({
     transform: [
       { rotate: withTiming(open ? '90deg' : '0deg', { duration: 250 }) },
@@ -134,7 +139,7 @@ function Question({
           {question}
         </AppText>
         <Animated.View style={chevron}>
-          <AppText style={styles.chevron}>›</AppText>
+          <Icon name="chevronRight" size={20} color={palette.secondaryText} />
         </Animated.View>
       </PressableScale>
       {open ? (
@@ -153,15 +158,21 @@ function Question({
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+  content: {
+    padding: AppSpacing.lg,
+    gap: AppSpacing.lg,
+    paddingBottom: AppSpacing.xxl,
+  },
   list: { paddingVertical: 0, overflow: 'hidden' },
-  item: { paddingVertical: spacing.md },
-  divider: { borderBottomWidth: 1, borderBottomColor: palette.iron },
-  question: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  chevron: { fontSize: 26, lineHeight: 28, color: palette.secondaryText },
-  answer: { paddingTop: spacing.sm, paddingRight: spacing.xl },
-  concierge: { gap: spacing.md, alignItems: 'stretch' },
-  legal: { gap: spacing.xs },
+  item: { paddingVertical: AppSpacing.md },
+  divider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: palette.iron,
+  },
+  question: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
+  answer: { paddingTop: AppSpacing.sm, paddingRight: AppSpacing.xl },
+  concierge: { textAlign: 'center' },
+  legal: { gap: AppSpacing.xs },
 }));
 
 /** Placeholder text for terms and privacy; the demo has no legal entity behind it. */
@@ -170,7 +181,7 @@ export function LegalScreen() {
   const sections = [
     [
       'Demo build',
-      'BlackJet is a demonstration app. Flights, bookings, payments and messages are simulated on the device; nothing is charged and no aircraft is reserved.',
+      'Sovereign is a demonstration app. Flights, bookings, payments and messages are simulated on the device; nothing is charged and no aircraft is reserved.',
     ],
     [
       'Your data',

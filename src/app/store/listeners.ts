@@ -1,6 +1,9 @@
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { AppState } from 'react-native';
+import { AppState, type AppStateStatus } from 'react-native';
 import type { AppDispatch } from './store';
+
+/** React Native's name for the app in the foreground. */
+const ACTIVE: AppStateStatus = 'active';
 
 /**
  * RTK Query's `refetchOnFocus` listens to `window` events, which React Native
@@ -9,7 +12,7 @@ import type { AppDispatch } from './store';
 export function setupAppListeners(dispatch: AppDispatch): () => void {
   return setupListeners(dispatch, (_dispatch, { onFocus, onFocusLost }) => {
     const subscription = AppState.addEventListener('change', state => {
-      _dispatch(state === 'active' ? onFocus() : onFocusLost());
+      _dispatch(state === ACTIVE ? onFocus() : onFocusLost());
     });
     return () => subscription.remove();
   });

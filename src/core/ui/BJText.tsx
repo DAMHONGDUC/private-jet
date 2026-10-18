@@ -1,3 +1,4 @@
+import { AppColors } from '@/core/theme/app-colors';
 import { StyleSheet, Text, type TextProps } from 'react-native';
 import {
   blackJetFonts,
@@ -13,7 +14,8 @@ type Tone =
   | 'inverse'
   | 'white'
   | 'accent'
-  | 'onAccent';
+  | 'onAccent'
+  | 'onPrimary';
 
 type Props = TextProps & {
   /** One of the four sizes in `typeScale`. */
@@ -27,9 +29,10 @@ const toneColor = (palette: BlackJetPalette, tone: Tone) =>
     primary: palette.primaryText,
     secondary: palette.secondaryText,
     inverse: palette.ghostWhite,
-    white: '#FFFFFF',
+    white: AppColors.fixed.white,
     accent: palette.accent,
     onAccent: palette.onAccent,
+    onPrimary: palette.onPrimaryAction,
   }[tone]);
 
 /** Text in KnulTrial; the weight picks the font file, never `fontWeight`. */
@@ -49,7 +52,11 @@ export function BJText({
         {
           fontSize: size,
           lineHeight: Math.round(size * 1.3),
-          fontFamily: blackJetFonts[weight],
+          // Headline sizes take the serif; the weight only picks the sans file.
+          fontFamily:
+            size >= typeScale.title
+              ? blackJetFonts.display
+              : blackJetFonts[weight],
           color: toneColor(palette, tone),
         },
         style,

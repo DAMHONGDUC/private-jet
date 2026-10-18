@@ -1,6 +1,7 @@
-import { View, type ViewProps } from 'react-native';
+import { StyleSheet, View, type ViewProps } from 'react-native';
 import { makeStyles } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 
 export function Card({ style, ...rest }: ViewProps) {
   const styles = useStyles();
@@ -8,9 +9,12 @@ export function Card({ style, ...rest }: ViewProps) {
 }
 
 const useStyles = makeStyles(palette => ({
+  /** A white surface with a hairline edge, rather than a grey block. */
   card: {
-    backgroundColor: palette.primaryBackground,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
+    backgroundColor: palette.cardBackground,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: palette.iron,
+    padding: AppSpacing.card,
   },
 }));

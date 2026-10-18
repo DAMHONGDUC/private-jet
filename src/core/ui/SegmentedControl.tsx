@@ -6,6 +6,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { ColorScheme } from '@/core/theme/app-colors';
 import { blackJetCurves, makeStyles } from '@/core/theme/blackjet';
 import { elevation, radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
@@ -94,7 +95,8 @@ const useStyles = makeStyles(palette => ({
     bottom: 4,
     left: 4,
     borderRadius: radius.sm,
-    backgroundColor: palette.scheme === 'dark' ? palette.iron : palette.raised,
+    backgroundColor:
+      palette.scheme === ColorScheme.Dark ? palette.iron : palette.raised,
     ...elevation(palette.shadow),
   },
   segment: {

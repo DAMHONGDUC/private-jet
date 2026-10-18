@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { preferencesSlice } from '@/core/preferences/preferences-slice';
 import { baseApi } from '@/core/store/base-api';
 import { sessionSlice } from '@/features/auth/presentation/session-slice';
 import { charterSearchSlice } from '@/features/dashboard/presentation/charter-search-slice';
@@ -24,6 +25,7 @@ export function createAppStore(
       [charterSearchSlice.name]: charterSearchSlice.reducer,
       [sessionSlice.name]: sessionSlice.reducer,
       [settingsSlice.name]: settingsSlice.reducer,
+      [preferencesSlice.name]: preferencesSlice.reducer,
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({ thunk: { extraArgument: dependencies } }).concat(

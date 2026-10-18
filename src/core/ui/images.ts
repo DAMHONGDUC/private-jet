@@ -31,7 +31,7 @@ export const LOGO = {
 export const LOGO_ASPECT = 515 / 144;
 
 const tabIcon = (
-  sfSymbol: 'house.fill' | 'airplane' | 'person.crop.circle',
+  sfSymbol: 'house' | 'airplane' | 'person.crop.circle',
   source: ImageSourcePropType,
 ) =>
   Platform.select<NativeBottomTabIcon>({
@@ -39,9 +39,9 @@ const tabIcon = (
     default: { type: 'image', source },
   });
 
-/** SF Symbols on iOS; tinted PNGs drawn from the app's icon fonts elsewhere. */
+/** Outline SF Symbols on iOS, lighter than the filled set; tinted PNGs drawn from the app's icon fonts elsewhere. */
 export const TAB_ICONS = {
-  home: tabIcon('house.fill', require('@/assets/images/tab-home.png')),
+  home: tabIcon('house', require('@/assets/images/tab-home.png')),
   trips: tabIcon('airplane', require('@/assets/images/tab-trips.png')),
   profile: tabIcon(
     'person.crop.circle',

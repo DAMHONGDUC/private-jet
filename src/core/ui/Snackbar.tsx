@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from './BJText';
 
@@ -48,10 +48,10 @@ export function Snackbar({ message, onHide, bottom }: Props) {
 const styles = StyleSheet.create({
   bar: {
     position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
+    left: AppSpacing.md,
+    right: AppSpacing.md,
     borderRadius: 8,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: AppSpacing.lg,
+    paddingVertical: AppSpacing.md,
   },
 });

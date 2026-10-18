@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { BottomSheet } from '@/core/ui/BottomSheet';
-import { Button } from '@/core/ui/Button';
+import { BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
 import { Shimmer } from '@/core/ui/Shimmer';
 import { ErrorView, errorMessage } from '@/core/ui/StateViews';
-import { StatusPill } from '@/core/ui/StatusPill';
+import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
 import {
   paymentLabel,
+  PaymentMethodKind,
   type PaymentMethod,
 } from '@/features/booking/domain/entities/payment';
 import {
@@ -26,6 +29,7 @@ type Props = { onAddCard: () => void };
 /** The wallet and every card, drawn as cards; make one the default or remove it. */
 export function PaymentMethodsScreen({ onAddCard }: Props) {
   const styles = useStyles();
+  const t = useT();
   const { data: methods, error, refetch } = useGetPaymentMethodsQuery();
   const [setDefault, { isLoading: settingDefault }] =
     useSetDefaultPaymentMutation();
@@ -53,12 +57,12 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
                 <PaymentCard testID={`card-${method.id}`} method={method} />
                 <View style={styles.actions}>
                   {method.isDefault ? (
-                    <StatusPill label="Default" tone="inverse" />
+                    <StatusPill label="Default" tone={StatusTone.Inverse} />
                   ) : (
                     <Button
                       testID={`default-${method.id}`}
                       title="Make default"
-                      variant="secondary"
+                      variant={ButtonVariant.Secondary}
                       disabled={settingDefault}
                       onPress={() => {
                         haptics.selection();
@@ -66,11 +70,12 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
                       }}
                     />
                   )}
-                  {method.kind === 'card' && !method.isDefault ? (
+                  {method.kind === PaymentMethodKind.Card &&
+                  !method.isDefault ? (
                     <Button
                       testID={`remove-${method.id}`}
                       title="Remove"
-                      variant="danger"
+                      variant={ButtonVariant.Danger}
                       onPress={() => {
                         reset();
                         setRemoving(method);
@@ -80,8 +85,14 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
                 </View>
               </View>
             ))}
-        <Button testID="add-card" title="Add a card" onPress={onAddCard} />
       </ScrollView>
+      <BottomActions>
+        <Button
+          testID="add-card"
+          title={t('actions.addCard')}
+          onPress={onAddCard}
+        />
+      </BottomActions>
 
       <BottomSheet
         visible={removing_ !== null}
@@ -103,7 +114,7 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
           <Button
             testID="confirm-remove-card"
             title="Remove card"
-            variant="danger"
+            variant={ButtonVariant.Danger}
             loading={removing}
             onPress={async () => {
               if (removing_) {
@@ -124,9 +135,9 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  content: { padding: spacing.lg, gap: spacing.xl },
-  item: { gap: spacing.md },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  sheet: { gap: spacing.md, paddingTop: spacing.sm },
+  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
+  item: { gap: AppSpacing.md },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
+  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
   error: { color: palette.error },
 }));

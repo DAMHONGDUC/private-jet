@@ -1,3 +1,5 @@
+import { useT } from '@/core/i18n/i18n';
+import { AppColors } from '@/core/theme/app-colors';
 import { Image, StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
@@ -8,9 +10,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
-import { Button } from '@/core/ui/Button';
+import { BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
+import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
 import { EmptyView, LoadingView } from '@/core/ui/StateViews';
@@ -24,6 +28,7 @@ type Props = { newsId: string; onBack: () => void; onPlanTrip?: () => void };
 /** One story: its photo under a parallax header, then the full text. */
 export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
   const styles = useStyles();
+  const t = useT();
   const insets = useSafeAreaInsets();
   const { data: posts, isLoading } = useGetNewsQuery();
   const scrollY = useSharedValue(0);
@@ -67,7 +72,11 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
           title="This story is gone"
           message="It may have been archived."
         />
-        <Button title="Back" variant="secondary" onPress={onBack} />
+        <Button
+          title="Back"
+          variant={ButtonVariant.Secondary}
+          onPress={onBack}
+        />
       </Screen>
     );
   }
@@ -78,7 +87,11 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         testID="news-scroll"
         onScroll={onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
+        contentContainerStyle={{
+          paddingBottom: onPlanTrip
+            ? AppSpacing.xl
+            : insets.bottom + AppSpacing.xxl,
+        }}
       >
         <Animated.View style={[styles.hero, heroStyle]}>
           <Image
@@ -94,7 +107,7 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         <View style={styles.sheet}>
           <View style={styles.block}>
             <AppText variant="label" muted>
-              BlackJet news
+              Sovereign news
             </AppText>
             <AppText testID="news-detail-title" variant="display">
               {post.title}
@@ -108,17 +121,17 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
               <AppText style={styles.paragraph}>{paragraph}</AppText>
             </View>
           ))}
-          {onPlanTrip ? (
-            <View>
-              <Button
-                testID="news-plan-trip"
-                title="Plan a flight"
-                onPress={onPlanTrip}
-              />
-            </View>
-          ) : null}
         </View>
       </Animated.ScrollView>
+      {onPlanTrip ? (
+        <BottomActions>
+          <Button
+            testID="news-plan-trip"
+            title={t('actions.planFlight')}
+            onPress={onPlanTrip}
+          />
+        </BottomActions>
+      ) : null}
       <PressableScale
         testID="news-back"
         accessibilityRole="button"
@@ -126,7 +139,7 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         onPress={onBack}
         style={[styles.back, { top: insets.top + 8 }]}
       >
-        <AppText style={styles.backGlyph}>‹</AppText>
+        <Icon name="chevronLeft" size={20} color={AppColors.fixed.white} />
       </PressableScale>
     </View>
   );
@@ -139,27 +152,30 @@ const useStyles = makeStyles(palette => ({
   // Sized explicitly: with only absolute insets, iOS draws the photo at its pixel size.
   photo: { width: '100%', height: '100%' },
   root: { flex: 1, backgroundColor: palette.secondaryBackground },
-  hero: { height: HERO, backgroundColor: '#191919', overflow: 'hidden' },
+  hero: {
+    height: HERO,
+    backgroundColor: AppColors.fixed.photoBackdrop,
+    overflow: 'hidden',
+  },
   sheet: {
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: spacing.lg,
-    gap: spacing.lg,
+    padding: AppSpacing.lg,
+    gap: AppSpacing.lg,
     marginTop: -24,
     minHeight: 500,
   },
-  block: { gap: spacing.sm },
+  block: { gap: AppSpacing.sm },
   paragraph: { lineHeight: 23 },
   back: {
     position: 'absolute',
-    left: spacing.md,
+    left: AppSpacing.md,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: AppColors.fixed.photoScrim,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backGlyph: { color: '#FFFFFF', fontSize: 30, lineHeight: 32, marginTop: -3 },
 }));

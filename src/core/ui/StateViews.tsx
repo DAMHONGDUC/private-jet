@@ -1,9 +1,9 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import type { AppError } from '@/core/error/app-error';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from './AppText';
-import { Button } from './Button';
+import { Button, ButtonVariant } from './Button';
 
 export function LoadingView() {
   const palette = useBlackJetTheme();
@@ -34,7 +34,11 @@ export function ErrorView({
         {errorMessage(error)}
       </AppText>
       {onRetry ? (
-        <Button title="Try again" variant="secondary" onPress={onRetry} />
+        <Button
+          title="Try again"
+          variant={ButtonVariant.Secondary}
+          onPress={onRetry}
+        />
       ) : null}
     </View>
   );
@@ -62,8 +66,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.xl,
-    gap: spacing.md,
+    padding: AppSpacing.xl,
+    gap: AppSpacing.md,
   },
   message: { textAlign: 'center' },
 });

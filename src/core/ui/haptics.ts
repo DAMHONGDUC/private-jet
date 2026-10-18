@@ -1,6 +1,9 @@
 import HapticFeedback from 'react-native-haptic-feedback';
 
-const options = { enableVibrateFallback: false, ignoreAndroidSystemSettings: false };
+const options = {
+  enableVibrateFallback: false,
+  ignoreAndroidSystemSettings: false,
+};
 
 /** The haptics the app uses (feature-docs/dashboard §5, plus success and error). */
 export const haptics = {

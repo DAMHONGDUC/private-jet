@@ -1,5 +1,6 @@
 import { makeStyles } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
@@ -33,13 +34,16 @@ export function Chip({ label, selected, onPress, testID }: Props) {
 
 const useStyles = makeStyles(palette => ({
   chip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingVertical: AppSpacing.sm,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: palette.iron,
     backgroundColor: palette.secondaryBackground,
   },
-  selected: { backgroundColor: palette.accent, borderColor: palette.accent },
-  selectedText: { color: palette.onAccent },
+  selected: {
+    backgroundColor: palette.primaryAction,
+    borderColor: palette.primaryAction,
+  },
+  selectedText: { color: palette.onPrimaryAction },
 }));

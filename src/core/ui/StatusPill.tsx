@@ -1,17 +1,22 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { makeStyles } from '@/core/theme/blackjet';
 import { AppText } from './AppText';
 
-type Tone = 'neutral' | 'success' | 'danger' | 'inverse';
+export enum StatusTone {
+  Neutral = 'neutral',
+  Success = 'success',
+  Danger = 'danger',
+  Inverse = 'inverse',
+}
 
 /** A small rounded label: CHARTER, CANCELLED, COMPLETED… */
 export function StatusPill({
   label,
-  tone = 'neutral',
+  tone = StatusTone.Neutral,
   testID,
 }: {
   label: string;
-  tone?: Tone;
+  tone?: StatusTone;
   testID?: string;
 }) {
   const styles = useStyles();
@@ -25,18 +30,20 @@ export function StatusPill({
 }
 
 const useStyles = makeStyles(palette => ({
+  // A hairline outline and tinted text: quieter than a filled chip.
   pill: {
     alignSelf: 'flex-start',
     borderRadius: 100,
     paddingHorizontal: 10,
     paddingVertical: 4,
+    borderWidth: StyleSheet.hairlineWidth,
   },
-  neutral: { backgroundColor: palette.iron },
-  neutralText: { color: palette.primaryText },
-  success: { backgroundColor: `${palette.success}22` },
+  neutral: { borderColor: palette.ashGrey },
+  neutralText: { color: palette.secondaryText },
+  success: { borderColor: palette.success },
   successText: { color: palette.success },
-  danger: { backgroundColor: `${palette.error}22` },
+  danger: { borderColor: palette.error },
   dangerText: { color: palette.error },
-  inverse: { backgroundColor: palette.accentSoft },
-  inverseText: { color: palette.primaryText },
+  inverse: { borderColor: palette.accent, backgroundColor: palette.accentSoft },
+  inverseText: { color: palette.accent },
 }));
