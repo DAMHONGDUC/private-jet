@@ -72,6 +72,9 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+/** Android's version name and build number; iOS has its own pair in the same file. */
+def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file("../app-version.json"))
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -82,8 +85,9 @@ android {
         applicationId "app.dd.private.jet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // From app-version.json at the project root, the one place to change them.
+        versionCode appVersion.androidBuild
+        versionName appVersion.androidVersion
     }
     signingConfigs {
         debug {

@@ -1,5 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { APP_FULL_NAME } from '@/core/app-identity';
+import { APP_VERSION } from '@/core/app-version';
 import { useT, type TranslationKey } from '@/core/i18n/i18n';
 import {
   LANGUAGES,
@@ -290,7 +291,7 @@ export function ProfileScreen({
             onPress={() => setConfirming(true)}
           />
           <AppText variant="caption" muted style={styles.version}>
-            {t('profile.version', { app: APP_FULL_NAME, version: '1.0.0' })}
+            {t('profile.version', { app: APP_FULL_NAME, version: APP_VERSION })}
           </AppText>
         </View>
       </ScrollView>
