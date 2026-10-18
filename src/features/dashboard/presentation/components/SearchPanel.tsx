@@ -27,7 +27,8 @@ import {
 } from '../charter-search-slice';
 import { airportsByCode } from '../search-labels';
 import { AirportSheet } from './AirportSheet';
-import { BookingCard, type BookingCardErrors } from './BookingCard';
+import { BookingCard } from './BookingCard';
+import type { BookingCardErrors } from './booking-card-types';
 import { CalendarSheet } from './CalendarSheet';
 import { ConfirmSheet } from './ConfirmSheet';
 import { CountSheet } from './CountSheet';

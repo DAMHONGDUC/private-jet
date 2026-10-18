@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useT } from '@/core/i18n/i18n';
@@ -11,24 +11,22 @@ import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { FlightPath } from '@/core/ui/FlightPath';
 import { Screen } from '@/core/ui/Screen';
-import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
-import {
-  formatDate,
-  formatDuration,
-  formatMoney,
-  formatTime,
-} from '@/core/utils/format';
+import { formatDate, formatMoney } from '@/core/utils/format';
 import {
   BookingStatus,
   canCancel,
   CANCELLATION_WINDOW_HOURS,
   firstLeg,
   lastLeg,
-  type BookingLeg,
 } from '../../domain/entities/booking';
 import { useCancelBookingMutation, useGetBookingQuery } from '../booking-api';
+import { TripLegRow } from '../components/TripLegRow';
+import { TripSection } from '../components/TripSection';
 import { kindLabel, tripState } from '../trip-labels';
 
 type Props = {
@@ -142,17 +140,17 @@ export function TripDetailScreen({
           </Card>
         </View>
 
-        <Section title={booking.legs.length > 1 ? 'Itinerary' : 'Flight'}>
+        <TripSection title={booking.legs.length > 1 ? 'Itinerary' : 'Flight'}>
           {booking.legs.map((leg, index) => (
-            <LegRow
+            <TripLegRow
               key={`${leg.originCode}-${leg.departureAt}`}
               leg={leg}
               last={index === booking.legs.length - 1}
             />
           ))}
-        </Section>
+        </TripSection>
 
-        <Section title={`Guests · ${booking.passengers.length}`}>
+        <TripSection title={`Guests · ${booking.passengers.length}`}>
           {booking.passengers.map((passenger, index) => (
             <View key={`${passenger.fullName}-${index}`} style={styles.line}>
               <AppText>{passenger.fullName}</AppText>
@@ -165,9 +163,9 @@ export function TripDetailScreen({
             <AppText muted>Contact</AppText>
             <AppText>{booking.contactEmail}</AppText>
           </View>
-        </Section>
+        </TripSection>
 
-        <Section title="Payment">
+        <TripSection title="Payment">
           <View style={styles.line}>
             <AppText muted>Paid with</AppText>
             <AppText>{booking.paymentLabel}</AppText>
@@ -186,7 +184,7 @@ export function TripDetailScreen({
               <AppText>{booking.notes}</AppText>
             </View>
           ) : null}
-        </Section>
+        </TripSection>
       </ScrollView>
 
       {onContactConcierge || cancellable || closeToDeparture ? (
@@ -255,42 +253,6 @@ export function TripDetailScreen({
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  const styles = useStyles();
-  return (
-    <View>
-      <Card style={styles.section}>
-        <AppText variant="subtitle">{title}</AppText>
-        {children}
-      </Card>
-    </View>
-  );
-}
-
-function LegRow({ leg, last }: { leg: BookingLeg; last: boolean }) {
-  const styles = useStyles();
-  return (
-    <View style={styles.leg}>
-      <View style={styles.rail}>
-        <View style={styles.dot} />
-        {last ? null : <View style={styles.connector} />}
-      </View>
-      <View style={styles.legBody}>
-        <AppText variant="caption" muted>
-          {formatDate(leg.departureAt)} · {formatTime(leg.departureAt)}
-        </AppText>
-        <AppText variant="subtitle">
-          {leg.originCity} ({leg.originCode}) → {leg.destinationCity} (
-          {leg.destinationCode})
-        </AppText>
-        <AppText variant="caption" muted>
-          {leg.aircraftModel} · {formatDuration(leg.durationMinutes)}
-        </AppText>
-      </View>
-    </View>
-  );
-}
-
 const useStyles = makeStyles(palette => ({
   content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
   hero: { gap: AppSpacing.lg },
@@ -310,7 +272,6 @@ const useStyles = makeStyles(palette => ({
     gap: 2,
   },
   code: { letterSpacing: 4 },
-  section: { gap: AppSpacing.md },
   line: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -318,16 +279,6 @@ const useStyles = makeStyles(palette => ({
     gap: AppSpacing.md,
   },
   notes: { gap: 2 },
-  leg: { flexDirection: 'row', gap: AppSpacing.md },
-  rail: { width: 12, alignItems: 'center', paddingTop: 4 },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: palette.accent,
-  },
-  connector: { flex: 1, width: 2, backgroundColor: palette.iron, marginTop: 4 },
-  legBody: { flex: 1, gap: 2, paddingBottom: AppSpacing.md },
   centered: { textAlign: 'center' },
   sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
   error: { color: palette.error },

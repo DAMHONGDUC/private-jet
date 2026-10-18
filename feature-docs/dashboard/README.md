@@ -742,8 +742,8 @@ y = scrollY
 | Spec | Code |
 |---|---|
 | 1.1–1.4 Token, font, icon | `src/core/theme/blackjet.ts`, `src/core/ui/BJText.tsx`, `src/core/ui/Icon.tsx`; font trong `src/assets/fonts` (link bằng `npx react-native-asset`) |
-| 2.1–2.2 App bar, hero | `presentation/components/HomeHeader.tsx` (badge lấy từ `getInbox`) |
-| 2.3 Booking card | `components/BookingCard.tsx`, `components/SearchFields.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
+| 2.1–2.2 App bar, hero | `presentation/components/HomeAppBar.tsx` + `BadgeButton.tsx` (badge lấy từ `getInbox`), `HeroText.tsx` |
+| 2.3 Booking card | `components/BookingCard.tsx`, `LegEditor.tsx`, `RowErrors.tsx`, `TripTypeRadio.tsx`, `RouteRow.tsx`, `AirportBox.tsx`, `FieldButton.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
 | 2.4 News carousel | `components/NewsCarousel.tsx`, `components/PhotoPager.tsx` |
 | 2.5 Bottom nav | `src/app/navigation/BlackJetTabBar.tsx`: 3 tab Home / Flights / Trips. Repo chưa có Blog và Profile nên chưa có tab avatar |
 | 3.4 Validation | `domain/entities/charter.ts` → `checkDraft()`, giữ nguyên câu báo lỗi gốc; thêm 2 luật: 2 sân bay phải khác nhau, các leg Multi City phải theo thứ tự ngày |
@@ -751,7 +751,7 @@ y = scrollY
 | 5 Haptics | `src/core/ui/haptics.ts` (`react-native-haptic-feedback`) |
 | 6.2 Fade-up, 6.4 Shimmer | `src/core/ui/FadeUp.tsx`, `src/core/ui/Shimmer.tsx` (gradient bằng `backgroundImage` của RN 0.88) |
 | 12.1 Luồng mới | `presentation/charter-search-slice.ts` (form + search đang hiển thị), `dashboard-api.ts` → `searchCharters` |
-| 12.2–12.3 Kết quả, JetCard | `components/JetResults.tsx`, `components/JetCard.tsx`, `components/Skeletons.tsx`; empty state dùng Lottie |
+| 12.2–12.3 Kết quả, JetCard | `components/JetResults.tsx`, `LegQuoteGroup.tsx`, `NoListings.tsx`, `ResultsLoadError.tsx`, `components/JetCard.tsx`, `JetCardSkeleton.tsx`; empty state dùng Lottie |
 | 12.4 Thu gọn khi cuộn | `presentation/use-collapsible-search.ts`, `components/SearchSummaryBar.tsx`, `screens/DashboardScreen.tsx` |
 | Mock | `data/datasources/mock/charter.mock.ts`: 6 máy bay, giá theo khoảng cách great-circle giữa 7 sân bay mock của Flights; `news.mock.ts` |
 

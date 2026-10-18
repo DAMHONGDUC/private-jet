@@ -5,10 +5,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
-  type ImageSourcePropType,
-  type TextInputProps,
 } from 'react-native';
 import Animated, {
   FadeIn,
@@ -20,24 +17,20 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '@/core/theme/app-colors';
-import { blackJetFonts } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
 import { BRAND_ICONS, imageFor } from '@/core/ui/images';
 import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
 import { DEMO_CREDENTIALS, credentialErrors } from '../../domain/entities/user';
 import { useSignInMutation } from '../auth-api';
-
-const WHITE = AppColors.fixed.white;
-const MUTED = AppColors.fixed.onPhotoMuted;
-const FIELD = 'rgba(255, 255, 255, 0.12)';
-const BORDER = 'rgba(255, 255, 255, 0.22)';
-const ERROR = '#FF6B6B';
+import { LoginField } from '../components/LoginField';
+import { SocialButton } from '../components/SocialButton';
+import { BORDER, ERROR, MUTED } from '../login-colors';
 
 /**
  * Sign in over a jet photo. Email and password, a one-tap
@@ -133,7 +126,7 @@ export function LoginScreen() {
           </View>
 
           <Animated.View style={[styles.form, formStyle]}>
-            <Field
+            <LoginField
               testID="login-email"
               label="Email"
               value={email}
@@ -146,7 +139,7 @@ export function LoginScreen() {
               error={errors.email}
             />
             <View>
-              <Field
+              <LoginField
                 testID="login-password"
                 label="Password"
                 value={password}
@@ -251,63 +244,6 @@ export function LoginScreen() {
   );
 }
 
-function Field({
-  label,
-  testID,
-  error,
-  ...input
-}: TextInputProps & { label: string; testID: string; error?: string }) {
-  return (
-    <View style={styles.field}>
-      <BJText size={13} style={styles.muted}>
-        {label}
-      </BJText>
-      <TextInput
-        testID={testID}
-        placeholderTextColor="rgba(255, 255, 255, 0.4)"
-        accessibilityHint={error}
-        {...input}
-        style={[styles.input, error ? styles.invalid : null]}
-      />
-      {error ? (
-        <BJText
-          testID={`${testID}-error`}
-          size={13}
-          weight="regular"
-          accessibilityRole="alert"
-          style={styles.error}
-        >
-          {error}
-        </BJText>
-      ) : null}
-    </View>
-  );
-}
-
-type SocialProps = {
-  testID: string;
-  label: string;
-  icon: ImageSourcePropType;
-  tint?: boolean;
-  onPress: () => void;
-};
-
-function SocialButton({ testID, label, icon, tint, onPress }: SocialProps) {
-  return (
-    <PressableScale
-      testID={testID}
-      accessibilityRole="button"
-      onPress={onPress}
-      style={[styles.outlined, styles.social]}
-    >
-      <Image source={icon} style={[styles.socialIcon, tint && styles.tinted]} />
-      <BJText size={16} tone="white">
-        {label}
-      </BJText>
-    </PressableScale>
-  );
-}
-
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: AppColors.fixed.black, overflow: 'hidden' },
   flex: { flex: 1 },
@@ -331,20 +267,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDER,
   },
-  field: { gap: 6 },
-  input: {
-    height: 52,
-    borderRadius: radius.md,
-    paddingHorizontal: AppSpacing.lg,
-    backgroundColor: FIELD,
-    color: WHITE,
-    fontFamily: blackJetFonts.regular,
-    fontSize: 16,
-  },
   toggle: { position: 'absolute', right: 12, bottom: 15 },
   muted: { color: MUTED },
   error: { color: ERROR },
-  invalid: { borderWidth: 1, borderColor: ERROR },
   primary: {
     height: 52,
     borderRadius: radius.md,
@@ -365,8 +290,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   socialRow: { flexDirection: 'row', gap: 12 },
-  social: { flex: 1, flexDirection: 'row', gap: 8 },
-  socialIcon: { width: 18, height: 18 },
-  tinted: { tintColor: WHITE },
   hint: { alignItems: 'center', gap: 4, paddingVertical: 8 },
 });

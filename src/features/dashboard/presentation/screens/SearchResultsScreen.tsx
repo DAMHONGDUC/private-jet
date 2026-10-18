@@ -11,7 +11,7 @@ import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Snackbar } from '@/core/ui/Snackbar';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import type { CharterRequest } from '../../domain/entities/charter';
 import {
   searchSubmitted,

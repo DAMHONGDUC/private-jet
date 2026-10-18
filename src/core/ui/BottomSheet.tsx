@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
-import { Icon } from './Icon';
-import { PressableScale } from './PressableScale';
 
 type Props = {
   visible: boolean;
@@ -58,31 +56,6 @@ export function BottomSheet({
   );
 }
 
-type OptionProps = {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-  testID?: string;
-};
-
-/** One choice in a sheet: a plain row with a check when selected. */
-export function SheetOption({ label, selected, onPress, testID }: OptionProps) {
-  const styles = useStyles();
-  const palette = useBlackJetTheme();
-  return (
-    <PressableScale
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      onPress={onPress}
-      style={styles.option}
-    >
-      <AppText variant={selected ? 'subtitle' : 'body'}>{label}</AppText>
-      {selected ? <Icon name="check" size={20} color={palette.accent} /> : null}
-    </PressableScale>
-  );
-}
-
 const useStyles = makeStyles(palette => ({
   root: { flex: 1, justifyContent: 'flex-end' },
   backdrop: {
@@ -109,12 +82,4 @@ const useStyles = makeStyles(palette => ({
     marginBottom: AppSpacing.md,
   },
   title: { marginBottom: AppSpacing.sm },
-  option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: AppSpacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: palette.iron,
-  },
 }));

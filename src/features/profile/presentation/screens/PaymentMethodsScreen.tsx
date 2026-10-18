@@ -9,7 +9,8 @@ import { BottomActions } from '@/core/ui/BottomActions';
 import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
 import { Shimmer } from '@/core/ui/Shimmer';
-import { ErrorView, errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
+import { ErrorView } from '@/core/ui/ErrorView';
 import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
 import {

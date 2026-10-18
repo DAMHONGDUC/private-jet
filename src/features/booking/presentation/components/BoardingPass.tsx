@@ -11,6 +11,7 @@ import { Icon } from '@/core/ui/Icon';
 import { formatMoney } from '@/core/utils/format';
 import { firstLeg, lastLeg, type Booking } from '../../domain/entities/booking';
 import { departureLabel, kindLabel, routeCodes } from '../trip-labels';
+import { BoardingDetail } from './BoardingDetail';
 
 const NOTCH = 20;
 
@@ -68,10 +69,10 @@ export function BoardingPass({ booking }: { booking: Booking }) {
 
       <View style={styles.bottom}>
         <View style={styles.grid}>
-          <Detail label="Departure" value={departureLabel(booking)} />
-          <Detail label="Guests" value={String(guests)} />
-          <Detail label="Paid with" value={booking.paymentLabel} />
-          <Detail
+          <BoardingDetail label="Departure" value={departureLabel(booking)} />
+          <BoardingDetail label="Guests" value={String(guests)} />
+          <BoardingDetail label="Paid with" value={booking.paymentLabel} />
+          <BoardingDetail
             label="Total"
             value={formatMoney(booking.totalPrice, booking.currency)}
           />
@@ -85,20 +86,6 @@ export function BoardingPass({ booking }: { booking: Booking }) {
           </AppText>
         </View>
       </View>
-    </View>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  const styles = useStyles();
-  return (
-    <View style={styles.detail}>
-      <AppText variant="label" muted>
-        {label}
-      </AppText>
-      <AppText variant="subtitle" numberOfLines={1}>
-        {value}
-      </AppText>
     </View>
   );
 }
@@ -155,7 +142,6 @@ const useStyles = makeStyles(palette => ({
   },
   bottom: { padding: AppSpacing.card, gap: AppSpacing.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: AppSpacing.md },
-  detail: { width: '50%', gap: AppSpacing.xs, paddingRight: AppSpacing.sm },
   reference: { alignItems: 'center', gap: AppSpacing.xs },
   referenceCode: {
     fontFamily: blackJetFonts.display,

@@ -17,11 +17,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
-import { BottomSheet, SheetOption } from '@/core/ui/BottomSheet';
+import { BottomSheet } from '@/core/ui/BottomSheet';
+import { SheetOption } from '@/core/ui/SheetOption';
 import { Button, ButtonVariant } from '@/core/ui/Button';
-import { Card } from '@/core/ui/Card';
 import { Screen } from '@/core/ui/Screen';
-import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
 import { formatCompactMoney, formatMoney } from '@/core/utils/format';
 import { useSignOutMutation } from '@/features/auth/presentation/auth-api';
@@ -38,8 +37,10 @@ import {
   useGetBookingsQuery,
   useGetPaymentMethodsQuery,
 } from '@/features/booking/presentation/booking-api';
-import { Avatar } from '../components/Avatar';
 import { MenuRow } from '../components/MenuRow';
+import { MenuSection } from '../components/MenuSection';
+import { ProfileHeader } from '../components/ProfileHeader';
+import { ProfileStats, type ProfileStat } from '../components/ProfileStats';
 import {
   notificationToggled,
   selectNotificationPrefs,
@@ -154,7 +155,7 @@ export function ProfileScreen({
   );
   const preferred = methods?.find(method => method.isDefault);
 
-  const stats = [
+  const stats: ProfileStat[] = [
     {
       label: t('profile.trips'),
       value: flown.length,
@@ -197,142 +198,89 @@ export function ProfileScreen({
           />
         }
       >
-        <View style={styles.header}>
-          <Avatar
-            testID="profile-avatar"
-            name={user.fullName}
-            size={84}
-            ring={palette.accentSoft}
-            ringWidth={4}
+        <ProfileHeader
+          user={user}
+          memberSince={memberSince(user.memberSince, t.language)}
+        />
+
+        <ProfileStats stats={stats} />
+
+        <MenuSection title={t('profile.account')}>
+          <MenuRow
+            testID="menu-personal"
+            title={t('profile.personalInfo')}
+            detail={`${user.fullName} · ${user.phone}`}
+            onPress={onEditProfile}
           />
-          <View style={styles.identity}>
-            <AppText testID="profile-name" variant="display">
-              {user.fullName}
-            </AppText>
-            <AppText muted>{user.email}</AppText>
-            <View style={styles.tierRow}>
-              <StatusPill label={user.tier} tone={StatusTone.Inverse} />
-              <AppText variant="caption" muted>
-                {t('profile.memberSince', {
-                  date: memberSince(user.memberSince, t.language),
-                })}
-              </AppText>
-            </View>
-          </View>
-        </View>
+          <MenuRow
+            testID="menu-payments"
+            title={t('profile.paymentMethods')}
+            detail={
+              preferred
+                ? t('profile.defaultMethod', {
+                    method: paymentLabel(preferred),
+                  })
+                : undefined
+            }
+            onPress={onOpenPayments}
+            last
+          />
+        </MenuSection>
 
-        <Card style={styles.stats}>
-          {stats.map((stat, index) => (
-            <View
-              key={stat.label}
-              style={[styles.stat, index > 0 && styles.statDivider]}
-            >
-              <AppText testID={stat.testID} variant="title">
-                {stat.format(stat.value)}
-              </AppText>
-              <AppText variant="caption" muted>
-                {stat.label}
-              </AppText>
-            </View>
-          ))}
-        </Card>
-
-        <View style={styles.section}>
-          <AppText variant="label" muted>
-            {t('profile.account')}
-          </AppText>
-          <Card style={styles.list}>
+        <MenuSection title={t('profile.notifications')}>
+          {NOTIFICATIONS.map((item, index) => (
             <MenuRow
-              testID="menu-personal"
-              title={t('profile.personalInfo')}
-              detail={`${user.fullName} · ${user.phone}`}
-              onPress={onEditProfile}
-            />
-            <MenuRow
-              testID="menu-payments"
-              title={t('profile.paymentMethods')}
-              detail={
-                preferred
-                  ? t('profile.defaultMethod', {
-                      method: paymentLabel(preferred),
-                    })
-                  : undefined
+              key={item.key}
+              title={t(item.title)}
+              detail={t(item.detail)}
+              last={index === NOTIFICATIONS.length - 1}
+              trailing={
+                <Switch
+                  testID={`notify-${item.key}`}
+                  value={prefs[item.key]}
+                  onValueChange={() => {
+                    haptics.selection();
+                    dispatch(notificationToggled(item.key));
+                  }}
+                  trackColor={{ false: palette.iron, true: palette.accent }}
+                  thumbColor={AppColors.fixed.white}
+                  ios_backgroundColor={palette.iron}
+                />
               }
-              onPress={onOpenPayments}
-              last
             />
-          </Card>
-        </View>
+          ))}
+        </MenuSection>
 
-        <View style={styles.section}>
-          <AppText variant="label" muted>
-            {t('profile.notifications')}
-          </AppText>
-          <Card style={styles.list}>
-            {NOTIFICATIONS.map((item, index) => (
-              <MenuRow
-                key={item.key}
-                title={t(item.title)}
-                detail={t(item.detail)}
-                last={index === NOTIFICATIONS.length - 1}
-                trailing={
-                  <Switch
-                    testID={`notify-${item.key}`}
-                    value={prefs[item.key]}
-                    onValueChange={() => {
-                      haptics.selection();
-                      dispatch(notificationToggled(item.key));
-                    }}
-                    trackColor={{ false: palette.iron, true: palette.accent }}
-                    thumbColor={AppColors.fixed.white}
-                    ios_backgroundColor={palette.iron}
-                  />
-                }
-              />
-            ))}
-          </Card>
-        </View>
+        <MenuSection title={t('profile.preferences')}>
+          <MenuRow
+            testID="menu-appearance"
+            title={t('profile.appearance')}
+            detail={t(THEME_LABELS[themeMode])}
+            onPress={() => setPicking(PreferenceSheet.AppearancePicker)}
+          />
+          <MenuRow
+            testID="menu-language"
+            title={t('profile.language')}
+            detail={t(`languages.${t.language}`)}
+            onPress={() => setPicking(PreferenceSheet.LanguagePicker)}
+            last
+          />
+        </MenuSection>
 
-        <View style={styles.section}>
-          <AppText variant="label" muted>
-            {t('profile.preferences')}
-          </AppText>
-          <Card style={styles.list}>
-            <MenuRow
-              testID="menu-appearance"
-              title={t('profile.appearance')}
-              detail={t(THEME_LABELS[themeMode])}
-              onPress={() => setPicking(PreferenceSheet.AppearancePicker)}
-            />
-            <MenuRow
-              testID="menu-language"
-              title={t('profile.language')}
-              detail={t(`languages.${t.language}`)}
-              onPress={() => setPicking(PreferenceSheet.LanguagePicker)}
-              last
-            />
-          </Card>
-        </View>
-
-        <View style={styles.section}>
-          <AppText variant="label" muted>
-            {t('profile.support')}
-          </AppText>
-          <Card style={styles.list}>
-            <MenuRow
-              testID="menu-help"
-              title={t('profile.help')}
-              detail={t('profile.helpDetail')}
-              onPress={onOpenHelp}
-            />
-            <MenuRow
-              testID="menu-legal"
-              title={t('profile.legal')}
-              onPress={onOpenLegal}
-              last
-            />
-          </Card>
-        </View>
+        <MenuSection title={t('profile.support')}>
+          <MenuRow
+            testID="menu-help"
+            title={t('profile.help')}
+            detail={t('profile.helpDetail')}
+            onPress={onOpenHelp}
+          />
+          <MenuRow
+            testID="menu-legal"
+            title={t('profile.legal')}
+            onPress={onOpenLegal}
+            last
+          />
+        </MenuSection>
 
         <View style={styles.section}>
           <Button
@@ -414,32 +362,12 @@ export function ProfileScreen({
   );
 }
 
-const useStyles = makeStyles(palette => ({
+const useStyles = makeStyles(() => ({
   content: {
     padding: AppSpacing.lg,
     gap: AppSpacing.section,
   },
-  header: {
-    alignItems: 'center',
-    gap: AppSpacing.md,
-    paddingTop: AppSpacing.md,
-  },
-  identity: { alignItems: 'center', gap: AppSpacing.xs },
-  tierRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: AppSpacing.sm,
-    marginTop: AppSpacing.xs,
-  },
-  stats: {
-    flexDirection: 'row',
-    paddingHorizontal: 0,
-    paddingVertical: AppSpacing.lg,
-  },
-  stat: { flex: 1, alignItems: 'center', gap: 2 },
-  statDivider: { borderLeftWidth: 1, borderLeftColor: palette.iron },
   section: { gap: AppSpacing.sm },
-  list: { paddingVertical: 0 },
   version: { textAlign: 'center', marginTop: AppSpacing.md },
   sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
 }));

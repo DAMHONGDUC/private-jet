@@ -17,7 +17,8 @@ import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { EmptyView, LoadingView } from '@/core/ui/StateViews';
+import { EmptyView } from '@/core/ui/EmptyView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { imageFor } from '@/core/ui/images';
 import { useGetNewsQuery } from '../dashboard-api';
 

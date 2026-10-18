@@ -9,7 +9,7 @@ import { AppText } from '@/core/ui/AppText';
 import { BottomActions } from '@/core/ui/BottomActions';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
 import { profileErrors } from '@/features/auth/domain/entities/user';

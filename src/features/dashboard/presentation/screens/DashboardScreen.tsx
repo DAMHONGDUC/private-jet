@@ -20,7 +20,8 @@ import {
   selectSubmittedCharter,
 } from '../charter-search-slice';
 import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
-import { HeroText, HomeAppBar } from '../components/HomeHeader';
+import { HeroText } from '../components/HeroText';
+import { HomeAppBar } from '../components/HomeAppBar';
 import { NewsCarousel } from '../components/NewsCarousel';
 import { PopularRoutes } from '../components/PopularRoutes';
 import { SearchPanel } from '../components/SearchPanel';

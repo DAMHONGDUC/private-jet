@@ -7,7 +7,7 @@ import { AppText } from '@/core/ui/AppText';
 import { BottomActions } from '@/core/ui/BottomActions';
 import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
-import { LoadingView } from '@/core/ui/StateViews';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
 import { useGetBookingQuery } from '../booking-api';
 import { BoardingPass } from '../components/BoardingPass';

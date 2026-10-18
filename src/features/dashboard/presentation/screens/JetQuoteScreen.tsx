@@ -19,7 +19,7 @@ import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { EmptyView } from '@/core/ui/StateViews';
+import { EmptyView } from '@/core/ui/EmptyView';
 import { haptics } from '@/core/ui/haptics';
 import { imageFor } from '@/core/ui/images';
 import { formatDuration, formatMoney } from '@/core/utils/format';

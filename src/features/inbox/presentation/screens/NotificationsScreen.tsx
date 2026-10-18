@@ -7,7 +7,9 @@ import { AppText } from '@/core/ui/AppText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { EmptyView, ErrorView, LoadingView } from '@/core/ui/StateViews';
+import { EmptyView } from '@/core/ui/EmptyView';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
 import { isToday, type AppNotification } from '../../domain/entities/inbox';
 import {

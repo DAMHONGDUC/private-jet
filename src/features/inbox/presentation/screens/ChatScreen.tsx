@@ -21,20 +21,18 @@ import { BJText } from '@/core/ui/BJText';
 import { Chip } from '@/core/ui/Chip';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Screen } from '@/core/ui/Screen';
-import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
+import { ErrorView } from '@/core/ui/ErrorView';
+import { LoadingView } from '@/core/ui/LoadingView';
 import { haptics } from '@/core/ui/haptics';
-import {
-  cleanMessage,
-  MessageAuthor,
-  type ChatMessage,
-} from '../../domain/entities/inbox';
+import { cleanMessage, type ChatMessage } from '../../domain/entities/inbox';
+import { ChatBubble } from '../components/ChatBubble';
 import { TypingDots } from '../components/TypingDots';
 import {
   useGetMessagesQuery,
   useMarkMessagesReadMutation,
   useSendMessageMutation,
 } from '../inbox-api';
-import { clockTime } from '../inbox-labels';
 
 export const QUICK_REPLIES = [
   'Arrange catering',
@@ -140,7 +138,7 @@ export function ChatScreen() {
               </AppText>
             </View>
           }
-          renderItem={({ item }) => <Bubble message={item} />}
+          renderItem={({ item }) => <ChatBubble message={item} />}
         />
 
         {sendError ? (
@@ -204,27 +202,6 @@ export function ChatScreen() {
   );
 }
 
-function Bubble({ message }: { message: ChatMessage }) {
-  const styles = useStyles();
-  const mine = message.author === MessageAuthor.Member;
-  return (
-    <Animated.View
-      testID={`message-${message.id}`}
-      entering={FadeIn.duration(300)}
-      style={[styles.bubbleRow, mine ? styles.mineRow : styles.theirsRow]}
-    >
-      <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-        <AppText style={mine ? styles.mineText : undefined}>
-          {message.text}
-        </AppText>
-      </View>
-      <AppText variant="caption" muted style={styles.time}>
-        {clockTime(message.sentAt)}
-      </AppText>
-    </Animated.View>
-  );
-}
-
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
   list: { padding: AppSpacing.lg, gap: AppSpacing.md },
@@ -250,19 +227,6 @@ const useStyles = makeStyles(palette => ({
     borderWidth: 2,
     borderColor: palette.secondaryBackground,
   },
-  bubbleRow: { maxWidth: '82%', gap: 2 },
-  mineRow: { alignSelf: 'flex-end', alignItems: 'flex-end' },
-  theirsRow: { alignSelf: 'flex-start', alignItems: 'flex-start' },
-  bubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18 },
-  mine: { backgroundColor: palette.jetBlack, borderBottomRightRadius: 4 },
-  mineText: { color: palette.ghostWhite },
-  theirs: {
-    backgroundColor: palette.primaryBackground,
-    borderWidth: 1,
-    borderColor: palette.iron,
-    borderBottomLeftRadius: 4,
-  },
-  time: { fontSize: 11, paddingHorizontal: 4 },
   error: {
     color: palette.error,
     textAlign: 'center',

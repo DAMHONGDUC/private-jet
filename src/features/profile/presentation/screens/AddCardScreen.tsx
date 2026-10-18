@@ -24,7 +24,7 @@ import { BJText } from '@/core/ui/BJText';
 import { BottomActions } from '@/core/ui/BottomActions';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
-import { errorMessage } from '@/core/ui/StateViews';
+import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
 import { selectUser } from '@/features/auth/presentation/session-slice';

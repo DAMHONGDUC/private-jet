@@ -15,7 +15,7 @@ import {
   selectSession,
 } from '@/features/auth/presentation/session-slice';
 import { NewsDetailScreen } from '@/features/dashboard/presentation/screens/NewsDetailScreen';
-import { LegalScreen } from '@/features/profile/presentation/screens/HelpScreen';
+import { LegalScreen } from '@/features/profile/presentation/screens/LegalScreen';
 import { ChatScreen } from '@/features/inbox/presentation/screens/ChatScreen';
 import { NotificationsScreen } from '@/features/inbox/presentation/screens/NotificationsScreen';
 import {
@@ -146,7 +146,7 @@ export function RootNavigator() {
             <Stack.Screen
               name="NewsDetail"
               component={NewsDetailRoute}
-              options={{ headerShown: false, animation: 'fade_from_bottom' }}
+              options={{ headerShown: false, animation: 'slide_from_bottom' }}
             />
             <Stack.Screen
               name="SearchResults"
