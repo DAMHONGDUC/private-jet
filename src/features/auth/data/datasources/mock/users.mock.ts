@@ -7,7 +7,7 @@ export function buildDemoUser(): UserDto {
     id: 'usr-demo',
     full_name: 'Alexander Reed',
     email: DEMO_CREDENTIALS.email,
-    phone: '+1 415 555 0142',
+    phone: '+61 412 555 014',
     member_since: '2023-03-14',
     tier: 'Black Card',
   };

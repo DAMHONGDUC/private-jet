@@ -14,8 +14,8 @@ test('charters a jet from the home search to the new trip', async () => {
   const day = toDayKey(addDays(new Date(), 21));
 
   await screen.findByTestId('booking-card');
-  await pickAirport('outbound-origin', 'GVA');
-  await pickAirport('outbound-destination', 'NCE');
+  await pickAirport('outbound-origin', 'SYD');
+  await pickAirport('outbound-destination', 'MEB');
   await fireEvent.press(screen.getByTestId('outbound-date'));
   await fireEvent.press(screen.getByTestId(`calendar-${day}`));
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
@@ -23,16 +23,27 @@ test('charters a jet from the home search to the new trip', async () => {
   await fireEvent.press(screen.getByTestId('count-done'));
   await fireEvent.press(screen.getByTestId('find-jet'));
 
-  const card = `jet-card-GVA-NCE-${day}-gulfstreamg280`;
+  const card = `jet-card-SYD-MEB-${day}-gulfstreamg280`;
   await fireEvent.press(await screen.findByTestId(card));
-  expect(await screen.findByTestId('quote-model')).toHaveTextContent('Gulfstream G280');
+  expect(await screen.findByTestId('quote-model')).toHaveTextContent(
+    'Gulfstream G280',
+  );
   await fireEvent.press(screen.getByTestId('quote-choose'));
 
-  expect(await screen.findByTestId('charter-passenger-0')).toHaveProp('value', 'Alexander Reed');
+  expect(await screen.findByTestId('charter-passenger-0')).toHaveProp(
+    'value',
+    'Alexander Reed',
+  );
   await fireEvent.press(screen.getByTestId('charter-pay'));
-  expect(await screen.findByTestId('charter-error')).toHaveTextContent('Enter the full name of every passenger.');
+  expect(
+    await screen.findByTestId('charter-passenger-1-error'),
+  ).toHaveTextContent('Enter the full name as on the passport.');
+  expect(screen.queryByTestId('charter-passenger-0-error')).toBeNull();
 
-  await fireEvent.changeText(screen.getByTestId('charter-passenger-1'), 'Sophia Reed');
+  await fireEvent.changeText(
+    screen.getByTestId('charter-passenger-1'),
+    'Sophia Reed',
+  );
   await fireEvent.press(screen.getByTestId('leg-0-time-14:00'));
   await fireEvent.press(screen.getByTestId('payment-pm-wallet'));
   await fireEvent.press(screen.getByTestId('charter-pay'));
@@ -42,6 +53,6 @@ test('charters a jet from the home search to the new trip', async () => {
   await fireEvent.press(screen.getByTestId('view-trip'));
 
   expect(await screen.findByTestId('trip-reference')).toHaveTextContent(code);
-  expect(screen.getByText('BlackJet Wallet')).toBeOnTheScreen();
+  expect(screen.getByText('Sovereign Wallet')).toBeOnTheScreen();
   expect(screen.getByText(/14:00/)).toBeOnTheScreen();
 });

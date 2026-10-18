@@ -1,10 +1,21 @@
-const LOCALE = 'en-GB';
+/** Australian formats: $ for AUD, day before month. */
+const LOCALE = 'en-AU';
 
 export function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(LOCALE, {
     style: 'currency',
     currency,
     maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+/** "$1.2M" for large balances where the full figure would crowd the stat. */
+export function formatCompactMoney(amount: number, currency: string): string {
+  return new Intl.NumberFormat(LOCALE, {
+    style: 'currency',
+    currency,
+    notation: 'compact',
+    maximumFractionDigits: 1,
   }).format(amount);
 }
 

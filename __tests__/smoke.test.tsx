@@ -33,7 +33,7 @@ test('a story in the carousel opens in full', async () => {
   });
   await fireEvent.press(screen.getByTestId('news-pager-item-0'));
   expect(await screen.findByTestId('news-detail-title')).toHaveTextContent(
-    'Night departures to Dubai',
+    'Overnight to Singapore',
   );
-  expect(screen.getByText(/Challenger 650/)).toBeOnTheScreen();
+  expect(screen.getByText(/Global 6500/)).toBeOnTheScreen();
 });

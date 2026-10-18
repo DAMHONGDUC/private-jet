@@ -1,8 +1,10 @@
+import { BookingKind, BookingStatus } from '../../../domain/entities/booking';
+import { CardBrand, PaymentMethodKind } from '../../../domain/entities/payment';
 import type { BookingDto, BookingLegDto } from '../../models/booking-dto';
 import type { PaymentMethodDto } from '../../models/payment-dto';
 
 const PASSENGER = 'Alexander Reed';
-const EMAIL = 'demo@blackjet.app';
+const EMAIL = 'demo@sovereign.app';
 
 function at(now: Date, days: number, hour: number, minutes = 0): string {
   const date = new Date(now);
@@ -29,12 +31,12 @@ const leg = (
   duration_minutes: minutes,
 });
 
-const GVA: [string, string] = ['GVA', 'Geneva'];
-const NCE: [string, string] = ['NCE', 'Nice'];
-const LBG: [string, string] = ['LBG', 'Paris'];
-const OLB: [string, string] = ['OLB', 'Olbia'];
-const FAB: [string, string] = ['FAB', 'London'];
-const DXB: [string, string] = ['DXB', 'Dubai'];
+const SYD: [string, string] = ['SYD', 'Sydney'];
+const MEB: [string, string] = ['MEB', 'Melbourne'];
+const OOL: [string, string] = ['OOL', 'Gold Coast'];
+const HTI: [string, string] = ['HTI', 'Hamilton Island'];
+const BNE: [string, string] = ['BNE', 'Brisbane'];
+const SIN: [string, string] = ['SIN', 'Singapore'];
 
 /** An account with history: two upcoming trips, one flown and one cancelled. */
 export function buildMockBookings(now: Date): BookingDto[] {
@@ -44,40 +46,42 @@ export function buildMockBookings(now: Date): BookingDto[] {
       ...base,
       id: 'bk-seed-1',
       pnr: 'BJ4F7Q',
-      kind: 'seats',
-      status: 'confirmed',
-      legs: [leg(GVA, NCE, 'Embraer Praetor 600', at(now, 10, 13), 60, 'BJ-090')],
+      kind: BookingKind.Seats,
+      status: BookingStatus.Confirmed,
+      legs: [
+        leg(SYD, MEB, 'Embraer Praetor 600', at(now, 10, 13), 85, 'BJ-090'),
+      ],
       passenger_names: [PASSENGER],
-      total_cents: 240000,
-      currency: 'EUR',
+      total_cents: 396000,
+      currency: 'AUD',
       payment_label: 'Visa •••• 4242',
     },
     {
       ...base,
       id: 'bk-seed-2',
       pnr: 'BJR8MX',
-      kind: 'charter',
-      status: 'confirmed',
+      kind: BookingKind.Charter,
+      status: BookingStatus.Confirmed,
       legs: [
-        leg(FAB, NCE, 'Bombardier Challenger 350', at(now, 21, 9, 30), 125),
-        leg(NCE, FAB, 'Bombardier Challenger 350', at(now, 25, 17), 125),
+        leg(BNE, HTI, 'Bombardier Challenger 350', at(now, 21, 9, 30), 100),
+        leg(HTI, BNE, 'Bombardier Challenger 350', at(now, 25, 17), 100),
       ],
       passenger_names: [PASSENGER, 'Sophia Reed', 'Oliver Reed'],
-      total_cents: 3300000,
-      currency: 'EUR',
-      payment_label: 'BlackJet Wallet',
+      total_cents: 5450000,
+      currency: 'AUD',
+      payment_label: 'Sovereign Wallet',
       notes: 'Child seat for Oliver, please.',
     },
     {
       ...base,
       id: 'bk-seed-3',
       pnr: 'BJ2KQP',
-      kind: 'charter',
-      status: 'confirmed',
-      legs: [leg(LBG, OLB, 'Gulfstream G280', at(now, -40, 11), 115)],
+      kind: BookingKind.Charter,
+      status: BookingStatus.Confirmed,
+      legs: [leg(MEB, OOL, 'Gulfstream G280', at(now, -40, 11), 140)],
       passenger_names: [PASSENGER, 'Sophia Reed'],
-      total_cents: 1640000,
-      currency: 'EUR',
+      total_cents: 2700000,
+      currency: 'AUD',
       payment_label: 'Amex •••• 1005',
       created_at: at(now, -60, 9),
     },
@@ -85,12 +89,12 @@ export function buildMockBookings(now: Date): BookingDto[] {
       ...base,
       id: 'bk-seed-4',
       pnr: 'BJX5TN',
-      kind: 'seats',
-      status: 'cancelled',
-      legs: [leg(GVA, DXB, 'Gulfstream G650ER', at(now, 6, 22), 375, 'BJ-105')],
+      kind: BookingKind.Seats,
+      status: BookingStatus.Cancelled,
+      legs: [leg(SYD, SIN, 'Gulfstream G650ER', at(now, 6, 22), 480, 'BJ-105')],
       passenger_names: [PASSENGER],
-      total_cents: 980000,
-      currency: 'EUR',
+      total_cents: 1620000,
+      currency: 'AUD',
       payment_label: 'Visa •••• 4242',
     },
   ];
@@ -98,8 +102,41 @@ export function buildMockBookings(now: Date): BookingDto[] {
 
 export function buildMockPaymentMethods(): PaymentMethodDto[] {
   return [
-    { id: 'pm-visa', type: 'card', brand: 'visa', last4: '4242', exp_month: 8, exp_year: 2029, holder: PASSENGER, balance_cents: null, currency: null, is_default: true },
-    { id: 'pm-wallet', type: 'wallet', brand: null, last4: null, exp_month: null, exp_year: null, holder: PASSENGER, balance_cents: 2500000, currency: 'EUR', is_default: false },
-    { id: 'pm-amex', type: 'card', brand: 'amex', last4: '1005', exp_month: 2, exp_year: 2028, holder: PASSENGER, balance_cents: null, currency: null, is_default: false },
+    {
+      id: 'pm-visa',
+      type: PaymentMethodKind.Card,
+      brand: CardBrand.Visa,
+      last4: '4242',
+      exp_month: 8,
+      exp_year: 2029,
+      holder: PASSENGER,
+      balance_cents: null,
+      currency: null,
+      is_default: true,
+    },
+    {
+      id: 'pm-wallet',
+      type: PaymentMethodKind.Wallet,
+      brand: null,
+      last4: null,
+      exp_month: null,
+      exp_year: null,
+      holder: PASSENGER,
+      balance_cents: 4000000,
+      currency: 'AUD',
+      is_default: false,
+    },
+    {
+      id: 'pm-amex',
+      type: PaymentMethodKind.Card,
+      brand: CardBrand.Amex,
+      last4: '1005',
+      exp_month: 2,
+      exp_year: 2028,
+      holder: PASSENGER,
+      balance_cents: null,
+      currency: null,
+      is_default: false,
+    },
   ];
 }

@@ -27,11 +27,17 @@ export function timeAgo(iso: string, now: Date): string {
   if (elapsed < 2 * DAY) {
     return 'Yesterday';
   }
-  return new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  return new Date(iso).toLocaleDateString('en-AU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
 }
 
 /** "14:05", for chat bubbles. */
 export function clockTime(iso: string): string {
   const date = new Date(iso);
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`;
 }
