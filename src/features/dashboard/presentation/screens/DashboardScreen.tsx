@@ -1,12 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
-import { Snackbar } from '@/core/ui/Snackbar';
-import { checkDraft, type CharterRequest } from '../../domain/entities/charter';
+import {
+  AirportEnd,
+  LegSlot,
+  TripType,
+  checkDraft,
+  type CharterRequest,
+} from '../../domain/entities/charter';
 import type { PopularRoute } from '../../domain/entities/dashboard';
 import {
   airportSelected,
@@ -14,11 +19,11 @@ import {
   selectCharterDraft,
   selectSubmittedCharter,
 } from '../charter-search-slice';
+import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
 import { HeroText, HomeAppBar } from '../components/HomeHeader';
 import { NewsCarousel } from '../components/NewsCarousel';
 import { PopularRoutes } from '../components/PopularRoutes';
 import { SearchPanel } from '../components/SearchPanel';
-import { SearchSummaryBar } from '../components/SearchSummaryBar';
 import { useCollapsibleSearch } from '../use-collapsible-search';
 
 type Props = {
@@ -33,7 +38,7 @@ type Props = {
 };
 
 /**
- * BlackJet's home: the search form and what to fly next. Searching opens
+ * Sovereign's home: the search form and what to fly next. Searching opens
  * the results on their own screen; the form turns into a floating pill
  * while the suggestions scroll (feature-docs/dashboard §2).
  */
@@ -50,8 +55,6 @@ export function DashboardScreen({
   const draft = useSelector(selectCharterDraft);
   const submitted = useSelector(selectSubmittedCharter);
   const [today] = useState(() => todayProp ?? new Date());
-  const [notice, setNotice] = useState<string | null>(null);
-  const hideNotice = useCallback(() => setNotice(null), []);
   const collapsible = useCollapsibleSearch();
 
   const search = (request: CharterRequest) => {
@@ -63,10 +66,16 @@ export function DashboardScreen({
 
   /** A suggested route fills the first leg's airports; the rest of the form stays. */
   const pickRoute = (route: PopularRoute) => {
-    const target = draft.tripType === 'multiCity' ? 0 : 'outbound';
-    dispatch(airportSelected({ target, end: 'origin', code: route.origin }));
+    const target = draft.tripType === TripType.MultiCity ? 0 : LegSlot.Outbound;
     dispatch(
-      airportSelected({ target, end: 'destination', code: route.destination }),
+      airportSelected({ target, end: AirportEnd.Origin, code: route.origin }),
+    );
+    dispatch(
+      airportSelected({
+        target,
+        end: AirportEnd.Destination,
+        code: route.destination,
+      }),
     );
     collapsible.expand();
   };
@@ -93,64 +102,38 @@ export function DashboardScreen({
           onScroll={collapsible.onScroll}
           scrollEventThrottle={16}
           keyboardShouldPersistTaps="handled"
+          onLayout={collapsible.onViewportLayout}
           contentContainerStyle={[
             styles.content,
-            { paddingBottom: insets.bottom + TAB_BAR_ROOM },
+            {
+              paddingBottom: AppSpacing.tabContentInset(insets.bottom),
+              minHeight: collapsible.minContentHeight,
+            },
           ]}
         >
           <HeroText />
-          <View
+          <Animated.View
             onLayout={collapsible.onFormLayout}
-            pointerEvents={collapsible.collapsed ? 'none' : 'auto'}
+            style={collapsible.formStyle}
           >
-            <SearchPanel
-              today={today}
-              onSearch={search}
-              onInvalid={setNotice}
-            />
-          </View>
+            <SearchPanel today={today} onSearch={search} />
+          </Animated.View>
           <PopularRoutes onPick={pickRoute} />
           <NewsCarousel onOpenNews={onOpenNews} />
         </Animated.ScrollView>
 
-        <Animated.View
-          style={[
-            styles.summary,
-            { backgroundColor: palette.secondaryBackground },
-            collapsible.summaryStyle,
-          ]}
-          pointerEvents={collapsible.collapsed ? 'box-none' : 'none'}
-        >
-          <SearchSummaryBar
-            request={checkDraft(draft).request ?? null}
-            onPress={collapsible.expand}
-          />
-        </Animated.View>
-
-        <Snackbar
-          message={notice}
-          onHide={hideNotice}
-          bottom={insets.bottom + TAB_BAR_ROOM}
+        <CollapsedSearchPill
+          progress={collapsible.progress}
+          request={checkDraft(draft).request ?? null}
+          onPress={collapsible.expand}
         />
       </View>
     </View>
   );
 }
 
-/** Room under the content for the floating tab bar. */
-const TAB_BAR_ROOM = 88;
-
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
   content: { flexGrow: 1 },
-  summary: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
-  },
 });

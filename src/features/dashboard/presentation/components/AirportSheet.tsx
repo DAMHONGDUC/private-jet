@@ -6,6 +6,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
@@ -38,6 +39,7 @@ export function AirportSheet({
   onClose,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const [query, setQuery] = useState('');
 
   const needle = query.trim().toLowerCase();
@@ -46,7 +48,7 @@ export function AirportSheet({
     if (needle) {
       return [
         {
-          title: 'Results',
+          title: t('search.airportResults'),
           rows: all.filter(airport => matches(airport, needle)),
         },
       ];
@@ -58,11 +60,11 @@ export function AirportSheet({
     const others = all.filter(airport => !recent.includes(airport.code));
     return [
       ...(recentRows.length > 0
-        ? [{ title: 'Recent Airports', rows: recentRows }]
+        ? [{ title: t('search.recentAirports'), rows: recentRows }]
         : []),
-      { title: 'All Airports', rows: others },
+      { title: t('search.allAirports'), rows: others },
     ];
-  }, [airports, needle, recent]);
+  }, [airports, needle, recent, t]);
 
   const close = () => {
     setQuery('');
@@ -88,17 +90,16 @@ export function AirportSheet({
             testID="airport-search"
             value={query}
             onChangeText={setQuery}
-            autoFocus
             autoCorrect={false}
             autoCapitalize="none"
-            placeholder="City, code or airport name"
+            placeholder={t('search.airportPlaceholder')}
             placeholderTextColor={palette.secondaryText}
             style={[styles.input, { color: palette.primaryText }]}
           />
           {query ? (
             <PressableScale
               accessibilityRole="button"
-              accessibilityLabel="Clear"
+              accessibilityLabel={t('search.clear')}
               onPress={() => setQuery('')}
             >
               <Icon name="clear" size={20} color={palette.primaryText} />
@@ -112,7 +113,7 @@ export function AirportSheet({
           <ActivityIndicator color={palette.accent} />
         ) : needle && sections[0].rows.length === 0 ? (
           <BJText tone="secondary" weight="regular">
-            No airport matches “{query.trim()}”.
+            {t('search.noAirport', { query: query.trim() })}
           </BJText>
         ) : (
           <ScrollView keyboardShouldPersistTaps="handled">

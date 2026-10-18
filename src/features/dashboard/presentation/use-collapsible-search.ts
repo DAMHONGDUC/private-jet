@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import type { LayoutChangeEvent } from 'react-native';
+import { Platform, type LayoutChangeEvent } from 'react-native';
 import Animated, {
+  Easing,
   Extrapolation,
   interpolate,
   scrollTo,
@@ -9,22 +10,34 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
-import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
+import { scheduleOnUI } from 'react-native-worklets';
+import {
+  FADE_BAND,
+  PILL_DURATION,
+  collapseAt,
+  nextCollapsed,
+  onDragEnd,
+  onGlideEnd,
+} from './collapsible-search-motion';
 
-/** How far a drag back up must go before the full form comes back. */
-export const EXPAND_DRAG = 24;
-/** The pill fades in over this last stretch of the form leaving the screen. */
-const FADE_BAND = 48;
+const GLIDE_CANCELS_SCROLL = Platform.OS === 'android';
+const PILL_EASING = Easing.out(Easing.cubic);
 
 /**
- * Swaps the dashboard's search form for a floating pill as it scrolls away.
+ * Swaps a screen's search form for a floating pill as it scrolls away.
  *
- * The form stays in the scroll content, so it moves with the page. Once it
- * has nearly left the screen the pill takes its place on top. Dragging back
- * up by `EXPAND_DRAG` while the pill shows scrolls to the top, so the whole
- * form returns at once instead of only when the page reaches the top.
- * Letting go while the form is half hidden settles on the nearer end.
+ * The form stays in the scroll content, so it moves with the page and fades
+ * as it leaves. Once it has nearly left the screen the pill eases in on top,
+ * on its own clock rather than with the finger, so it never stops half drawn.
+ * Dragging back up by `EXPAND_DRAG` while the pill shows scrolls to the top,
+ * so the whole form returns at once. Letting go while the form is half
+ * hidden settles on the nearer end. Everything runs on the UI thread: the
+ * screen does not re-render while it scrolls.
+ *
+ * A short page could not scroll the form away, leaving it stuck half faded
+ * with no pill; `minContentHeight` makes the content tall enough to.
  */
 export function useCollapsibleSearch() {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
@@ -32,106 +45,99 @@ export function useCollapsibleSearch() {
   const dragStart = useSharedValue(0);
   /** A drag back up asked for the form while the page was still gliding. */
   const expandPending = useSharedValue(false);
-  const formTop = useSharedValue(0);
-  const formBottom = useSharedValue(0);
-  const [collapsed, setCollapsed] = useState(false);
+  const form = useSharedValue({ top: 0, bottom: 0 });
+  const collapsed = useSharedValue(false);
+  /** 0 with the form in view, 1 with the pill in place. */
+  const progress = useSharedValue(0);
+  const [formBottom, setFormBottom] = useState(0);
+  const [viewport, setViewport] = useState(0);
 
-  /** Scrolled far enough that the form is out of sight. */
-  const threshold = () => {
+  const scrollToY = (to: number | null) => {
     'worklet';
-    return Math.max(formBottom.value - FADE_BAND, 1);
-  };
-  const isCollapsed = () => {
-    'worklet';
-    return formBottom.value > 0 && y.value >= threshold();
-  };
-
-  const settle = () => {
-    'worklet';
-    const top = formTop.value;
-    const end = threshold() + FADE_BAND;
-    if (y.value > top + 1 && y.value < end - 1) {
-      scrollTo(scrollRef, 0, y.value - top < (end - top) / 2 ? top : end, true);
+    if (to !== null) {
+      scrollTo(scrollRef, 0, to, true);
     }
   };
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
       y.value = event.contentOffset.y;
+      collapsed.value = nextCollapsed(y.value, form.value, collapsed.value);
     },
     onBeginDrag: event => {
       dragStart.value = event.contentOffset.y;
       expandPending.value = false;
     },
     onEndDrag: event => {
-      const wentUp = dragStart.value - event.contentOffset.y >= EXPAND_DRAG;
-      const gliding = (event.velocity?.y ?? 0) !== 0;
-      if (wentUp && dragStart.value >= threshold()) {
-        // A glide would cancel the scroll, so it waits for the glide to end.
-        if (gliding) {
-          expandPending.value = true;
-        } else {
-          scrollTo(scrollRef, 0, 0, true);
-        }
-      } else if (!gliding) {
-        settle();
-      }
+      const next = onDragEnd({
+        from: dragStart.value,
+        to: event.contentOffset.y,
+        velocity: event.velocity?.y ?? 0,
+        form: form.value,
+        glideCancelsScroll: GLIDE_CANCELS_SCROLL,
+      });
+      expandPending.value = next.expandAfterGlide;
+      scrollToY(next.scrollTo);
     },
-    onMomentumEnd: () => {
-      if (expandPending.value) {
-        expandPending.value = false;
-        scrollTo(scrollRef, 0, 0, true);
-      } else {
-        settle();
-      }
+    onMomentumEnd: event => {
+      const pending = expandPending.value;
+      expandPending.value = false;
+      scrollToY(onGlideEnd(event.contentOffset.y, form.value, pending));
     },
   });
 
-  useAnimatedReaction(isCollapsed, (now, before) => {
-    if (now !== before) {
-      scheduleOnRN(setCollapsed, now);
-    }
-  });
+  useAnimatedReaction(
+    () => collapsed.value,
+    (now, before) => {
+      if (now !== before) {
+        progress.value = withTiming(now ? 1 : 0, {
+          duration: PILL_DURATION,
+          easing: PILL_EASING,
+        });
+      }
+    },
+  );
 
-  const summaryStyle = useAnimatedStyle(() => {
-    const start = threshold() - FADE_BAND;
+  /** The form dims as it slides under the pill. */
+  const formStyle = useAnimatedStyle(() => {
+    const at = collapseAt(form.value);
     return {
       opacity: interpolate(
         y.value,
-        [start, threshold()],
-        [0, 1],
+        [at - FADE_BAND, at],
+        [1, 0.3],
         Extrapolation.CLAMP,
       ),
-      transform: [
-        {
-          translateY: interpolate(
-            y.value,
-            [start, threshold()],
-            [-8, 0],
-            Extrapolation.CLAMP,
-          ),
-        },
-      ],
     };
   });
 
   return {
     scrollRef,
     onScroll,
-    /** The pill is showing and takes touches. */
-    collapsed,
-    summaryStyle,
+    progress,
+    formStyle,
+    /** For the scroll content: enough to scroll the form out of sight. */
+    minContentHeight: viewport > 0 ? formBottom + viewport : undefined,
+    /** The scroll view's own size. */
+    onViewportLayout: (event: LayoutChangeEvent) =>
+      setViewport(event.nativeEvent.layout.height),
     /** Where the form sits in the scroll content. */
     onFormLayout: (event: LayoutChangeEvent) => {
       const { y: top, height } = event.nativeEvent.layout;
-      formTop.value = top;
-      formBottom.value = top + height;
+      form.value = { top, bottom: top + height };
+      setFormBottom(top + height);
     },
     /** Scrolls back to the top, which shows the whole form. */
     expand: () =>
       scheduleOnUI(() => {
         'worklet';
         scrollTo(scrollRef, 0, 0, true);
+      }),
+    /** Scrolls the form just out of sight, so what is under it shows. */
+    collapse: () =>
+      scheduleOnUI(() => {
+        'worklet';
+        scrollTo(scrollRef, 0, form.value.bottom, true);
       }),
   };
 }

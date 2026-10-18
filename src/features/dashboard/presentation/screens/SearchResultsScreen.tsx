@@ -1,46 +1,61 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { Snackbar } from '@/core/ui/Snackbar';
 import { errorMessage } from '@/core/ui/StateViews';
+import type { CharterRequest } from '../../domain/entities/charter';
 import {
+  searchSubmitted,
   selectQuoteSelections,
   selectSubmittedCharter,
 } from '../charter-search-slice';
+import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
 import { JetResults } from '../components/JetResults';
-import { SearchSummaryBar } from '../components/SearchSummaryBar';
+import { SearchPanel } from '../components/SearchPanel';
 import { SelectionBar } from '../components/SelectionBar';
 import { useSearchChartersQuery } from '../dashboard-api';
 import { useCharterSelection } from '../use-charter-selection';
+import { useCollapsibleSearch } from '../use-collapsible-search';
 
 type Props = {
-  /** Back to the dashboard, where the form can be changed. */
+  /** Back to the dashboard. */
   onBack: () => void;
   /** A jet card was tapped. */
   onOpenQuote?: (legIndex: number, quoteId: string) => void;
   /** Every leg has a jet; on to checkout. */
   onCheckout?: () => void;
+  /** The first day the calendar allows; tests pin it. */
+  today?: Date;
 };
 
 /**
- * The jets for the search the dashboard ran, one group per leg. The pill
- * on top sums the search up and goes back to edit it; once a jet is chosen
- * a bar at the bottom carries the total to checkout.
+ * The jets for the search the dashboard ran, one group per leg. The search
+ * form sits above them, so it can be changed here, and turns into a pill
+ * as the jets scroll, just as on the dashboard. Once a jet is chosen a bar
+ * at the bottom carries the total to checkout.
  */
 export function SearchResultsScreen({
   onBack,
   onOpenQuote,
   onCheckout,
+  today: todayProp,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
+  const dispatch = useDispatch();
   const request = useSelector(selectSubmittedCharter);
+  const [today] = useState(() => todayProp ?? new Date());
+  const collapsible = useCollapsibleSearch();
   const selections = useSelector(selectQuoteSelections);
   const selection = useCharterSelection();
   const [notice, setNotice] = useState<string | null>(null);
@@ -60,6 +75,14 @@ export function SearchResultsScreen({
     }
   }, [error]);
 
+  /** A changed search replaces the jets; either way the form makes way for them. */
+  const search = (next: CharterRequest) => {
+    if (JSON.stringify(request) !== JSON.stringify(next)) {
+      dispatch(searchSubmitted(next));
+    }
+    collapsible.collapse();
+  };
+
   return (
     <View
       testID="search-results-screen"
@@ -75,46 +98,67 @@ export function SearchResultsScreen({
         <PressableScale
           testID="search-results-back"
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
           onPress={onBack}
           style={[styles.back, { backgroundColor: palette.primaryBackground }]}
         >
           <Icon name="chevronLeft" size={20} color={palette.jetBlack} />
         </PressableScale>
-        <View style={styles.flex}>
-          <SearchSummaryBar request={request} onPress={onBack} />
-        </View>
+        <BJText size={20} style={styles.flex} numberOfLines={1}>
+          {t('results.title')}
+        </BJText>
       </View>
 
-      <ScrollView
-        testID="search-results-scroll"
-        contentContainerStyle={{
-          paddingBottom: insets.bottom + (showBar ? BAR_ROOM : spacing.xl),
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && results !== undefined}
-            onRefresh={() => {
-              refetch();
-            }}
-            tintColor={palette.accent}
-          />
-        }
-      >
-        {request ? (
-          <JetResults
-            request={request}
-            results={results}
-            error={error}
-            onNewRequest={onBack}
-            onRetry={() => {
-              refetch();
-            }}
-            selections={selections}
-            onOpenQuote={onOpenQuote}
-          />
-        ) : null}
-      </ScrollView>
+      <View style={styles.flex}>
+        <Animated.ScrollView
+          testID="search-results-scroll"
+          ref={collapsible.scrollRef}
+          onScroll={collapsible.onScroll}
+          scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
+          onLayout={collapsible.onViewportLayout}
+          contentContainerStyle={{
+            paddingTop: AppSpacing.sm,
+            paddingBottom: insets.bottom + (showBar ? BAR_ROOM : AppSpacing.xl),
+            minHeight: collapsible.minContentHeight,
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && results !== undefined}
+              onRefresh={() => {
+                refetch();
+              }}
+              tintColor={palette.accent}
+            />
+          }
+        >
+          <Animated.View
+            onLayout={collapsible.onFormLayout}
+            style={collapsible.formStyle}
+          >
+            <SearchPanel today={today} onSearch={search} />
+          </Animated.View>
+          {request ? (
+            <JetResults
+              request={request}
+              results={results}
+              error={error}
+              onNewRequest={collapsible.expand}
+              onRetry={() => {
+                refetch();
+              }}
+              selections={selections}
+              onOpenQuote={onOpenQuote}
+            />
+          ) : null}
+        </Animated.ScrollView>
+
+        <CollapsedSearchPill
+          progress={collapsible.progress}
+          request={request}
+          onPress={collapsible.expand}
+        />
+      </View>
 
       {showBar && selection.results ? (
         <View style={[styles.barSlot, { bottom: insets.bottom }]}>
@@ -132,7 +176,7 @@ export function SearchResultsScreen({
       <Snackbar
         message={notice}
         onHide={hideNotice}
-        bottom={insets.bottom + (showBar ? BAR_ROOM : spacing.lg)}
+        bottom={insets.bottom + (showBar ? BAR_ROOM : AppSpacing.lg)}
       />
     </View>
   );
@@ -146,10 +190,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
+    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingTop: AppSpacing.sm,
+    paddingBottom: AppSpacing.sm,
   },
   back: {
     width: 44,
