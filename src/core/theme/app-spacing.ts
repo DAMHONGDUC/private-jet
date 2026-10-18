@@ -18,7 +18,7 @@ export class AppSpacing {
   /** Left and right margin of a screen's content. */
   static readonly screen = AppSpacing.lg;
   /** Between a bottom action and the bottom safe-area edge. */
-  static readonly bottomAction = AppSpacing.lg;
+  static readonly bottomAction = AppSpacing.sm;
 
   /** Under a tab's content, so its end clears the floating tab bar. */
   static readonly tabBar = 88;

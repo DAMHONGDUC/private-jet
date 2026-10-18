@@ -10,10 +10,10 @@ import { AppSpacing } from '@/core/theme/app-spacing';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { createTestStore } from '@test-utils/test-store';
 
-test('a bottom action sits 16 pt above the safe area', () => {
-  expect(AppSpacing.bottomAction).toBe(16);
-  expect(AppSpacing.bottomActionInset(0)).toBe(16);
-  expect(AppSpacing.bottomActionInset(34)).toBe(50);
+test('a bottom action sits 8 pt above the safe area', () => {
+  expect(AppSpacing.bottomAction).toBe(8);
+  expect(AppSpacing.bottomActionInset(0)).toBe(8);
+  expect(AppSpacing.bottomActionInset(34)).toBe(42);
 });
 
 test('every gap is on the 4 pt grid', () => {
