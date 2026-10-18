@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppErrorCode, type AppError } from '@/core/error/app-error';
 import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
@@ -21,6 +22,7 @@ import { EmptyView, errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
 import { imageFor } from '@/core/ui/images';
 import { formatDuration, formatMoney } from '@/core/utils/format';
+import { newIdempotencyKey } from '@/core/utils/idempotency-key';
 import { selectUser } from '@/features/auth/presentation/session-slice';
 import {
   hasTravellerErrors,
@@ -81,6 +83,10 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   /** Errors show once Pay was tapped, then follow the typing until fixed. */
   const [submitted, setSubmitted] = useState(false);
+  /** Kept across a retry after a lost connection, so the charter cannot be booked twice. */
+  const [idempotencyKey, setIdempotencyKey] = useState(() =>
+    newIdempotencyKey(),
+  );
 
   if (!request || !results || !complete) {
     return (
@@ -125,13 +131,19 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
         passengers,
         contactEmail: email,
         notes,
+        idempotencyKey,
         ...(paymentMethodId ? { paymentMethodId } : {}),
       }).unwrap();
       onBooked(booking.id);
       // After navigating away, so this screen never shows its empty state.
       dispatch(selectionsCleared());
-    } catch {
+    } catch (failure) {
       haptics.error();
+      // A refusal is final for this attempt; only a lost connection leaves
+      // the outcome unknown, and its retry must reuse the key.
+      if ((failure as Partial<AppError>).code !== AppErrorCode.Network) {
+        setIdempotencyKey(newIdempotencyKey());
+      }
     }
   };
 

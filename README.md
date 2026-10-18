@@ -132,6 +132,14 @@ flowchart LR
 
 Mock data lives in each feature's data layer: `data/datasources/mock/*.mock.ts` builds DTOs dated from "now", and `*MockDataSource` serves them in memory with a fake network delay. Bookings and seat counts change in memory for the session. To use a real backend, write an HTTP data source with the same interface and swap it in `src/app/di/container.ts`; nothing above the data layer changes.
 
+Ready for that swap:
+
+- `src/core/http/http-client.ts`: fetch with a base URL, a timeout, the RTK `signal`, JSON, and status → `DomainError` (401 Unauthorized, 404 NotFound, 409/422 Validation, no connection Network).
+- `src/core/http/token-store.ts`: where the bearer token lives (in memory for now; a keychain-backed store is the real choice). A 401 clears it, and any `UNAUTHORIZED` API error signs the member out in `session-slice`.
+- Booking is one call, `BookingRepository.placeBooking`, with an idempotency key per checkout attempt: the backend charges, takes the seats and records the booking together. The mock does it in steps behind that one method.
+- `imageFor` takes a bundled key or an http(s) URL.
+- The open chat polls `getMessages` every `CHAT_POLL_MS`, so a concierge reply that comes later shows up.
+
 ## Features
 
 More detail per screen: [feature-docs/app/README.md](feature-docs/app/README.md).

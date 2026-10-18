@@ -32,7 +32,6 @@ function setup(overrides: Partial<Flight> = {}) {
     searchFlights: jest.fn(),
     getAirports: jest.fn(),
     getFlightById: jest.fn().mockResolvedValue({ ...flight, ...overrides }),
-    reserveSeats: jest.fn().mockResolvedValue(flight),
   };
   const bookings = createBookingRepository(NOW);
   const payments = createPaymentRepository();
@@ -48,16 +47,21 @@ const request = {
   flightId: 'F1',
   passengers: [{ fullName: ' Alexander Reed ' }, { fullName: 'Sophia Reed' }],
   contactEmail: 'demo@blackjet.app',
+  idempotencyKey: 'key-1',
 };
 
 describe('BookFlight', () => {
-  it('charges the default card, reserves the seats and books at the per-seat price', async () => {
-    const { flights, bookings, payments, useCase } = setup();
+  it('places the booking on the default card at the per-seat price, in one call', async () => {
+    const { bookings, useCase } = setup();
 
     const booking = await useCase.execute(request);
 
-    expect(payments.charge).toHaveBeenCalledWith('pm-visa', 5000, 'EUR');
-    expect(flights.reserveSeats).toHaveBeenCalledWith('F1', 2);
+    expect(bookings.placeBooking).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paymentMethodId: 'pm-visa',
+        idempotencyKey: 'key-1',
+      }),
+    );
     expect(booking).toMatchObject({
       kind: BookingKind.Seats,
       totalPrice: 5000,
@@ -72,7 +76,7 @@ describe('BookFlight', () => {
       { fullName: 'Alexander Reed' },
       { fullName: 'Sophia Reed' },
     ]);
-    expect(bookings.createBooking).toHaveBeenCalledTimes(1);
+    expect(bookings.placeBooking).toHaveBeenCalledTimes(1);
   });
 
   it('rejects an invalid request before touching any repository', async () => {
@@ -86,7 +90,7 @@ describe('BookFlight', () => {
     expect(flights.getFlightById).not.toHaveBeenCalled();
   });
 
-  it('refuses a flight that has already departed, or has too few seats, without charging', async () => {
+  it('refuses a flight that has already departed, or has too few seats, without placing it', async () => {
     const departed = setup({ departureAt: '2026-10-16T07:00:00.000Z' });
     await expect(departed.useCase.execute(request)).rejects.toMatchObject({
       code: 'VALIDATION',
@@ -97,8 +101,7 @@ describe('BookFlight', () => {
       code: 'SOLD_OUT',
     });
 
-    expect(departed.payments.charge).not.toHaveBeenCalled();
-    expect(full.payments.charge).not.toHaveBeenCalled();
-    expect(full.flights.reserveSeats).not.toHaveBeenCalled();
+    expect(departed.bookings.placeBooking).not.toHaveBeenCalled();
+    expect(full.bookings.placeBooking).not.toHaveBeenCalled();
   });
 });

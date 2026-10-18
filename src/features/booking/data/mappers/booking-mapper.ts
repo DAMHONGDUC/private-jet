@@ -1,6 +1,7 @@
 import type {
   Booking,
   BookingLeg,
+  BookingOrder,
   NewBooking,
 } from '../../domain/entities/booking';
 import type { PaymentMethod } from '../../domain/entities/payment';
@@ -8,6 +9,7 @@ import type {
   BookingDto,
   BookingLegDto,
   CreateBookingDto,
+  PlaceBookingDto,
 } from '../models/booking-dto';
 import type { PaymentMethodDto } from '../models/payment-dto';
 
@@ -64,6 +66,13 @@ export function toCreateBookingDto(booking: NewBooking): CreateBookingDto {
     currency: booking.currency,
     payment_label: booking.paymentLabel,
     notes: booking.notes,
+  };
+}
+
+export function toPlaceBookingDto(order: BookingOrder): PlaceBookingDto {
+  return {
+    ...toCreateBookingDto(order.booking),
+    payment_method_id: order.paymentMethodId,
   };
 }
 

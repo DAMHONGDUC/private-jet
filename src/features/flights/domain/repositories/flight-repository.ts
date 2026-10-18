@@ -6,6 +6,4 @@ export interface FlightRepository {
   getAirports(): Promise<Airport[]>;
   /** Throws a `NOT_FOUND` DomainError when there is no such flight. */
   getFlightById(id: string): Promise<Flight>;
-  /** Takes `count` seats off the flight; throws `SOLD_OUT` when they are not there. */
-  reserveSeats(flightId: string, count: number): Promise<Flight>;
 }

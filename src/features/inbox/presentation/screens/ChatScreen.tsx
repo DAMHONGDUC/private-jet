@@ -43,14 +43,27 @@ export const QUICK_REPLIES = [
   'Change a trip',
 ];
 
+/**
+ * How often the open conversation asks for new messages. The mock answers
+ * inside the send call; a real concierge answers later, and this is how the
+ * reply shows up. A push channel (WebSocket, push notification) can replace
+ * it later through `onCacheEntryAdded` on `getMessages`.
+ */
+export const CHAT_POLL_MS = 5_000;
+
 /** The conversation with the member's concierge: bubbles, quick replies, and a reply that is typed for a moment. */
 export function ChatScreen() {
   const styles = useStyles();
   const palette = useBlackJetTheme();
   const insets = useSafeAreaInsets();
-  const { data: messages, error, isLoading, refetch } = useGetMessagesQuery();
   const [sendMessage, { isLoading: waiting, error: sendError }] =
     useSendMessageMutation();
+  // Paused while a message sends, so a poll cannot drop its pending bubble;
+  // RTK Query stops polling when the screen unmounts or the app is in the background.
+  const { data: messages, error, isLoading, refetch } = useGetMessagesQuery(
+    undefined,
+    { pollingInterval: waiting ? 0 : CHAT_POLL_MS, skipPollingIfUnfocused: true },
+  );
   const [markRead] = useMarkMessagesReadMutation();
   const [draft, setDraft] = useState('');
   const list = useRef<FlatList<ChatMessage>>(null);

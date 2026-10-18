@@ -6,6 +6,4 @@ export interface FlightDataSource {
   getFlights(): Promise<FlightDto[]>;
   getAirports(): Promise<AirportDto[]>;
   getFlight(id: string): Promise<FlightDto | undefined>;
-  /** Returns the updated flight, or undefined when it does not exist. */
-  updateSeatsLeft(id: string, seatsLeft: number): Promise<FlightDto | undefined>;
 }

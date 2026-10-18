@@ -92,3 +92,10 @@ export const MAX_SEARCH_PASSENGERS = 8;
 export function isSoldOut(flight: Flight): boolean {
   return flight.seatsAvailable === 0;
 }
+
+/** Why a booking cannot have the seats it asked for. */
+export function seatsShortMessage(seatsLeft: number): string {
+  return seatsLeft === 0
+    ? 'This flight is sold out.'
+    : `Only ${seatsLeft} seat(s) left on this flight.`;
+}

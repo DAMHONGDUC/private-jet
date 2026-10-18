@@ -7,9 +7,12 @@ import {
   PaymentRepositoryImpl,
 } from '@/features/booking/data/repositories/booking-repository-impl';
 import {
+  BookingKind,
   canCancel,
   isUpcoming,
   travellerErrors,
+  type BookingOrder,
+  type NewBooking,
 } from '@/features/booking/domain/entities/booking';
 import {
   CardBrand,
@@ -23,6 +26,8 @@ import {
   RemoveCard,
   SetDefaultPayment,
 } from '@/features/booking/domain/usecases/payments';
+import { FlightMockDataSource } from '@/features/flights/data/datasources/flight-mock-data-source';
+import { FlightRepositoryImpl } from '@/features/flights/data/repositories/flight-repository-impl';
 
 const NOW = new Date('2026-10-16T08:00:00.000Z');
 
@@ -105,17 +110,96 @@ test('adds a valid card, switches the default and protects the wallet', async ()
   ).not.toContain('pm-amex');
 });
 
-test('the wallet pays until its balance runs out', async () => {
-  const repository = new PaymentRepositoryImpl(new PaymentMockDataSource(0));
+function placing() {
+  const payments = new PaymentMockDataSource(0);
+  const flights = new FlightMockDataSource(0, NOW);
+  return {
+    bookings: new BookingRepositoryImpl(
+      new BookingMockDataSource(0, () => NOW, () => 0, { payments, flights }),
+    ),
+    payments: new PaymentRepositoryImpl(payments),
+    flights: new FlightRepositoryImpl(flights),
+  };
+}
 
-  await repository.charge('pm-wallet', 30_000, 'AUD');
+const order = (
+  booking: Partial<NewBooking> = {},
+  rest: Partial<BookingOrder> = {},
+): BookingOrder => ({
+  booking: {
+    kind: BookingKind.Charter,
+    legs: [
+      {
+        originCode: 'SYD',
+        originCity: 'Sydney',
+        destinationCode: 'MEL',
+        destinationCity: 'Melbourne',
+        aircraftModel: 'Jet',
+        departureAt: '2026-10-20T09:00:00.000Z',
+        durationMinutes: 90,
+      },
+    ],
+    passengers: [{ fullName: 'Alexander Reed' }],
+    contactEmail: 'demo@blackjet.app',
+    totalPrice: 30_000,
+    currency: 'AUD',
+    paymentLabel: 'Sovereign Wallet',
+    notes: '',
+    ...booking,
+  },
+  paymentMethodId: 'pm-wallet',
+  idempotencyKey: 'key-1',
+  ...rest,
+});
+
+const walletBalance = async (payments: PaymentRepositoryImpl) =>
+  (await payments.getPaymentMethods()).find(item => item.id === 'pm-wallet')
+    ?.balance;
+
+test('the wallet pays until its balance runs out', async () => {
+  const { bookings, payments } = placing();
+
+  await bookings.placeBooking(order());
   await expect(
-    repository.charge('pm-wallet', 30_000, 'AUD'),
+    bookings.placeBooking(order({}, { idempotencyKey: 'key-2' })),
   ).rejects.toMatchObject({ code: 'VALIDATION' });
-  expect(
-    (await repository.getPaymentMethods()).find(item => item.id === 'pm-wallet')
-      ?.balance,
-  ).toBe(10_000);
+  expect(await walletBalance(payments)).toBe(10_000);
+});
+
+test('placing the same order again returns the first booking and charges once', async () => {
+  const { bookings, payments } = placing();
+
+  const first = await bookings.placeBooking(order());
+  const retry = await bookings.placeBooking(order());
+
+  expect(retry.id).toBe(first.id);
+  expect(await walletBalance(payments)).toBe(10_000);
+  expect(await bookings.getBookings()).toHaveLength(5);
+});
+
+test('seats on a scheduled flight are taken with the booking, and refused when gone', async () => {
+  const { bookings, flights } = placing();
+  const seatLeg = (flightId: string) => ({
+    legs: [{ ...order().booking.legs[0], flightId }],
+    passengers: [{ fullName: 'Alexander Reed' }, { fullName: 'Sophia Reed' }],
+  });
+
+  await bookings.placeBooking(
+    order(seatLeg('BJ-101'), { paymentMethodId: 'pm-visa' }),
+  );
+  expect((await flights.getFlightById('BJ-101')).seatsAvailable).toBe(3);
+
+  await expect(
+    bookings.placeBooking(
+      order(seatLeg('BJ-104'), {
+        paymentMethodId: 'pm-visa',
+        idempotencyKey: 'key-2',
+      }),
+    ),
+  ).rejects.toMatchObject({
+    code: 'SOLD_OUT',
+    message: 'This flight is sold out.',
+  });
 });
 
 test('a new card reports each wrong field separately', () => {

@@ -9,6 +9,7 @@ import {
   BookingKind,
   validateTravellers,
   type Booking,
+  type NewBooking,
   type Passenger,
 } from '../entities/booking';
 import { paymentLabel } from '../entities/payment';
@@ -31,6 +32,8 @@ export type CharterBookingRequest = {
   contactEmail: string;
   paymentMethodId?: string;
   notes?: string;
+  /** One per checkout attempt; a retry with the same key cannot book or charge twice. */
+  idempotencyKey: string;
 };
 
 const TIME = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -38,6 +41,7 @@ const TIME = /^([01]\d|2[0-3]):([0-5]\d)$/;
 /**
  * Charters the chosen jets: every leg needs a jet with room for the party
  * and a departure in the future; the price is the sum of the quotes.
+ * Charging and recording the charter are one backend call.
  */
 export class BookCharter {
   constructor(
@@ -121,9 +125,8 @@ export class BookCharter {
       this.payments,
       request.paymentMethodId,
     );
-    await this.payments.charge(payment.id, total, currency);
 
-    return this.bookings.createBooking({
+    const booking: NewBooking = {
       kind: BookingKind.Charter,
       legs: selections.map(({ leg, quote }, index) => ({
         originCode: leg.origin,
@@ -142,6 +145,11 @@ export class BookCharter {
       currency,
       paymentLabel: paymentLabel(payment),
       notes: request.notes?.trim() ?? '',
+    };
+    return this.bookings.placeBooking({
+      booking,
+      paymentMethodId: payment.id,
+      idempotencyKey: request.idempotencyKey,
     });
   }
 }

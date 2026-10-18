@@ -69,6 +69,7 @@ const request = (
   passengers: [{ fullName: 'Alexander Reed' }, { fullName: 'Sophia Reed' }],
   contactEmail: 'demo@blackjet.app',
   notes: '  Champagne on board  ',
+  idempotencyKey: 'key-1',
   ...overrides,
 });
 
@@ -83,11 +84,19 @@ function setup() {
 }
 
 test('charters every leg at the departure time chosen, for the sum of the quotes', async () => {
-  const { payments, useCase } = setup();
+  const { bookings, useCase } = setup();
 
   const booking = await useCase.execute(request());
 
-  expect(payments.charge).toHaveBeenCalledWith('pm-visa', 18_500, 'EUR');
+  // Paying and booking are one call, retried safely under the same key.
+  expect(bookings.placeBooking).toHaveBeenCalledTimes(1);
+  expect(bookings.placeBooking).toHaveBeenCalledWith(
+    expect.objectContaining({
+      paymentMethodId: 'pm-visa',
+      idempotencyKey: 'key-1',
+      booking: expect.objectContaining({ totalPrice: 18_500, currency: 'EUR' }),
+    }),
+  );
   expect(booking).toMatchObject({
     kind: BookingKind.Charter,
     totalPrice: 18_500,
@@ -104,7 +113,7 @@ test('charters every leg at the departure time chosen, for the sum of the quotes
 });
 
 test('needs a jet with room for everyone, and legs in order', async () => {
-  const { useCase, payments } = setup();
+  const { useCase, bookings } = setup();
 
   const small = request();
   small.selections[1] = { ...small.selections[1], quote: quote(9500, 1) };
@@ -125,5 +134,5 @@ test('needs a jet with room for everyone, and legs in order', async () => {
   await expect(
     useCase.execute(request({ selections: [] })),
   ).rejects.toMatchObject({ code: 'VALIDATION' });
-  expect(payments.charge).not.toHaveBeenCalled();
+  expect(bookings.placeBooking).not.toHaveBeenCalled();
 });

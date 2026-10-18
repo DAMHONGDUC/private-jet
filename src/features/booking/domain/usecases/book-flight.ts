@@ -1,10 +1,12 @@
 import { AppErrorCode, DomainError } from '@/core/error/app-error';
+import { seatsShortMessage } from '@/features/flights/domain/entities/flight';
 import type { FlightRepository } from '@/features/flights/domain/repositories/flight-repository';
 import {
   BookingKind,
   validateBookingRequest,
   type Booking,
   type BookingRequest,
+  type NewBooking,
 } from '../entities/booking';
 import { paymentLabel } from '../entities/payment';
 import type {
@@ -14,8 +16,9 @@ import type {
 import { resolvePaymentMethod } from './payment-choice';
 
 /**
- * Books seats on a flight: validates the request, checks the flight has not
- * left, takes the seats, then records the booking at the flight's price.
+ * Books seats on a flight: validates the request and checks the flight has
+ * not left and has the seats, then places the booking at the flight's price.
+ * Charging, taking the seats and recording the booking are one backend call.
  */
 export class BookFlight {
   constructor(
@@ -42,23 +45,15 @@ export class BookFlight {
     if (flight.seatsAvailable < seats) {
       throw new DomainError(
         AppErrorCode.SoldOut,
-        flight.seatsAvailable === 0
-          ? 'This flight is sold out.'
-          : `Only ${flight.seatsAvailable} seat(s) left on this flight.`,
+        seatsShortMessage(flight.seatsAvailable),
       );
     }
     const payment = await resolvePaymentMethod(
       this.payments,
       request.paymentMethodId,
     );
-    await this.payments.charge(
-      payment.id,
-      flight.pricePerSeat * seats,
-      flight.currency,
-    );
-    await this.flights.reserveSeats(flight.id, seats);
 
-    return this.bookings.createBooking({
+    const booking: NewBooking = {
       kind: BookingKind.Seats,
       legs: [
         {
@@ -80,6 +75,11 @@ export class BookFlight {
       currency: flight.currency,
       paymentLabel: paymentLabel(payment),
       notes: '',
+    };
+    return this.bookings.placeBooking({
+      booking,
+      paymentMethodId: payment.id,
+      idempotencyKey: request.idempotencyKey,
     });
   }
 }
