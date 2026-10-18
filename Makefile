@@ -21,3 +21,11 @@ set-version: ## That version, build + 1 [V=1.2.0] [P=ios|android]
 
 # The iOS app reads its version from the Xcode project: sync it before every run.
 run-ios run-android: version
+
+# Releases bump this platform's build number in app-version.json first and build exactly that number.
+# This pattern rule replaces script-tools' release-ios-% recipe (its help line still applies); the
+# shared release runs inside scripts/release_ios.sh.
+release-ios-%:
+	bash scripts/release_ios.sh $* "$(NOTE)"
+release-android-%: ## Signed release AAB into Release/ for an env in FLAVORS, e.g. release-android-dev; bumps androidBuild
+	bash scripts/release_android.sh $*

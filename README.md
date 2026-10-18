@@ -75,14 +75,18 @@ Clone with the shared scripts: `git clone --recurse-submodules <repo>`, or run `
 | Setup | `make set-up` (`NO_PULL=1` skips `git pull`) |
 | Run | `make run-ios` (`SIMULATOR="iPhone 17 Pro"`) / `make run-android` |
 | Version and build number | Edit [app-version.json](app-version.json), then `make version`; or `make bump-build`, `make bump-patch` / `bump-minor` / `bump-major`, `make set-version V=1.2.0`. Add `P=ios` or `P=android` for one platform |
-| Release to TestFlight | `make release-ios-dev` (`NOTE="What to test"`), after filling `ios/fastlane/.env` |
+| Release to TestFlight | `make release-ios-dev` (`NOTE="What to test"`), after filling `ios/fastlane/.env`. Bumps `iosBuild` and builds that number |
+| Release Android | `make release-android-dev`: signed AAB in `Release/`, after filling `android/release-signing.properties`. Bumps `androidBuild` |
 | Checks | `npm run lint && npm run typecheck && npm test` |
 | Full run guide | [docs/setup.md](docs/setup.md) |
 
 **Version.** [app-version.json](app-version.json) is the only place versions are set, with a pair per platform: `iosVersion`/`iosBuild` and `androidVersion`/`androidBuild`. Keep the two versions the same unless a store needs otherwise; the build numbers count on their own, since each store only checks its own.
 - Android (`android/app/build.gradle`) reads its pair directly; so does the app (`src/core/app-version.ts`, the Profile footer), for the platform it runs on.
 - The Xcode project cannot, so `make version` copies the iOS pair into `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION`. `make run-ios`/`run-android` run it first, and a test fails if they drift.
-- A TestFlight release still uses the next free build number from App Store Connect, not `iosBuild`.
+- **Releases bump the build for you.** `make release-ios-<env>` adds one to `iosBuild` and `make release-android-<env>` to `androidBuild`, then build exactly that number. Commit `app-version.json` with the release. If the build or upload fails, the file goes back as it was.
+- **iOS checks TestFlight first.** The shared lane normally builds TestFlight's latest + 1. `ios/fastlane/Fastfile` makes it use `iosBuild` instead, and stops if TestFlight already has that number for the version.
+- **Android needs your upload key.** Copy `android/release-signing.properties.example` to `android/release-signing.properties` and fill it in; git ignores it and the keystore. Without it, release builds are signed with the debug key and `make release-android-<env>` refuses to run.
+- To release a new version rather than a new build, bump the version first (`make bump-patch P=ios`), then release.
 
 The targets come from [script-tools](https://github.com/DAMHONGDUC/script-tools) `react_native/` (submodule at `packages/script-tools`); this app's settings for it are in `script-tools.properties`.
 

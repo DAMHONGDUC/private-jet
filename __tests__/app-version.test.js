@@ -52,3 +52,18 @@ test('bumping moves to the next version and resets the lower parts', () => {
   expect(bumpVersion('1.2.3', 'major')).toBe('2.0.0');
   expect(bumpVersion('1.0', 'patch')).toBe('1.0.1');
 });
+
+test('releases build the number in app-version.json', () => {
+  const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+  // iOS: the shared lane is told the number, and checks TestFlight against it.
+  const fastfile = read('ios/fastlane/Fastfile');
+  expect(fastfile).toMatch(/def latest_testflight_build_number/);
+  expect(fastfile).toMatch(/RN_IOS_BUILD/);
+  expect(read('scripts/release_ios.sh')).toMatch(/bump build ios/);
+  // Android: the release bumps its own build and signs with the upload key.
+  expect(read('scripts/release_android.sh')).toMatch(/bump build android/);
+  expect(read('android/app/build.gradle')).toMatch(
+    /signingConfig releaseSigningFile\.exists\(\) \? signingConfigs\.release/,
+  );
+  expect(read('.gitignore')).toMatch(/android\/release-signing\.properties/);
+});

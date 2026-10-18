@@ -72,6 +72,17 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+/**
+ * Release signing, from android/release-signing.properties, which git ignores:
+ * see release-signing.properties.example. Without it, release builds fall back
+ * to the debug key, as React Native ships them.
+ */
+def releaseSigningFile = rootProject.file("release-signing.properties")
+def releaseSigning = new Properties()
+if (releaseSigningFile.exists()) {
+    releaseSigningFile.withInputStream { releaseSigning.load(it) }
+}
+
 /** Android's version name and build number; iOS has its own pair in the same file. */
 def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file("../app-version.json"))
 
@@ -96,15 +107,22 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (releaseSigningFile.exists()) {
+            release {
+                storeFile rootProject.file(releaseSigning.getProperty("storeFile"))
+                storePassword releaseSigning.getProperty("storePassword")
+                keyAlias releaseSigning.getProperty("keyAlias")
+                keyPassword releaseSigning.getProperty("keyPassword")
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // The upload key from release-signing.properties; the debug key until it exists.
+            signingConfig releaseSigningFile.exists() ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }

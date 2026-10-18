@@ -1,3 +1,25 @@
 # The release lanes live in script-tools; run them with `make release-ios-dev`.
 # Settings: ios/fastlane/.env (see .env.example) and script-tools.properties.
 import "../../packages/script-tools/react_native/fastlane/Fastfile"
+
+# The shared beta lane builds TestFlight's latest build + 1. This app sets the
+# number in app-version.json instead: `make release-ios-<env>` bumps iosBuild
+# and passes it as RN_IOS_BUILD. Answering "latest" with one less makes the
+# lane build exactly that number, once TestFlight is checked not to have used
+# it. Without RN_IOS_BUILD the lane behaves as shipped.
+def latest_testflight_build_number(options = {})
+  real = runner.trigger_action_by_name(:latest_testflight_build_number, nil, false, options)
+  wanted = ENV["RN_IOS_BUILD"].to_s
+  return real if wanted.empty?
+
+  build = Integer(wanted)
+  if real.to_i >= build
+    UI.user_error!(
+      "TestFlight already has build #{real} of this version, so iosBuild #{build} " \
+      "in app-version.json cannot be used. Set iosBuild to #{real.to_i} or more and release again " \
+      "(the release adds one).",
+    )
+  end
+  UI.message("Building with iosBuild #{build} from app-version.json; TestFlight is at #{real}.")
+  build - 1
+end

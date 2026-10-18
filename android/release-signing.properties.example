@@ -1,0 +1,11 @@
+# Copy to release-signing.properties (git ignores it) to sign release builds
+# with your upload key. Paths are relative to android/.
+#
+# Create a key once, and keep it and its passwords safe: Play needs the same
+# key for every update.
+#   keytool -genkeypair -v -storetype PKCS12 -keystore upload.keystore \
+#     -alias upload -keyalg RSA -keysize 2048 -validity 10000
+storeFile=upload.keystore
+storePassword=
+keyAlias=upload
+keyPassword=
