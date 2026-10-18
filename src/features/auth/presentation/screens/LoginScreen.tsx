@@ -24,12 +24,14 @@ import { PressableScale } from '@/core/ui/PressableScale';
 import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
-import { BRAND_ICONS, imageFor } from '@/core/ui/images';
+import { imageFor } from '@/core/ui/images';
 import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
 import { DEMO_CREDENTIALS, credentialErrors } from '../../domain/entities/user';
 import { useSignInMutation } from '../auth-api';
+import { DemoHint } from '../components/DemoHint';
+import { LoginAlternatives } from '../components/LoginAlternatives';
 import { LoginField } from '../components/LoginField';
-import { SocialButton } from '../components/SocialButton';
+import { PasswordField } from '../components/PasswordField';
 import { BORDER, ERROR, MUTED } from '../login-colors';
 
 /**
@@ -42,7 +44,6 @@ export function LoginScreen() {
   const [signIn, { isLoading }] = useSignInMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [hidden, setHidden] = useState(true);
   /** A sign-in failure the fields cannot show, such as a wrong password. */
   const [problem, setProblem] = useState<string | null>(null);
   /** Field errors show once Sign In was tapped, then follow the typing. */
@@ -138,29 +139,12 @@ export function LoginScreen() {
               placeholder="you@example.com"
               error={errors.email}
             />
-            <View>
-              <LoginField
-                testID="login-password"
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={hidden}
-                textContentType="password"
-                placeholder="••••••••"
-                onSubmitEditing={() => submit({ email, password })}
-                error={errors.password}
-              />
-              <PressableScale
-                testID="login-toggle-password"
-                accessibilityRole="button"
-                onPress={() => setHidden(value => !value)}
-                style={styles.toggle}
-              >
-                <BJText size={13} style={styles.muted}>
-                  {hidden ? 'Show' : 'Hide'}
-                </BJText>
-              </PressableScale>
-            </View>
+            <PasswordField
+              value={password}
+              onChangeText={setPassword}
+              onSubmitEditing={() => submit({ email, password })}
+              error={errors.password}
+            />
 
             {problem ? (
               <Animated.View entering={FadeIn.duration(200)}>
@@ -188,56 +172,10 @@ export function LoginScreen() {
               </BJText>
             </PressableScale>
 
-            <View style={styles.divider}>
-              <View style={styles.line} />
-              <BJText size={13} style={styles.muted}>
-                or
-              </BJText>
-              <View style={styles.line} />
-            </View>
-
-            <PressableScale
-              testID="login-demo"
-              accessibilityRole="button"
-              disabled={isLoading}
-              onPress={() => submit()}
-              style={styles.outlined}
-            >
-              <BJText size={16} tone="white">
-                Continue with Demo Account
-              </BJText>
-            </PressableScale>
-
-            <View style={styles.socialRow}>
-              <SocialButton
-                testID="login-apple"
-                label="Apple"
-                icon={BRAND_ICONS.apple}
-                tint
-                onPress={() => submit()}
-              />
-              <SocialButton
-                testID="login-google"
-                label="Google"
-                icon={BRAND_ICONS.google}
-                onPress={() => submit()}
-              />
-            </View>
+            <LoginAlternatives busy={isLoading} onDemoSignIn={() => submit()} />
           </Animated.View>
 
-          <PressableScale
-            testID="login-fill-demo"
-            accessibilityRole="button"
-            onPress={fillDemo}
-            style={styles.hint}
-          >
-            <BJText size={13} style={styles.muted}>
-              Demo account · tap to fill
-            </BJText>
-            <BJText size={13} tone="white">
-              {DEMO_CREDENTIALS.email} · {DEMO_CREDENTIALS.password}
-            </BJText>
-          </PressableScale>
+          <DemoHint onPress={fillDemo} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -267,8 +205,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDER,
   },
-  toggle: { position: 'absolute', right: 12, bottom: 15 },
-  muted: { color: MUTED },
   error: { color: ERROR },
   primary: {
     height: 52,
@@ -279,16 +215,4 @@ const styles = StyleSheet.create({
   },
   busy: { opacity: 0.7 },
   onPrimary: { color: AppColors.dark.onPrimaryAction },
-  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: BORDER },
-  outlined: {
-    height: 52,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  socialRow: { flexDirection: 'row', gap: 12 },
-  hint: { alignItems: 'center', gap: 4, paddingVertical: 8 },
 });

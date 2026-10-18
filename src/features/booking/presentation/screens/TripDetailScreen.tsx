@@ -1,33 +1,22 @@
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useT } from '@/core/i18n/i18n';
+import { ScrollView } from 'react-native';
 import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
-import { AppText } from '@/core/ui/AppText';
-import { BottomSheet } from '@/core/ui/BottomSheet';
-import { BottomActions } from '@/core/ui/BottomActions';
-import { Button, ButtonVariant } from '@/core/ui/Button';
-import { Card } from '@/core/ui/Card';
-import { FlightPath } from '@/core/ui/FlightPath';
 import { Screen } from '@/core/ui/Screen';
-import { errorMessage } from '@/core/error/error-message';
 import { ErrorView } from '@/core/ui/ErrorView';
 import { LoadingView } from '@/core/ui/LoadingView';
-import { StatusPill, StatusTone } from '@/core/ui/StatusPill';
+import { StatusTone } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
-import { formatDate, formatMoney } from '@/core/utils/format';
-import {
-  BookingStatus,
-  canCancel,
-  CANCELLATION_WINDOW_HOURS,
-  firstLeg,
-  lastLeg,
-} from '../../domain/entities/booking';
+import { BookingStatus, canCancel } from '../../domain/entities/booking';
 import { useCancelBookingMutation, useGetBookingQuery } from '../booking-api';
+import { CancelTripSheet } from '../components/CancelTripSheet';
+import { TripActions } from '../components/TripActions';
+import { TripGuests } from '../components/TripGuests';
+import { TripHero } from '../components/TripHero';
 import { TripLegRow } from '../components/TripLegRow';
+import { TripPayment } from '../components/TripPayment';
 import { TripSection } from '../components/TripSection';
-import { kindLabel, tripState } from '../trip-labels';
+import { tripState } from '../trip-labels';
 
 type Props = {
   bookingId: string;
@@ -43,7 +32,6 @@ export function TripDetailScreen({
   now: nowProp,
 }: Props) {
   const styles = useStyles();
-  const t = useT();
   const [now] = useState(() => nowProp ?? new Date());
   const [confirming, setConfirming] = useState(false);
   const {
@@ -70,8 +58,6 @@ export function TripDetailScreen({
     );
   }
 
-  const from = firstLeg(booking);
-  const to = lastLeg(booking);
   const state = tripState(booking, now);
   const cancellable = canCancel(booking, now);
 
@@ -100,45 +86,7 @@ export function TripDetailScreen({
           { paddingBottom: AppSpacing.xl },
         ]}
       >
-        <View>
-          <Card style={styles.hero}>
-            <View style={styles.row}>
-              <AppText variant="label" muted>
-                {kindLabel(booking)}
-              </AppText>
-              <Animated.View key={state.label} entering={FadeIn.duration(250)}>
-                <StatusPill
-                  testID="trip-status"
-                  label={state.label}
-                  tone={state.tone}
-                />
-              </Animated.View>
-            </View>
-            <View style={styles.row}>
-              <View>
-                <AppText variant="display">{from.originCode}</AppText>
-                <AppText muted>{from.originCity}</AppText>
-              </View>
-              <View style={styles.end}>
-                <AppText variant="display">{to.destinationCode}</AppText>
-                <AppText muted>{to.destinationCity}</AppText>
-              </View>
-            </View>
-            <FlightPath />
-            <View style={styles.reference}>
-              <AppText variant="caption" muted>
-                Booking reference
-              </AppText>
-              <AppText
-                testID="trip-reference"
-                variant="title"
-                style={styles.code}
-              >
-                {booking.reference}
-              </AppText>
-            </View>
-          </Card>
-        </View>
+        <TripHero booking={booking} state={state} />
 
         <TripSection title={booking.legs.length > 1 ? 'Itinerary' : 'Flight'}>
           {booking.legs.map((leg, index) => (
@@ -150,136 +98,33 @@ export function TripDetailScreen({
           ))}
         </TripSection>
 
-        <TripSection title={`Guests · ${booking.passengers.length}`}>
-          {booking.passengers.map((passenger, index) => (
-            <View key={`${passenger.fullName}-${index}`} style={styles.line}>
-              <AppText>{passenger.fullName}</AppText>
-              <AppText variant="caption" muted>
-                {index === 0 ? 'Lead guest' : `Guest ${index}`}
-              </AppText>
-            </View>
-          ))}
-          <View style={styles.line}>
-            <AppText muted>Contact</AppText>
-            <AppText>{booking.contactEmail}</AppText>
-          </View>
-        </TripSection>
+        <TripGuests booking={booking} />
 
-        <TripSection title="Payment">
-          <View style={styles.line}>
-            <AppText muted>Paid with</AppText>
-            <AppText>{booking.paymentLabel}</AppText>
-          </View>
-          <View style={styles.line}>
-            <AppText muted>Total</AppText>
-            <AppText testID="trip-total" variant="subtitle">
-              {formatMoney(booking.totalPrice, booking.currency)}
-            </AppText>
-          </View>
-          {booking.notes ? (
-            <View style={styles.notes}>
-              <AppText variant="caption" muted>
-                Requests
-              </AppText>
-              <AppText>{booking.notes}</AppText>
-            </View>
-          ) : null}
-        </TripSection>
+        <TripPayment booking={booking} />
       </ScrollView>
 
-      {onContactConcierge || cancellable || closeToDeparture ? (
-        <BottomActions>
-          {onContactConcierge ? (
-            <Button
-              testID="contact-concierge"
-              title={t('actions.messageConcierge')}
-              variant={ButtonVariant.Secondary}
-              onPress={onContactConcierge}
-            />
-          ) : null}
-          {cancellable ? (
-            <Animated.View exiting={FadeOut.duration(200)}>
-              <Button
-                testID="cancel-trip"
-                title={t('actions.cancelTrip')}
-                variant={ButtonVariant.Danger}
-                onPress={() => {
-                  haptics.selection();
-                  setConfirming(true);
-                }}
-              />
-            </Animated.View>
-          ) : closeToDeparture ? (
-            <AppText variant="caption" muted style={styles.centered}>
-              {t('actions.lateChanges', { hours: CANCELLATION_WINDOW_HOURS })}
-            </AppText>
-          ) : null}
-        </BottomActions>
-      ) : null}
+      <TripActions
+        cancellable={cancellable}
+        closeToDeparture={closeToDeparture}
+        onContactConcierge={onContactConcierge}
+        onCancel={() => {
+          haptics.selection();
+          setConfirming(true);
+        }}
+      />
 
-      <BottomSheet
+      <CancelTripSheet
         visible={confirming}
-        title="Cancel this trip?"
+        booking={booking}
+        cancelling={cancelling}
+        error={cancelError}
+        onConfirm={cancel}
         onClose={() => setConfirming(false)}
-        testID="cancel-sheet"
-      >
-        <View style={styles.sheet}>
-          <AppText muted>
-            {from.originCity} → {to.destinationCity} on{' '}
-            {formatDate(from.departureAt)}. The{' '}
-            {formatMoney(booking.totalPrice, booking.currency)} goes back to{' '}
-            {booking.paymentLabel} within 5 working days.
-          </AppText>
-          {cancelError ? (
-            <AppText testID="cancel-error" style={styles.error}>
-              {errorMessage(cancelError)}
-            </AppText>
-          ) : null}
-          <Button
-            testID="confirm-cancel"
-            title="Cancel trip"
-            variant={ButtonVariant.Danger}
-            loading={cancelling}
-            onPress={cancel}
-          />
-          <Button
-            title="Keep trip"
-            variant={ButtonVariant.Secondary}
-            onPress={() => setConfirming(false)}
-          />
-        </View>
-      </BottomSheet>
+      />
     </Screen>
   );
 }
 
-const useStyles = makeStyles(palette => ({
+const useStyles = makeStyles(() => ({
   content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
-  hero: { gap: AppSpacing.lg },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  end: { alignItems: 'flex-end' },
-  reference: {
-    alignItems: 'center',
-    paddingVertical: AppSpacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: palette.ashGrey,
-    gap: 2,
-  },
-  code: { letterSpacing: 4 },
-  line: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: AppSpacing.md,
-  },
-  notes: { gap: 2 },
-  centered: { textAlign: 'center' },
-  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
-  error: { color: palette.error },
 }));
