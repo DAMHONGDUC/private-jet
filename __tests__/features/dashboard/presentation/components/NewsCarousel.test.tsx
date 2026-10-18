@@ -6,8 +6,12 @@ test('pages through the published stories once it knows its width', async () => 
   await renderWithStore(<NewsCarousel />);
 
   const pager = await screen.findByTestId('news-pager');
-  await fireEvent(pager, 'layout', { nativeEvent: { layout: { width: 360, height: 220 } } });
+  await fireEvent(pager, 'layout', {
+    nativeEvent: { layout: { width: 360, height: 220 } },
+  });
 
-  expect(screen.getByTestId('news-title-0')).toHaveTextContent('Night departures to Dubai');
+  expect(screen.getByTestId('news-title-0')).toHaveTextContent(
+    'Overnight to Singapore',
+  );
   expect(screen.queryByText(/Draft/)).toBeNull();
 });

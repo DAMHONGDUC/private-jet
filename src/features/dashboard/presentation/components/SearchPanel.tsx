@@ -1,12 +1,18 @@
 import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useT, type Translate } from '@/core/i18n/i18n';
 import { haptics } from '@/core/ui/haptics';
 import { toDayKey } from '@/core/utils/date';
 import { useGetAirportsQuery } from '@/features/flights/presentation/flights-api';
 import {
+  AirportEnd,
+  LegSlot,
   MAX_CHARTER_PASSENGERS,
   checkDraft,
+  draftFieldErrors,
   type CharterRequest,
+  type DraftField,
+  type LegTarget,
 } from '../../domain/entities/charter';
 import {
   airportSelected,
@@ -18,60 +24,72 @@ import {
   returnDateSelected,
   selectCharterSearch,
   tripTypeSelected,
-  type AirportEnd,
-  type LegTarget,
 } from '../charter-search-slice';
 import { airportsByCode } from '../search-labels';
 import { AirportSheet } from './AirportSheet';
-import { BookingCard } from './BookingCard';
+import { BookingCard, type BookingCardErrors } from './BookingCard';
 import { CalendarSheet } from './CalendarSheet';
 import { ConfirmSheet } from './ConfirmSheet';
 import { CountSheet } from './CountSheet';
 
+/** The sheets the form's fields open. */
+enum SheetKind {
+  Airport = 'airport',
+  Date = 'date',
+  ReturnDate = 'returnDate',
+  Passengers = 'passengers',
+  RemoveLeg = 'removeLeg',
+}
+
 type Sheet =
-  | { kind: 'airport'; target: LegTarget; end: AirportEnd }
-  | { kind: 'date'; target: LegTarget }
-  | { kind: 'return' }
-  | { kind: 'passengers'; target: LegTarget }
-  | { kind: 'removeLeg'; index: number }
+  | { kind: SheetKind.Airport; target: LegTarget; end: AirportEnd }
+  | { kind: SheetKind.Date; target: LegTarget }
+  | { kind: SheetKind.ReturnDate }
+  | { kind: SheetKind.Passengers; target: LegTarget }
+  | { kind: SheetKind.RemoveLeg; index: number }
   | null;
+
+/** The leg a date belongs to: a leg, or the way back of a return trip. */
+type DateTarget = LegTarget | LegSlot.Return;
 
 type Props = {
   /** The form passed its checks. */
   onSearch: (request: CharterRequest) => void;
-  /** The first thing missing, in the original app's words. */
-  onInvalid: (message: string) => void;
+  /** The first thing missing, in the original app's words; each field also shows its own problem. */
+  onInvalid?: (message: string) => void;
   /** The first day the calendar allows; tests pin it. */
   today: Date;
 };
 
-const legName = (target: LegTarget) =>
-  target === 'outbound' ? '' : `Leg #${target + 1} · `;
+const legName = (target: LegTarget, t: Translate) =>
+  target === LegSlot.Outbound
+    ? ''
+    : t('search.legPrefix', { number: target + 1 });
 
 /** The booking card wired to the store, with the sheets its fields open. */
 export function SearchPanel({ onSearch, onInvalid, today }: Props) {
   const dispatch = useDispatch();
+  const t = useT();
   const { draft, recentAirports } = useSelector(selectCharterSearch);
   const { data: airports } = useGetAirportsQuery();
   const byCode = useMemo(() => airportsByCode(airports), [airports]);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [submitted, setSubmitted] = useState(false);
   const close = () => setSheet(null);
   const todayKey = toDayKey(today);
 
-  const open = (next: Sheet) => {
-    haptics.selection();
-    setSheet(next);
-  };
+  // Opening a field is quiet; the haptics are kept for choices that land.
+  const open = (next: Sheet) => setSheet(next);
 
   const legAt = (target: LegTarget) =>
-    target === 'outbound' ? draft.outbound : draft.legs[target];
+    target === LegSlot.Outbound ? draft.outbound : draft.legs[target];
 
   /** A leg cannot leave before the one it follows; the way back not before the way out. */
-  const minDayFor = (target: LegTarget | 'return'): string => {
-    if (target === 'return') {
+  const minDayFor = (target: DateTarget): string => {
+    if (target === LegSlot.Return) {
       return draft.outbound.date ?? todayKey;
     }
-    if (target === 'outbound' || target === 0) {
+    if (target === LegSlot.Outbound || target === 0) {
       return todayKey;
     }
     return draft.legs[target - 1]?.date ?? todayKey;
@@ -81,17 +99,29 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
     haptics.selection();
     const result = checkDraft(draft);
     if (result.request) {
+      setSubmitted(false);
       onSearch(result.request);
     } else {
-      onInvalid(result.error);
+      setSubmitted(true);
+      haptics.error();
+      onInvalid?.(result.error);
     }
   };
 
-  const dateTarget =
-    sheet?.kind === 'date'
+  // Problems show under their fields once Find was tapped, and clear as each is fixed.
+  const problems = submitted ? draftFieldErrors(draft) : {};
+  const errors: BookingCardErrors = {};
+  for (const [field, problem] of Object.entries(problems)) {
+    if (problem) {
+      errors[field as DraftField] = t(`validation.${problem}`);
+    }
+  }
+
+  const dateTarget: DateTarget | null =
+    sheet?.kind === SheetKind.Date
       ? sheet.target
-      : sheet?.kind === 'return'
-      ? 'return'
+      : sheet?.kind === SheetKind.ReturnDate
+      ? LegSlot.Return
       : null;
 
   return (
@@ -99,30 +129,38 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
       <BookingCard
         draft={draft}
         airports={byCode}
-        onTripType={type => dispatch(tripTypeSelected(type))}
-        onPickAirport={(target, end) => open({ kind: 'airport', target, end })}
+        errors={errors}
+        onTripType={type => {
+          setSubmitted(false);
+          dispatch(tripTypeSelected(type));
+        }}
+        onPickAirport={(target, end) =>
+          open({ kind: SheetKind.Airport, target, end })
+        }
         onSwap={target => dispatch(airportsSwapped(target))}
-        onPickDate={target => open({ kind: 'date', target })}
-        onPickReturnDate={() => open({ kind: 'return' })}
-        onPickPassengers={target => open({ kind: 'passengers', target })}
+        onPickDate={target => open({ kind: SheetKind.Date, target })}
+        onPickReturnDate={() => open({ kind: SheetKind.ReturnDate })}
+        onPickPassengers={target =>
+          open({ kind: SheetKind.Passengers, target })
+        }
         onAddLeg={() => dispatch(legAdded())}
-        onRemoveLeg={index => open({ kind: 'removeLeg', index })}
+        onRemoveLeg={index => open({ kind: SheetKind.RemoveLeg, index })}
         onFind={find}
       />
 
       <AirportSheet
-        visible={sheet?.kind === 'airport'}
+        visible={sheet?.kind === SheetKind.Airport}
         title={
-          sheet?.kind === 'airport'
-            ? `${legName(sheet.target)}${
-                sheet.end === 'origin' ? 'From' : 'To'
-              }`
+          sheet?.kind === SheetKind.Airport
+            ? `${legName(sheet.target, t)}${t(
+                sheet.end === AirportEnd.Origin ? 'search.from' : 'search.to',
+              )}`
             : ''
         }
         airports={airports}
         recent={recentAirports}
         onPick={code => {
-          if (sheet?.kind === 'airport') {
+          if (sheet?.kind === SheetKind.Airport) {
             dispatch(
               airportSelected({ target: sheet.target, end: sheet.end, code }),
             );
@@ -135,16 +173,16 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
       <CalendarSheet
         visible={dateTarget !== null}
         title={
-          dateTarget === 'return'
-            ? 'Return Date'
+          dateTarget === LegSlot.Return
+            ? t('search.returnDate')
             : dateTarget !== null
-            ? `${legName(dateTarget)}Departure Date`
+            ? `${legName(dateTarget, t)}${t('search.departureDate')}`
             : ''
         }
         today={today}
         minDay={dateTarget !== null ? minDayFor(dateTarget) : todayKey}
         value={
-          dateTarget === 'return'
+          dateTarget === LegSlot.Return
             ? draft.returnDate
             : dateTarget !== null
             ? legAt(dateTarget)?.date ?? null
@@ -152,7 +190,7 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
         }
         onPick={day => {
           haptics.light();
-          if (dateTarget === 'return') {
+          if (dateTarget === LegSlot.Return) {
             dispatch(returnDateSelected(day));
           } else if (dateTarget !== null) {
             dispatch(dateSelected({ target: dateTarget, date: day }));
@@ -163,20 +201,20 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
       />
 
       <CountSheet
-        visible={sheet?.kind === 'passengers'}
+        visible={sheet?.kind === SheetKind.Passengers}
         title={
-          sheet?.kind === 'passengers'
-            ? `${legName(sheet.target)}Number of Passengers`
+          sheet?.kind === SheetKind.Passengers
+            ? `${legName(sheet.target, t)}${t('search.passengerCountTitle')}`
             : ''
         }
         value={
-          sheet?.kind === 'passengers'
+          sheet?.kind === SheetKind.Passengers
             ? legAt(sheet.target)?.passengers ?? 0
             : 0
         }
         max={MAX_CHARTER_PASSENGERS}
         onDone={count => {
-          if (sheet?.kind === 'passengers') {
+          if (sheet?.kind === SheetKind.Passengers) {
             dispatch(passengersSelected({ target: sheet.target, count }));
           }
           close();
@@ -185,16 +223,16 @@ export function SearchPanel({ onSearch, onInvalid, today }: Props) {
       />
 
       <ConfirmSheet
-        visible={sheet?.kind === 'removeLeg'}
+        visible={sheet?.kind === SheetKind.RemoveLeg}
         title={
-          sheet?.kind === 'removeLeg'
-            ? `Remove Flight Leg #${sheet.index + 1}`
+          sheet?.kind === SheetKind.RemoveLeg
+            ? t('search.removeLegTitle', { number: sheet.index + 1 })
             : ''
         }
-        message="This leg and everything chosen for it will be removed from the trip."
-        confirmLabel="Remove"
+        message={t('search.removeLegMessage')}
+        confirmLabel={t('search.remove')}
         onConfirm={() => {
-          if (sheet?.kind === 'removeLeg') {
+          if (sheet?.kind === SheetKind.RemoveLeg) {
             haptics.light();
             dispatch(legRemoved(sheet.index));
           }

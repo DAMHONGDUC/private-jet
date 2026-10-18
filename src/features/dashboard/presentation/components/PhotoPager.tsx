@@ -1,5 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { FlatList, Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { PressableScale } from '@/core/ui/PressableScale';
 
@@ -21,14 +27,25 @@ const DOT = 6;
  * Photos that page sideways, with slide-style dots: 6 pt, 4 pt apart,
  * permanent ash and white (feature-docs/dashboard §2.4).
  */
-export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressItem, testID }: Props) {
+export function PhotoPager({
+  photos,
+  height,
+  dotsBottom,
+  renderOverlay,
+  onPressItem,
+  testID,
+}: Props) {
   const palette = useBlackJetTheme();
   const [width, setWidth] = useState(0);
   const [page, setPage] = useState(0);
   const [list, setList] = useState<FlatList<ImageSourcePropType> | null>(null);
 
   return (
-    <View testID={testID} style={{ height }} onLayout={event => setWidth(event.nativeEvent.layout.width)}>
+    <View
+      testID={testID}
+      style={{ height }}
+      onLayout={event => setWidth(event.nativeEvent.layout.width)}
+    >
       {width > 0 ? (
         <FlatList
           ref={setList}
@@ -37,8 +54,14 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressI
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           keyExtractor={(_, index) => String(index)}
-          getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-          onMomentumScrollEnd={event => setPage(Math.round(event.nativeEvent.contentOffset.x / width))}
+          getItemLayout={(_, index) => ({
+            length: width,
+            offset: width * index,
+            index,
+          })}
+          onMomentumScrollEnd={event =>
+            setPage(Math.round(event.nativeEvent.contentOffset.x / width))
+          }
           renderItem={({ item, index }) => (
             <PressableScale
               testID={testID && `${testID}-item-${index}`}
@@ -49,7 +72,11 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressI
               style={{ width, height }}
             >
               {/* Sized explicitly: with only absolute insets, iOS draws the photo at its pixel size. */}
-              <Image source={item} resizeMode="cover" style={[StyleSheet.absoluteFill, { width, height }]} />
+              <Image
+                source={item}
+                resizeMode="cover"
+                style={[StyleSheet.absoluteFill, { width, height }]}
+              />
               {renderOverlay?.(index)}
             </PressableScale>
           )}
@@ -68,7 +95,13 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressI
                 list?.scrollToIndex({ index, animated: true });
                 setPage(index);
               }}
-              style={[styles.dot, { backgroundColor: index === page ? palette.info : palette.permanentAsh }]}
+              style={[
+                styles.dot,
+                {
+                  backgroundColor:
+                    index === page ? palette.info : palette.permanentAsh,
+                },
+              ]}
             />
           ))}
         </View>
@@ -78,6 +111,11 @@ export function PhotoPager({ photos, height, dotsBottom, renderOverlay, onPressI
 }
 
 const styles = StyleSheet.create({
-  dots: { position: 'absolute', alignSelf: 'center', flexDirection: 'row', gap: 4 },
+  dots: {
+    position: 'absolute',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: 4,
+  },
   dot: { width: DOT, height: DOT, borderRadius: DOT / 2 },
 });

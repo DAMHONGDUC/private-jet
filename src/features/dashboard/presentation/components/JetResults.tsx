@@ -1,11 +1,17 @@
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View } from 'react-native';
+import { useT, type Translate } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { errorMessage } from '@/core/ui/StateViews';
-import type { CharterRequest, LegQuotes } from '../../domain/entities/charter';
+import {
+  TripType,
+  type CharterRequest,
+  type LegQuotes,
+} from '../../domain/entities/charter';
 import { NO_PLANE_FOUND } from '@/core/ui/images';
 import { formatShortDay } from '../search-labels';
 import { JetCard } from './JetCard';
@@ -25,11 +31,13 @@ type Props = {
   onOpenQuote?: (legIndex: number, quoteId: string) => void;
 };
 
-const legTitle = (request: CharterRequest, index: number) => {
-  if (request.tripType === 'roundTrip') {
-    return index === 0 ? 'Outbound' : 'Return';
+const legTitle = (request: CharterRequest, index: number, t: Translate) => {
+  if (request.tripType === TripType.RoundTrip) {
+    return t(index === 0 ? 'results.outbound' : 'results.return');
   }
-  return request.tripType === 'multiCity' ? `Leg #${index + 1}` : null;
+  return request.tripType === TripType.MultiCity
+    ? t('results.leg', { number: index + 1 })
+    : null;
 };
 
 /** The jets for a search, one group per leg (feature-docs/dashboard §12.2). */
@@ -43,6 +51,7 @@ export function JetResults({
   onOpenQuote,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const total =
     results?.reduce((sum, group) => sum + group.quotes.length, 0) ?? 0;
 
@@ -56,7 +65,7 @@ export function JetResults({
           <LegGroup
             key={`${group.leg.origin}-${group.leg.destination}-${index}`}
             group={group}
-            title={legTitle(request, index)}
+            title={legTitle(request, index, t)}
             selectedId={selections[index]}
             onOpenQuote={
               onOpenQuote && (quoteId => onOpenQuote(index, quoteId))
@@ -75,7 +84,7 @@ export function JetResults({
   return (
     <View testID="jet-results" style={styles.root}>
       <View style={styles.header}>
-        <BJText size={20}>Available jets</BJText>
+        <BJText size={20}>{t('results.availableJets')}</BJText>
         {results ? (
           <View style={[styles.count, { backgroundColor: palette.accentSoft }]}>
             <BJText testID="jet-results-count" size={13}>
@@ -98,17 +107,18 @@ type LegGroupProps = {
 
 function LegGroup({ group, title, selectedId, onOpenQuote }: LegGroupProps) {
   const { leg, quotes } = group;
+  const t = useT();
   return (
     <View style={styles.group}>
       {title ? (
         <BJText size={13} tone="secondary">
           {title} · {leg.origin} → {leg.destination} ·{' '}
-          {formatShortDay(leg.date)}
+          {formatShortDay(leg.date, t)}
         </BJText>
       ) : null}
       {quotes.length === 0 ? (
         <BJText tone="secondary" weight="regular">
-          No aircraft can fly this leg with {leg.passengers} on board.
+          {t('results.noAircraft', { count: leg.passengers })}
         </BJText>
       ) : (
         quotes.map(quote => (
@@ -126,6 +136,7 @@ function LegGroup({ group, title, selectedId, onOpenQuote }: LegGroupProps) {
 
 function NoListings({ onNewRequest }: { onNewRequest: () => void }) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <View testID="no-listings" style={styles.empty}>
       <LottieView
@@ -135,17 +146,17 @@ function NoListings({ onNewRequest }: { onNewRequest: () => void }) {
         loop
         style={styles.lottie}
       />
-      <BJText size={20}>No jets for this trip yet</BJText>
+      <BJText size={20}>{t('results.noJets')}</BJText>
       <BJText tone="secondary" weight="regular" style={styles.centered}>
-        Try another day or airport, and we will find the right aircraft for you.
+        {t('results.noJetsMessage')}
       </BJText>
       <PressableScale
         testID="new-flight-request"
         accessibilityRole="button"
         onPress={onNewRequest}
-        style={[styles.button, { backgroundColor: palette.accent }]}
+        style={[styles.button, { backgroundColor: palette.primaryAction }]}
       >
-        <BJText tone="onAccent">New Flight Request</BJText>
+        <BJText tone="onPrimary">{t('results.newRequest')}</BJText>
       </PressableScale>
     </View>
   );
@@ -159,10 +170,11 @@ function LoadError({
   onRetry: () => void;
 }) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <View testID="jet-results-error" style={styles.empty}>
       <BJText tone="secondary" weight="regular" style={styles.centered}>
-        Couldn't load jets. {errorMessage(error)}
+        {t('results.loadError', { error: errorMessage(error) })}
       </BJText>
       <PressableScale
         testID="jet-results-retry"
@@ -170,30 +182,34 @@ function LoadError({
         onPress={onRetry}
         style={[styles.button, styles.outlined, { borderColor: palette.iron }]}
       >
-        <BJText size={16}>Try again</BJText>
+        <BJText size={16}>{t('common.tryAgain')}</BJText>
       </PressableScale>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: spacing.lg, gap: spacing.lg },
+  root: { paddingHorizontal: AppSpacing.lg, gap: AppSpacing.lg },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.lg,
+    gap: AppSpacing.sm,
+    paddingTop: AppSpacing.lg,
   },
   count: {
     minWidth: 28,
     height: 24,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: AppSpacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  group: { gap: spacing.md },
-  empty: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.lg },
+  group: { gap: AppSpacing.md },
+  empty: {
+    alignItems: 'center',
+    gap: AppSpacing.md,
+    paddingVertical: AppSpacing.lg,
+  },
   lottie: { width: 180, height: 180 },
   centered: { textAlign: 'center' },
   button: {
@@ -202,7 +218,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: spacing.sm,
+    marginTop: AppSpacing.sm,
   },
   outlined: { borderWidth: 1 },
 });

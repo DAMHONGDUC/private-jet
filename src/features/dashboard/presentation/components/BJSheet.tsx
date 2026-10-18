@@ -8,8 +8,10 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -28,6 +30,7 @@ type Props = {
  */
 export function BJSheet({ visible, title, onClose, children, testID }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
 
   return (
@@ -52,7 +55,7 @@ export function BJSheet({ visible, title, onClose, children, testID }: Props) {
             styles.sheet,
             {
               backgroundColor: palette.secondaryBackground,
-              paddingBottom: insets.bottom + spacing.lg,
+              paddingBottom: insets.bottom + AppSpacing.lg,
             },
           ]}
         >
@@ -64,7 +67,7 @@ export function BJSheet({ visible, title, onClose, children, testID }: Props) {
             <PressableScale
               testID={`${testID}-close`}
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel={t('common.close')}
               hitSlop={8}
               onPress={onClose}
               style={[
@@ -88,8 +91,8 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
+    paddingHorizontal: AppSpacing.lg,
+    paddingTop: AppSpacing.sm,
     maxHeight: '90%',
   },
   handle: {
@@ -97,13 +100,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    marginBottom: spacing.md,
+    marginBottom: AppSpacing.md,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.lg,
-    gap: spacing.md,
+    marginBottom: AppSpacing.lg,
+    gap: AppSpacing.md,
   },
   title: { flex: 1 },
   close: {

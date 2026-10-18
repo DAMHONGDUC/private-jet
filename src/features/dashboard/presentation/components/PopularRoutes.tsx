@@ -1,6 +1,8 @@
 import { Image, StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { imageFor } from '@/core/ui/images';
@@ -17,6 +19,7 @@ type Props = {
 
 /** Routes members fly most, under the search; hidden when there are none. */
 export function PopularRoutes({ onPick }: Props) {
+  const t = useT();
   const { data: routes, isLoading } = useGetPopularRoutesQuery();
 
   if (!isLoading && (!routes || routes.length === 0)) {
@@ -24,7 +27,7 @@ export function PopularRoutes({ onPick }: Props) {
   }
   return (
     <View testID="popular-routes" style={styles.root}>
-      <BJText size={20}>Popular routes</BJText>
+      <BJText size={20}>{t('home.popularRoutes')}</BJText>
       <View style={styles.list}>
         {isLoading || !routes
           ? [0, 1, 2].map(index => <RowSkeleton key={index} />)
@@ -48,6 +51,7 @@ function RouteRow({
   onPress: () => void;
 }) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <PressableScale
       testID={`popular-route-${route.id}`}
@@ -56,7 +60,13 @@ function RouteRow({
         route.destinationCity
       }, from ${formatMoney(route.fromPrice, route.currency)}`}
       onPress={onPress}
-      style={[styles.row, { backgroundColor: palette.primaryBackground }]}
+      style={[
+        styles.row,
+        {
+          backgroundColor: palette.cardBackground,
+          borderColor: palette.iron,
+        },
+      ]}
     >
       <Image
         source={imageFor(route.image)}
@@ -74,7 +84,7 @@ function RouteRow({
       </View>
       <View style={styles.price}>
         <BJText size={13} tone="secondary" weight="regular">
-          from
+          {t('home.from')}
         </BJText>
         <BJText>{formatMoney(route.fromPrice, route.currency)}</BJText>
       </View>
@@ -103,20 +113,21 @@ const PHOTO = 56;
 
 const styles = StyleSheet.create({
   root: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxl,
-    gap: spacing.lg,
+    paddingHorizontal: AppSpacing.lg,
+    paddingTop: AppSpacing.section,
+    gap: AppSpacing.lg,
   },
-  list: { gap: spacing.sm },
+  list: { gap: AppSpacing.md },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.sm,
-    paddingRight: spacing.md,
+    gap: AppSpacing.md,
+    padding: AppSpacing.sm,
+    paddingRight: AppSpacing.md,
     borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   photo: { width: PHOTO, height: PHOTO, borderRadius: radius.md },
-  text: { flex: 1, gap: spacing.xs },
+  text: { flex: 1, gap: AppSpacing.xs },
   price: { alignItems: 'flex-end' },
 });

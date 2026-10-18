@@ -1,7 +1,10 @@
 import { fireEvent, screen } from '@testing-library/react-native';
 import { TEST_NOW, renderWithStore } from '@test-utils/test-store';
 import { addDays, toDayKey } from '@/core/utils/date';
-import { DRAFT_MESSAGES } from '@/features/dashboard/domain/entities/charter';
+import {
+  DRAFT_MESSAGES,
+  TripType,
+} from '@/features/dashboard/domain/entities/charter';
 import { SearchPanel } from '@/features/dashboard/presentation/components/SearchPanel';
 
 function setup() {
@@ -24,10 +27,10 @@ test('names what is missing, then searches once the form is complete', async () 
   await fireEvent.press(screen.getByTestId('find-jet'));
   expect(props.onInvalid).toHaveBeenLastCalledWith(DRAFT_MESSAGES.noOrigin);
 
-  await pickAirport('outbound-origin', 'GVA');
-  await pickAirport('outbound-destination', 'NCE');
+  await pickAirport('outbound-origin', 'SYD');
+  await pickAirport('outbound-destination', 'MEB');
   expect(screen.getByTestId('outbound-origin')).toHaveTextContent(
-    'FromGVAGeneva',
+    'FromSYDSydney',
   );
 
   await fireEvent.press(screen.getByTestId('find-jet'));
@@ -43,13 +46,13 @@ test('names what is missing, then searches once the form is complete', async () 
   await fireEvent.press(screen.getByTestId('count-increment'));
   await fireEvent.press(screen.getByTestId('count-done'));
   expect(screen.getByTestId('outbound-passengers')).toHaveTextContent(
-    /2 Passengers$/,
+    /2 guests$/,
   );
 
   await fireEvent.press(screen.getByTestId('find-jet'));
   expect(props.onSearch).toHaveBeenCalledWith({
-    tripType: 'oneWay',
-    legs: [{ origin: 'GVA', destination: 'NCE', date: day, passengers: 2 }],
+    tripType: TripType.OneWay,
+    legs: [{ origin: 'SYD', destination: 'MEB', date: day, passengers: 2 }],
   });
 });
 
@@ -70,14 +73,26 @@ test('adds multi-city legs and removes one after confirming', async () => {
   await render();
 
   await fireEvent.press(screen.getByTestId('trip-type-multiCity'));
-  await pickAirport('leg-0-destination', 'NCE');
+  await pickAirport('leg-0-destination', 'MEB');
   await fireEvent.press(screen.getByTestId('add-leg'));
 
-  expect(screen.getByTestId('leg-1-origin')).toHaveTextContent('FromNCENice');
+  expect(screen.getByTestId('leg-1-origin')).toHaveTextContent(
+    'FromMEBMelbourne',
+  );
 
   await fireEvent.press(screen.getByTestId('leg-1-remove'));
   await fireEvent.press(screen.getByTestId('confirm-ok'));
 
   expect(screen.queryByTestId('leg-1')).toBeNull();
   expect(screen.queryByTestId('leg-0-remove')).toBeNull();
+});
+
+test('the airport search waits for a tap before it takes the keyboard', async () => {
+  const { render } = setup();
+  await render();
+
+  await fireEvent.press(screen.getByTestId('outbound-origin'));
+
+  const search = await screen.findByTestId('airport-search');
+  expect(search.props.autoFocus).toBeFalsy();
 });

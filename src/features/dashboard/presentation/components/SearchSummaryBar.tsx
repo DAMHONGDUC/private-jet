@@ -1,6 +1,8 @@
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { elevation, radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { elevation, radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -27,15 +29,16 @@ type Props = {
 export function SearchSummaryBar({
   request,
   onPress,
-  accessibilityLabel = 'Edit search',
+  accessibilityLabel,
   testID = 'search-summary',
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <PressableScale
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={accessibilityLabel ?? t('search.editSearch')}
       onPress={onPress}
       style={[
         styles.bar,
@@ -48,14 +51,14 @@ export function SearchSummaryBar({
       </View>
       <View style={styles.text}>
         <BJText numberOfLines={1}>
-          {request ? describeRoute(request) : 'Where to?'}
+          {request ? describeRoute(request) : t('search.whereTo')}
         </BJText>
         <BJText size={13} tone="secondary" weight="regular" numberOfLines={1}>
-          {request ? describeDetails(request) : 'Tap to plan a flight'}
+          {request ? describeDetails(request, t) : t('search.tapToPlan')}
         </BJText>
       </View>
-      <View style={[styles.action, { backgroundColor: palette.accent }]}>
-        <Icon name="search" size={18} color={palette.onAccent} />
+      <View style={[styles.action, { backgroundColor: palette.primaryAction }]}>
+        <Icon name="search" size={18} color={palette.onPrimaryAction} />
       </View>
     </PressableScale>
   );
@@ -66,9 +69,9 @@ const styles = StyleSheet.create({
     height: SUMMARY_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.sm,
+    gap: AppSpacing.md,
+    paddingLeft: AppSpacing.md,
+    paddingRight: AppSpacing.sm,
     borderRadius: radius.pill,
     borderWidth: StyleSheet.hairlineWidth,
   },

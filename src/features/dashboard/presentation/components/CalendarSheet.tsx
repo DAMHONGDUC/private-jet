@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -7,21 +8,6 @@ import { addDays, toDayKey } from '@/core/utils/date';
 import { BJSheet } from './BJSheet';
 
 const WEEKS = 6;
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
 
 type Props = {
   visible: boolean;
@@ -46,16 +32,18 @@ export function CalendarSheet({
   onClose,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const { days, heading } = useMemo(() => {
     const monday = addDays(today, -((today.getDay() + 6) % 7));
     const all = Array.from({ length: WEEKS * 7 }, (_, i) => addDays(monday, i));
-    const first = MONTHS[all[0].getMonth()];
-    const last = MONTHS[all[all.length - 1].getMonth()];
+    const months = t.dict.date.months;
+    const first = months[all[0].getMonth()];
+    const last = months[all[all.length - 1].getMonth()];
     return {
       days: all,
       heading: first === last ? first : `${first} – ${last}`,
     };
-  }, [today]);
+  }, [today, t]);
 
   return (
     <BJSheet
@@ -70,7 +58,7 @@ export function CalendarSheet({
         </BJText>
       </View>
       <View style={styles.grid}>
-        {WEEKDAYS.map(day => (
+        {t.dict.date.weekdaysShort.map(day => (
           <BJText key={day} size={13} tone="secondary" style={styles.weekday}>
             {day}
           </BJText>
@@ -89,11 +77,11 @@ export function CalendarSheet({
                 onPress={() => onPick(key)}
                 style={[
                   styles.day,
-                  selected && { backgroundColor: palette.accent },
+                  selected && { backgroundColor: palette.primaryAction },
                 ]}
               >
                 <BJText
-                  tone={selected ? 'onAccent' : 'primary'}
+                  tone={selected ? 'onPrimary' : 'primary'}
                   weight={selected ? 'medium' : 'regular'}
                   style={disabled && styles.disabled}
                 >

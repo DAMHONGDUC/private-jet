@@ -1,5 +1,8 @@
+import { useT } from '@/core/i18n/i18n';
+import { AppColors } from '@/core/theme/app-colors';
 import { StyleSheet, View } from 'react-native';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { useGetNewsQuery } from '../dashboard-api';
 import { imageFor } from '@/core/ui/images';
@@ -18,12 +21,13 @@ export function NewsCarousel({
 }: {
   onOpenNews?: (newsId: string) => void;
 }) {
+  const t = useT();
   const { data: posts, isLoading } = useGetNewsQuery();
 
   if (isLoading) {
     return (
       <View style={styles.root}>
-        <BJText size={20}>From the journal</BJText>
+        <BJText size={20}>{t('home.journal')}</BJText>
         <NewsSkeleton />
       </View>
     );
@@ -33,7 +37,7 @@ export function NewsCarousel({
   }
   return (
     <View style={styles.root}>
-      <BJText size={20}>From the journal</BJText>
+      <BJText size={20}>{t('home.journal')}</BJText>
       <View testID="news-carousel" style={styles.card}>
         <PhotoPager
           testID="news-pager"
@@ -74,24 +78,24 @@ export function NewsCarousel({
 
 const styles = StyleSheet.create({
   root: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.xxl,
-    gap: spacing.lg,
+    marginHorizontal: AppSpacing.lg,
+    marginTop: AppSpacing.section,
+    gap: AppSpacing.lg,
   },
   card: {
     height: HEIGHT,
     borderRadius: radius.xl,
     overflow: 'hidden',
-    backgroundColor: '#17171A',
+    backgroundColor: AppColors.fixed.photoBackdrop,
   },
   text: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-    gap: spacing.xs,
+    padding: AppSpacing.lg,
+    paddingBottom: AppSpacing.xxl,
+    gap: AppSpacing.xs,
   },
   summary: { color: 'rgba(255, 255, 255, 0.89)' },
 });

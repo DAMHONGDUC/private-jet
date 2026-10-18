@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
+import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
+import { BottomActions } from '@/core/ui/BottomActions';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
 import { errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
-import { validateProfileUpdate } from '@/features/auth/domain/entities/user';
+import { hasErrors } from '@/core/validation/field-errors';
+import { profileErrors } from '@/features/auth/domain/entities/user';
 import { useUpdateProfileMutation } from '@/features/auth/presentation/auth-api';
 import { selectUser } from '@/features/auth/presentation/session-slice';
 import { FormField } from '@/features/booking/presentation/components/FormField';
@@ -20,18 +23,20 @@ type Props = { onSaved: () => void };
 /** Name and phone; the email is the sign-in and stays as it is. */
 export function EditProfileScreen({ onSaved }: Props) {
   const styles = useStyles();
+  const t = useT();
   const user = useSelector(selectUser);
   const [fullName, setFullName] = useState(user?.fullName ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
-  const [problem, setProblem] = useState<string | null>(null);
+  /** Errors show once Save was tapped, then follow the typing until fixed. */
+  const [submitted, setSubmitted] = useState(false);
   const [updateProfile, { isLoading, error, reset }] =
     useUpdateProfileMutation();
+  const update = { fullName: fullName.trim(), phone: phone.trim() };
+  const errors = submitted ? profileErrors(update) : {};
 
   const save = async () => {
-    const update = { fullName: fullName.trim(), phone: phone.trim() };
-    const invalid = validateProfileUpdate(update);
-    setProblem(invalid);
-    if (invalid) {
+    setSubmitted(true);
+    if (hasErrors(profileErrors(update))) {
       haptics.error();
       return;
     }
@@ -45,7 +50,7 @@ export function EditProfileScreen({ onSaved }: Props) {
     }
   };
 
-  const shownError = problem ?? (error ? errorMessage(error) : null);
+  const shownError = error ? errorMessage(error) : null;
 
   return (
     <Screen>
@@ -68,6 +73,7 @@ export function EditProfileScreen({ onSaved }: Props) {
               autoCapitalize="words"
               value={fullName}
               onChangeText={setFullName}
+              error={errors.fullName}
             />
             <FormField
               testID="profile-phone"
@@ -75,6 +81,7 @@ export function EditProfileScreen({ onSaved }: Props) {
               keyboardType="phone-pad"
               value={phone}
               onChangeText={setPhone}
+              error={errors.phone}
             />
             <View style={styles.readOnly}>
               <AppText variant="caption" muted>
@@ -90,13 +97,15 @@ export function EditProfileScreen({ onSaved }: Props) {
               </AppText>
             </Animated.View>
           ) : null}
+        </ScrollView>
+        <BottomActions>
           <Button
             testID="save-profile"
-            title="Save"
+            title={t('actions.save')}
             loading={isLoading}
             onPress={save}
           />
-        </ScrollView>
+        </BottomActions>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -104,9 +113,9 @@ export function EditProfileScreen({ onSaved }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.xl },
+  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
   avatar: { alignItems: 'center' },
-  form: { gap: spacing.md },
-  readOnly: { gap: spacing.xs, paddingVertical: spacing.sm },
+  form: { gap: AppSpacing.md },
+  readOnly: { gap: AppSpacing.xs, paddingVertical: AppSpacing.sm },
   error: { color: palette.error, textAlign: 'center' },
 }));

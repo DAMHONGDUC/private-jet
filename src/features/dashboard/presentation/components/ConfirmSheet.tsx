@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -23,6 +24,7 @@ export function ConfirmSheet({
   onClose,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <BJSheet
       visible={visible}
@@ -46,7 +48,7 @@ export function ConfirmSheet({
             { borderColor: palette.iron },
           ]}
         >
-          <BJText size={16}>Cancel</BJText>
+          <BJText size={16}>{t('common.cancel')}</BJText>
         </PressableScale>
         <View style={styles.gap} />
         <PressableScale

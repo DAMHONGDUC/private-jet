@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
 import { Icon, type IconName } from '@/core/ui/Icon';
@@ -27,6 +28,7 @@ export function CountSheet({
   onClose,
 }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const [count, setCount] = useState(Math.max(1, value));
 
   useEffect(() => {
@@ -72,10 +74,10 @@ export function CountSheet({
             haptics.selection();
             onDone(count);
           }}
-          style={[styles.done, { backgroundColor: palette.accent }]}
+          style={[styles.done, { backgroundColor: palette.primaryAction }]}
         >
-          <BJText size={16} tone="onAccent">
-            Done
+          <BJText size={16} tone="onPrimary">
+            {t('search.done')}
           </BJText>
         </PressableScale>
       </View>

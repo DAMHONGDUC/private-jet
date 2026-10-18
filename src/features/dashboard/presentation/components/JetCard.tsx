@@ -1,6 +1,10 @@
+import { useT } from '@/core/i18n/i18n';
+import { AppColors } from '@/core/theme/app-colors';
 import { StyleSheet, View } from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
+import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { BJText } from '@/core/ui/BJText';
 import { formatDuration, formatMoney } from '@/core/utils/format';
@@ -24,6 +28,7 @@ type Props = {
 /** One aircraft quote, as the original app's jet card (feature-docs/dashboard §12.3). */
 export function JetCard({ quote, selected = false, onPress }: Props) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <PressableScale
       testID={`jet-card-${quote.id}`}
@@ -58,22 +63,22 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
               {quote.aircraft.model}
             </BJText>
             <BJText size={13} tone="white">
-              {quote.nonStop ? 'Non Stop' : '1 Fuel Stop'}
+              {t(quote.nonStop ? 'results.nonStop' : 'results.fuelStop')}
             </BJText>
           </View>
           <BJText size={13} tone="white">
-            Up to {quote.aircraft.totalSeats} seats
+            {t('search.upToSeats', { count: quote.aircraft.totalSeats })}
           </BJText>
         </View>
         <View style={styles.row}>
           <BJText size={13} tone="white">
-            {CATEGORY_LABELS[quote.aircraft.category]}
+            {t(CATEGORY_LABELS[quote.aircraft.category])}
           </BJText>
           <View style={styles.end}>
-            <View style={[styles.price, { backgroundColor: palette.accent }]}>
+            <View style={styles.price}>
               <BJText
                 testID={`jet-card-${quote.id}-price`}
-                tone="onAccent"
+                tone="white"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.7}
@@ -93,8 +98,9 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
           testID={`jet-card-${quote.id}-selected`}
           style={[styles.badge, { backgroundColor: palette.accent }]}
         >
+          <Icon name="check" size={14} color={palette.onAccent} />
           <BJText size={13} tone="onAccent">
-            ✓ Selected
+            {t('results.selected')}
           </BJText>
         </View>
       ) : null}
@@ -107,36 +113,43 @@ const styles = StyleSheet.create({
     height: JET_CARD_HEIGHT,
     borderRadius: radius.xl,
     overflow: 'hidden',
-    backgroundColor: '#17171A',
+    backgroundColor: AppColors.fixed.photoBackdrop,
   },
-  selected: { borderWidth: 2 },
+  selected: { borderWidth: 1.5 },
   badge: {
     position: 'absolute',
     top: '42%',
     alignSelf: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: AppSpacing.md,
+    paddingVertical: AppSpacing.xs,
     borderRadius: radius.pill,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.xs,
   },
   content: {
     ...StyleSheet.absoluteFill,
-    padding: spacing.lg,
+    padding: AppSpacing.lg,
     justifyContent: 'space-between',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    gap: spacing.md,
+    gap: AppSpacing.md,
   },
-  flex: { flex: 1, gap: spacing.xs },
-  end: { alignItems: 'flex-end', gap: spacing.sm },
+  flex: { flex: 1, gap: AppSpacing.xs },
+  end: { alignItems: 'flex-end', gap: AppSpacing.sm },
+  /** Smoked glass over the photo, with a hairline edge. */
   price: {
     minWidth: 88,
     height: 32,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: AppSpacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: AppColors.fixed.photoScrim,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: AppColors.fixed.onPhotoHairline,
   },
 });
