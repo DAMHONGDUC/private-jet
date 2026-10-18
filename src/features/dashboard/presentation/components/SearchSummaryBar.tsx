@@ -11,6 +11,8 @@ import { describeDetails, describeRoute } from '../search-labels';
 
 /** Height of the floating search pill. */
 export const SUMMARY_HEIGHT = 64;
+/** Height of the pill when it sits in a header, beside the back button. */
+export const COMPACT_SUMMARY_HEIGHT = 48;
 
 type Props = {
   /** The search on screen, or the form when it is complete; null shows a prompt. */
@@ -18,18 +20,21 @@ type Props = {
   onPress: () => void;
   /** What tapping does, for screen readers. */
   accessibilityLabel?: string;
+  /** Header size: shorter, smaller marks, no lift. */
+  compact?: boolean;
   testID?: string;
 };
 
 /**
  * The search as one floating pill: route and details, with an accent search
- * button. The dashboard pins it when the form scrolls away; the results
- * screen shows it on top.
+ * button. The dashboard pins it under the app bar when the form scrolls
+ * away; the results screen moves it, compact, into the header.
  */
 export function SearchSummaryBar({
   request,
   onPress,
   accessibilityLabel,
+  compact = false,
   testID = 'search-summary',
 }: Props) {
   const palette = useBlackJetTheme();
@@ -43,11 +48,17 @@ export function SearchSummaryBar({
       style={[
         styles.bar,
         { backgroundColor: palette.raised, borderColor: palette.iron },
-        elevation(palette.shadow),
+        compact ? styles.compactBar : elevation(palette.shadow),
       ]}
     >
-      <View style={[styles.mark, { backgroundColor: palette.accentSoft }]}>
-        <Icon name="plane" size={16} color={palette.accent} />
+      <View
+        style={[
+          styles.mark,
+          compact && styles.compactMark,
+          { backgroundColor: palette.accentSoft },
+        ]}
+      >
+        <Icon name="plane" size={compact ? 14 : 16} color={palette.accent} />
       </View>
       <View style={styles.text}>
         <BJText numberOfLines={1}>
@@ -57,8 +68,18 @@ export function SearchSummaryBar({
           {request ? describeDetails(request, t) : t('search.tapToPlan')}
         </BJText>
       </View>
-      <View style={[styles.action, { backgroundColor: palette.primaryAction }]}>
-        <Icon name="search" size={18} color={palette.onPrimaryAction} />
+      <View
+        style={[
+          styles.action,
+          compact && styles.compactAction,
+          { backgroundColor: palette.primaryAction },
+        ]}
+      >
+        <Icon
+          name="search"
+          size={compact ? 16 : 18}
+          color={palette.onPrimaryAction}
+        />
       </View>
     </PressableScale>
   );
@@ -82,6 +103,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  compactBar: {
+    height: COMPACT_SUMMARY_HEIGHT,
+    gap: AppSpacing.sm,
+    paddingLeft: AppSpacing.sm,
+    paddingRight: 6,
+  },
+  compactMark: { width: 32, height: 32, borderRadius: 16 },
+  compactAction: { width: 36, height: 36, borderRadius: 18 },
   text: { flex: 1, gap: 2 },
   action: {
     width: 48,

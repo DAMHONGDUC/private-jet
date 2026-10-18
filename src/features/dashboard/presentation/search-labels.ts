@@ -80,7 +80,7 @@ export function describeDetails(
       : formatShortDay(legs[0].date, t);
   return [
     dates,
-    t('search.pax', { count: legs[0].passengers }),
+    passengersLabel(legs[0].passengers, t),
     t(TRIP_TYPE_LABELS[tripType]),
   ].join(' · ');
 }

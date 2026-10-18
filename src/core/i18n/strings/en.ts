@@ -111,7 +111,6 @@ export const en = {
     whereTo: 'Where to?',
     tapToPlan: 'Tap to plan a flight',
     editSearch: 'Edit search',
-    pax: '{count} guests',
     time: 'Departure time',
     anyTime: 'Any time',
     dayAndTime: '{day} · {time}',

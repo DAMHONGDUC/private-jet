@@ -1,4 +1,5 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, within } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import { TEST_NOW, renderWithStore } from '@test-utils/test-store';
 import { addDays, toDayKey } from '@/core/utils/date';
 import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
@@ -110,6 +111,22 @@ test('the results screen lists the jets for the search under its form', async ()
     /SYD → MEB.*2 guests · One way/,
   );
 
+  // On this screen the pill lives in the header, beside Back, in place of
+  // the title; it waits there, untouchable, until the form scrolls away.
+  const header = screen.getByTestId('search-results-header');
+  expect(within(header).getByTestId('search-results-back')).toBeOnTheScreen();
+  expect(within(header).getByTestId('search-summary')).toBeOnTheScreen();
+  expect(within(header).getByText('Your search')).toBeOnTheScreen();
+  expect(
+    within(screen.getByTestId('search-results-scroll')).queryByTestId(
+      'search-summary',
+    ),
+  ).toBeNull();
+  expect(screen.getByTestId('search-summary-slot')).toHaveProp(
+    'pointerEvents',
+    'none',
+  );
+
   // The pill brings the form back on this screen; only Back leaves it.
   await fireEvent.press(screen.getByTestId('search-summary'));
   expect(onBack).not.toHaveBeenCalled();
@@ -141,6 +158,24 @@ test('the results screen runs a changed search in place', async () => {
     await screen.findByTestId(`jet-card-SYD-SIN-${day}-gulfstreamg650er`),
   ).toBeOnTheScreen();
   expect(screen.getByTestId('search-summary')).toHaveTextContent(/SYD → SIN/);
+});
+
+test('the pill is pinned under the app bar, never over it', async () => {
+  await renderWithStore(<DashboardScreen today={TEST_NOW} />);
+  const slot = screen.getByTestId('search-summary-slot');
+
+  // Pinned at the top of the content area, with no offset but its fade-in.
+  expect(slot).toHaveStyle({ position: 'absolute', top: 0 });
+
+  // The content area clips it, and the app bar sits outside that area.
+  let area = slot.parent;
+  while (area && StyleSheet.flatten(area.props.style)?.overflow !== 'hidden') {
+    area = area.parent;
+  }
+  expect(area).not.toBeNull();
+  expect(within(area!).getByTestId('dashboard-scroll')).toBeOnTheScreen();
+  expect(within(area!).queryByTestId('home-logo')).toBeNull();
+  expect(screen.getByTestId('home-logo')).toBeOnTheScreen();
 });
 
 test('the pill stays out of the way until the form scrolls off', async () => {

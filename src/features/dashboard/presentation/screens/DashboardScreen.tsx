@@ -135,6 +135,7 @@ export function DashboardScreen({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  body: { flex: 1 },
+  // Clips the pill as it eases in, so it never reaches over the app bar.
+  body: { flex: 1, overflow: 'hidden' },
   content: { flexGrow: 1 },
 });

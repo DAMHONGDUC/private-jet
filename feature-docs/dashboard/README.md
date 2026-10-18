@@ -699,11 +699,17 @@ y = scrollY
 3. y > heroH + R            → collapsed: 56pt cuối của khu search nằm đúng dưới thanh tóm tắt, list cuộn tiếp.
 ```
 
-**Snap:** thả tay khi `heroH < y < heroH + R` thì `scrollTo` về đầu gần hơn (`p < 0.5` về `heroH`, ngược lại về `heroH + R`), dùng thời lượng hệ thống.
+**Không snap nội dung:** trang dừng đúng chỗ thả tay, không bao giờ tự `scrollTo`. Kéo ngược lên một chút (kể cả từ cuối trang) chỉ cuộn đúng quãng đó, không nhảy về đầu.
+
+**Thanh tóm tắt ghim dưới app bar, kiểu `SliverAppBar(pinned: true)` của Flutter:**
+- Khi form đã cuộn đi, thanh hiện ra (220ms) ở đỉnh vùng nội dung, ngay dưới app bar, và đứng yên ở đó dù trang cuộn lên hay xuống, cho tới khi cuộn ngược về tới form.
+- Thanh không bao giờ đè lên app bar: vùng chứa (`body`) có `overflow: hidden`.
+- Màn kết quả (`SearchResultsScreen`) không ghim thanh dưới header mà đưa thẳng lên header, cạnh nút back, thay chỗ tiêu đề "Your search" (`HeaderSearchSlot`, bản `compact` cao 48 của `SearchSummaryBar`). Tiêu đề và thanh cross-fade theo `progress`.
+- Test: `__tests__/features/dashboard/presentation/use-collapsible-search.test.tsx` (thanh ghim, không tự cuộn, chỉ tap mới về đầu) và test bố cục trong `DashboardScreen.test.tsx`.
 
 **Mở rộng lại:**
 - Tap thanh tóm tắt hoặc nút `"New Flight Request"` → `scrollTo(0)`, khu search mở lại theo cuộn.
-- Cuộn ngược lên đầu cũng tự mở.
+- Cuộn ngược lên tới form cũng tự mở.
 - **[chưa làm]** Android back khi đang collapsed thì mở rộng trước rồi mới thoát.
 
 **Khi nào cho thu gọn:** mọi trạng thái. Ở `idle` bên dưới là news carousel, ở `success` là danh sách máy bay. Nội dung có `minHeight = viewport + heroH + R`, nên lúc nào cũng cuộn đủ để thu gọn, kể cả khi list ngắn.

@@ -81,7 +81,11 @@ export function LegEditor({
           testID={`leg-${index}-date`}
           icon="calendar"
           iconSize={17}
-          text={leg.date ? formatDayTime(leg.date, leg.time, t) : t('search.departure')}
+          text={
+            leg.date
+              ? formatDayTime(leg.date, leg.time, t)
+              : t('search.departure')
+          }
           filled={!!leg.date}
           invalid={!!at(DraftPart.Date)}
           onPress={() => actions.onPickDate(index)}

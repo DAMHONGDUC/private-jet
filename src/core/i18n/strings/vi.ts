@@ -109,7 +109,6 @@ export const vi: Dictionary = {
     whereTo: 'Bạn muốn đi đâu?',
     tapToPlan: 'Chạm để lên chuyến bay',
     editSearch: 'Sửa tìm kiếm',
-    pax: '{count} khách',
     time: 'Giờ khởi hành',
     anyTime: 'Giờ bất kỳ',
     dayAndTime: '{day} · {time}',
