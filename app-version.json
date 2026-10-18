@@ -1,6 +1,6 @@
 {
-  "iosVersion": "1.0",
-  "iosBuild": 1,
-  "androidVersion": "1.0",
-  "androidBuild": 1
+  "iosVersion": "1.0.0",
+  "iosBuild": 2,
+  "androidVersion": "1.0.0",
+  "androidBuild": 2
 }
