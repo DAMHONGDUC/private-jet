@@ -2,13 +2,23 @@
 
 A private jet booking app built as a client demo. It covers:
 - charters (the whole aircraft on any route)
-- seats on shared flights
 - trips with cancellation
 - payment cards and a wallet
 - a concierge chat and notifications
 - a member profile
 
 Everything runs on in-memory mock data, so the app works offline with no backend.
+
+## App identity
+
+| | |
+|---|---|
+| Bundle id (iOS and Android) | `app.dd.private.jet` |
+| Display name | BackJet |
+| App icon | [src/assets/images/app-icon.png](src/assets/images/app-icon.png), 1024 × 1024, the source of every launcher icon |
+| Launch screen | The app icon centred on `#0B0B0C`: `ios/BackJet/LaunchScreen.storyboard`, and the `AppTheme.Launch` theme on Android (the system splash API on Android 12+) |
+
+The Android Kotlin package stays `com.backjet` (`namespace` in `android/app/build.gradle`); only the `applicationId` is `app.dd.private.jet`.
 
 ## Screenshots
 
@@ -33,25 +43,24 @@ The app opens already signed in as **Alexander Reed** (Black Card). After signin
 
 ## What to show in a demo
 
-1. **Home.** Search a round trip (for example GVA → NCE, 2 passengers).
-   - The form collapses as the jets scroll up.
-   - Open a jet and choose it for both legs; the selection bar counts up the total.
+1. **Home.** Search a round trip (for example GVA → NCE, 2 passengers), or tap a popular route to fill the airports.
+   - Scrolling down turns the form into a floating pill; dragging back up brings the whole form back.
+   - The jets open on their own screen. Open a jet and choose it for both legs; the selection bar shows the total.
 2. **Checkout.** Pick departure times and the party, then pay with a card or the wallet.
    - The confirmation draws a success mark.
    - **View trip** opens it in Trips.
 3. **Trips.** Upcoming and past trips as boarding passes.
    - A trip more than 24 h away can be cancelled.
-4. **Flights tab.** Book seats on a scheduled shared flight.
-5. **Inbox** (chat and bell on Home).
+4. **Inbox** (chat and bell on Home).
    - The concierge chat answers by topic: try "catering", "dog" or "car".
    - In notifications, a crew update opens its trip.
    - Tap a news story for the full article.
-6. **Profile.** Edit personal information, add a card (it turns over while the security code is typed), set the default, toggle notifications, read the FAQ, sign out.
+5. **Profile.** Edit personal information, add a card (it turns over while the security code is typed), set the default, toggle notifications, read the FAQ, sign out.
 
 | | |
 |---|---|
 | Stack | React Native 0.88 (New Architecture), Redux Toolkit, RTK Query, Reanimated 4, Clean Architecture |
-| Navigation | React Navigation 7: bottom tabs + native stack |
+| Navigation | React Navigation 7: native bottom tabs (Liquid Glass on iOS 26) + native stack |
 | Tests | Jest + React Native Testing Library 14 |
 
 ## Commands
@@ -121,12 +130,11 @@ More detail per screen: [feature-docs/app/README.md](feature-docs/app/README.md)
 
 | Feature | Screens | Animation |
 |---|---|---|
-| Auth | Splash, login (form, demo account, Apple/Google) | Ken Burns photo, form shakes on error, fade between signed-in and signed-out stacks |
-| Dashboard | Charter search (one-way, round-trip, multi-city); jets listed under the form; jet quote; charter checkout; news carousel and full story ([spec](feature-docs/dashboard/README.md)) | Search panel collapses into a summary bar; parallax photo headers; selection bar springs in and counts up; shimmer skeletons; Lottie empty state |
-| Flights | Shared-flight search, airport picker, results with jet filter, detail, seat booking | Press-scale cards, plane flying the route |
-| Booking | Trips (upcoming/past), trip detail with cancellation, confirmation, payment picker | Boarding-pass cards cascade in, segmented control slides, success mark |
-| Inbox | Notifications, concierge chat | Unread dots fade out, typing dots, send button springs in |
-| Profile | Profile with stats, personal information, payment cards, add card, help/FAQ, terms | Count-up stats, card flips while the CVC is typed, FAQ accordion, spring tab indicator |
+| Auth | Splash, login (form, demo account, Apple/Google) | Form shakes on error, fade between signed-in and signed-out stacks |
+| Dashboard | Charter search (one-way, round-trip, multi-city), popular routes, news carousel and full story; search results, jet quote and charter checkout on their own screens ([spec](feature-docs/dashboard/README.md)) | Search form turns into a floating pill on scroll; parallax photo headers; shimmer skeletons; Lottie empty state |
+| Booking | Trips (upcoming/past), trip detail with cancellation, confirmation, payment picker | Segmented control slides, success mark |
+| Inbox | Notifications, concierge chat | Unread dots fade out, typing dots |
+| Profile | Profile with stats, personal information, payment cards, add card, help/FAQ, terms | Card flips while the CVC is typed, FAQ accordion |
 
 ## Folder layout
 

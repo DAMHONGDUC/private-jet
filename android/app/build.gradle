@@ -79,7 +79,7 @@ android {
 
     namespace "com.backjet"
     defaultConfig {
-        applicationId "com.backjet"
+        applicationId "app.dd.private.jet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
