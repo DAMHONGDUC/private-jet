@@ -72,17 +72,13 @@ export function CharterConfirmationRoute({
   return (
     <BookingConfirmationScreen
       bookingId={route.params.bookingId}
-      onViewTrip={() =>
-        navigation.popTo('Main', {
-          screen: 'TripsTab',
-          // initial: false keeps the trip list under the trip, so Back lands on it.
-          params: {
-            screen: 'TripDetail',
-            params: { bookingId: route.params.bookingId },
-            initial: false,
-          },
-        })
-      }
+      onViewTrip={() => {
+        // The trip list goes under the trip, so Back lands on it.
+        navigation.popTo('Main', { screen: 'TripsTab' });
+        navigation.navigate('TripDetail', {
+          bookingId: route.params.bookingId,
+        });
+      }}
       onDone={() => navigation.popTo('Main', { screen: 'DashboardTab' })}
     />
   );

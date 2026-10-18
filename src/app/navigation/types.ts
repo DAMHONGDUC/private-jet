@@ -14,15 +14,8 @@ export type AppStackParamList = {
   JetQuote: { legIndex: number; quoteId: string };
   CharterCheckout: undefined;
   CharterConfirmation: { bookingId: string };
-};
-
-export type TripsStackParamList = {
-  TripList: undefined;
+  /** A tab's detail pages, over the tabs so the tab bar stays on the tabs only. */
   TripDetail: { bookingId: string };
-};
-
-export type ProfileStackParamList = {
-  Profile: undefined;
   EditProfile: undefined;
   PaymentMethods: undefined;
   AddCard: undefined;
@@ -30,8 +23,9 @@ export type ProfileStackParamList = {
   Legal: undefined;
 };
 
+/** The three tabs; each is one screen, and what they open goes on the root stack. */
 export type RootTabParamList = {
   DashboardTab: undefined;
-  TripsTab: NavigatorScreenParams<TripsStackParamList>;
-  ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
+  TripsTab: undefined;
+  ProfileTab: undefined;
 };
