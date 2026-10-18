@@ -1,0 +1,73 @@
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useBlackJetTheme } from '@/core/theme/blackjet';
+import type { AppError } from '@/core/error/app-error';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { AppText } from './AppText';
+import { Button, ButtonVariant } from './Button';
+
+export function LoadingView() {
+  const palette = useBlackJetTheme();
+  return (
+    <View style={styles.center} testID="loading-view">
+      <ActivityIndicator color={palette.accent} size="large" />
+    </View>
+  );
+}
+
+/** Reads the message off an RTK Query error, which is an `AppError` here. */
+export function errorMessage(error: unknown): string {
+  const message = (error as Partial<AppError> | undefined)?.message;
+  return typeof message === 'string' ? message : 'Something went wrong.';
+}
+
+export function ErrorView({
+  error,
+  onRetry,
+}: {
+  error: unknown;
+  onRetry?: () => void;
+}) {
+  return (
+    <View style={styles.center} testID="error-view">
+      <AppText variant="subtitle">Something went wrong</AppText>
+      <AppText muted style={styles.message}>
+        {errorMessage(error)}
+      </AppText>
+      {onRetry ? (
+        <Button
+          title="Try again"
+          variant={ButtonVariant.Secondary}
+          onPress={onRetry}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+export function EmptyView({
+  title,
+  message,
+}: {
+  title: string;
+  message: string;
+}) {
+  return (
+    <View style={styles.center} testID="empty-view">
+      <AppText variant="subtitle">{title}</AppText>
+      <AppText muted style={styles.message}>
+        {message}
+      </AppText>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: AppSpacing.xl,
+    gap: AppSpacing.md,
+  },
+  message: { textAlign: 'center' },
+});

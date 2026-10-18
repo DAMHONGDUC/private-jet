@@ -1,0 +1,3 @@
+# The release lanes live in script-tools; run them with `make release-ios-dev`.
+# Settings: ios/fastlane/.env (see .env.example) and script-tools.properties.
+import "../../packages/script-tools/react_native/fastlane/Fastfile"

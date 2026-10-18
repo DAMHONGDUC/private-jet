@@ -73,3 +73,14 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Third-party builds; never commit them (they can embed API keys).
+*.apk
+*.aab
+
+# Release builds from scripts/release_ios.sh
+/Release/
+
+# fastlane secrets (team id, App Store Connect API key)
+**/fastlane/.env
+**/fastlane/*.p8
