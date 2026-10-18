@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
@@ -24,7 +24,8 @@ export function EditProfileScreen({ onSaved }: Props) {
   const [fullName, setFullName] = useState(user?.fullName ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [problem, setProblem] = useState<string | null>(null);
-  const [updateProfile, { isLoading, error, reset }] = useUpdateProfileMutation();
+  const [updateProfile, { isLoading, error, reset }] =
+    useUpdateProfileMutation();
 
   const save = async () => {
     const update = { fullName: fullName.trim(), phone: phone.trim() };
@@ -53,11 +54,14 @@ export function EditProfileScreen({ onSaved }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Animated.View entering={FadeInDown.duration(450)} style={styles.avatar}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.avatar}>
             <Avatar name={fullName || '?'} size={72} />
-          </Animated.View>
-          <Animated.View entering={FadeInDown.duration(450).delay(80)} style={styles.form}>
+          </View>
+          <View style={styles.form}>
             <FormField
               testID="profile-full-name"
               label="Full name"
@@ -78,7 +82,7 @@ export function EditProfileScreen({ onSaved }: Props) {
               </AppText>
               <AppText>{user?.email}</AppText>
             </View>
-          </Animated.View>
+          </View>
           {shownError ? (
             <Animated.View entering={FadeIn}>
               <AppText testID="profile-error" style={styles.error}>
@@ -86,7 +90,12 @@ export function EditProfileScreen({ onSaved }: Props) {
               </AppText>
             </Animated.View>
           ) : null}
-          <Button testID="save-profile" title="Save" loading={isLoading} onPress={save} />
+          <Button
+            testID="save-profile"
+            title="Save"
+            loading={isLoading}
+            onPress={save}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

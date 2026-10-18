@@ -3,7 +3,12 @@ import { radius, spacing } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 
-type Props = { label: string; selected: boolean; onPress: () => void; testID?: string };
+type Props = {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  testID?: string;
+};
 
 export function Chip({ label, selected, onPress, testID }: Props) {
   const styles = useStyles();
@@ -15,7 +20,11 @@ export function Chip({ label, selected, onPress, testID }: Props) {
       onPress={onPress}
       style={[styles.chip, selected && styles.selected]}
     >
-      <AppText variant="caption" style={selected ? styles.selectedText : undefined} muted={!selected}>
+      <AppText
+        variant="caption"
+        style={selected ? styles.selectedText : undefined}
+        muted={!selected}
+      >
         {label}
       </AppText>
     </PressableScale>
@@ -29,8 +38,8 @@ const useStyles = makeStyles(palette => ({
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: palette.iron,
-    backgroundColor: palette.primaryBackground,
+    backgroundColor: palette.secondaryBackground,
   },
-  selected: { backgroundColor: palette.jetBlack, borderColor: palette.jetBlack },
-  selectedText: { color: palette.ghostWhite },
+  selected: { backgroundColor: palette.accent, borderColor: palette.accent },
+  selectedText: { color: palette.onAccent },
 }));

@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
-import { FadeUp } from '@/core/ui/FadeUp';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import type { Airport } from '@/features/flights/domain/entities/flight';
@@ -19,10 +24,19 @@ type Props = {
 };
 
 const matches = (airport: Airport, needle: string) =>
-  [airport.code, airport.city, airport.name].some(text => text.toLowerCase().includes(needle));
+  [airport.code, airport.city, airport.name].some(text =>
+    text.toLowerCase().includes(needle),
+  );
 
 /** Search by city, code or name; recent airports come first (feature-docs/dashboard §4.1). */
-export function AirportSheet({ visible, title, airports, recent, onPick, onClose }: Props) {
+export function AirportSheet({
+  visible,
+  title,
+  airports,
+  recent,
+  onPick,
+  onClose,
+}: Props) {
   const palette = useBlackJetTheme();
   const [query, setQuery] = useState('');
 
@@ -30,13 +44,22 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
   const sections = useMemo((): { title: string; rows: Airport[] }[] => {
     const all = airports ?? [];
     if (needle) {
-      return [{ title: 'Results', rows: all.filter(airport => matches(airport, needle)) }];
+      return [
+        {
+          title: 'Results',
+          rows: all.filter(airport => matches(airport, needle)),
+        },
+      ];
     }
     const byCode = new Map(all.map(airport => [airport.code, airport]));
-    const recentRows = recent.map(code => byCode.get(code)).filter((item): item is Airport => !!item);
+    const recentRows = recent
+      .map(code => byCode.get(code))
+      .filter((item): item is Airport => !!item);
     const others = all.filter(airport => !recent.includes(airport.code));
     return [
-      ...(recentRows.length > 0 ? [{ title: 'Recent Airports', rows: recentRows }] : []),
+      ...(recentRows.length > 0
+        ? [{ title: 'Recent Airports', rows: recentRows }]
+        : []),
       { title: 'All Airports', rows: others },
     ];
   }, [airports, needle, recent]);
@@ -47,9 +70,19 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
   };
 
   return (
-    <BJSheet visible={visible} title={title} onClose={close} testID="airport-sheet">
-      <FadeUp index={1}>
-        <View style={[styles.search, { backgroundColor: palette.primaryBackground }]}>
+    <BJSheet
+      visible={visible}
+      title={title}
+      onClose={close}
+      testID="airport-sheet"
+    >
+      <View>
+        <View
+          style={[
+            styles.search,
+            { backgroundColor: palette.primaryBackground },
+          ]}
+        >
           <Icon name="search" size={20} color={palette.secondaryText} />
           <TextInput
             testID="airport-search"
@@ -58,21 +91,25 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
             autoFocus
             autoCorrect={false}
             autoCapitalize="none"
-            placeholder="Search for airports by city, code, or name..."
+            placeholder="City, code or airport name"
             placeholderTextColor={palette.secondaryText}
             style={[styles.input, { color: palette.primaryText }]}
           />
           {query ? (
-            <PressableScale accessibilityRole="button" accessibilityLabel="Clear" onPress={() => setQuery('')}>
+            <PressableScale
+              accessibilityRole="button"
+              accessibilityLabel="Clear"
+              onPress={() => setQuery('')}
+            >
               <Icon name="clear" size={20} color={palette.primaryText} />
             </PressableScale>
           ) : null}
         </View>
-      </FadeUp>
+      </View>
 
-      <FadeUp index={2} style={styles.listWrap}>
+      <View style={styles.listWrap}>
         {!airports ? (
-          <ActivityIndicator color={palette.jetBlack} />
+          <ActivityIndicator color={palette.accent} />
         ) : needle && sections[0].rows.length === 0 ? (
           <BJText tone="secondary" weight="regular">
             No airport matches “{query.trim()}”.
@@ -81,8 +118,8 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
           <ScrollView keyboardShouldPersistTaps="handled">
             {sections.map(section => (
               <View key={section.title} style={styles.section}>
-                <BJText size={16} style={styles.heading}>
-                  {section.title}
+                <BJText size={13} tone="secondary" style={styles.heading}>
+                  {section.title.toUpperCase()}
                 </BJText>
                 {section.rows.map(airport => (
                   <PressableScale
@@ -95,17 +132,32 @@ export function AirportSheet({ visible, title, airports, recent, onPick, onClose
                     }}
                     style={[styles.row, { borderBottomColor: palette.iron }]}
                   >
-                    <BJText size={18}>{airport.code}</BJText>
-                    <BJText tone="secondary" numberOfLines={1}>
-                      {airport.city} - {airport.name}
-                    </BJText>
+                    <View
+                      style={[
+                        styles.code,
+                        { backgroundColor: palette.primaryBackground },
+                      ]}
+                    >
+                      <BJText>{airport.code}</BJText>
+                    </View>
+                    <View style={styles.flex}>
+                      <BJText numberOfLines={1}>{airport.city}</BJText>
+                      <BJText
+                        size={13}
+                        tone="secondary"
+                        weight="regular"
+                        numberOfLines={1}
+                      >
+                        {airport.name}
+                      </BJText>
+                    </View>
                   </PressableScale>
                 ))}
               </View>
             ))}
           </ScrollView>
         )}
-      </FadeUp>
+      </View>
     </BJSheet>
   );
 }
@@ -119,9 +171,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 50,
   },
-  input: { flex: 1, fontFamily: blackJetFonts.regular, fontSize: 14, paddingVertical: 0 },
-  listWrap: { marginTop: 18, minHeight: 240, maxHeight: 420 },
-  section: { marginBottom: 12 },
-  heading: { marginBottom: 8 },
-  row: { paddingVertical: 12, gap: 4, borderBottomWidth: StyleSheet.hairlineWidth },
+  input: {
+    flex: 1,
+    fontFamily: blackJetFonts.regular,
+    fontSize: 16,
+    paddingVertical: 0,
+  },
+  listWrap: { marginTop: 16, minHeight: 240, maxHeight: 420 },
+  section: { marginBottom: 16 },
+  heading: { marginBottom: 4, letterSpacing: 0.8 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  code: {
+    width: 52,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flex: { flex: 1, gap: 2 },
 });

@@ -1,14 +1,4 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { AirportField } from '@/features/flights/presentation/screens/AirportPickerScreen';
-
-export type FlightsStackParamList = {
-  FlightSearch: undefined;
-  AirportPicker: { field: AirportField };
-  FlightResults: undefined;
-  FlightDetail: { flightId: string };
-  Booking: { flightId: string };
-  BookingConfirmation: { bookingId: string };
-};
 
 /** The top level: one of these at a time, by session status. */
 export type AppStackParamList = {
@@ -19,10 +9,8 @@ export type AppStackParamList = {
   Chat: undefined;
   Notifications: undefined;
   NewsDetail: { newsId: string };
-};
-
-export type HomeStackParamList = {
-  Home: undefined;
+  /** The charter flow, full screen over the tabs. */
+  SearchResults: undefined;
   JetQuote: { legIndex: number; quoteId: string };
   CharterCheckout: undefined;
   CharterConfirmation: { bookingId: string };
@@ -43,8 +31,7 @@ export type ProfileStackParamList = {
 };
 
 export type RootTabParamList = {
-  DashboardTab: NavigatorScreenParams<HomeStackParamList>;
-  FlightsTab: NavigatorScreenParams<FlightsStackParamList>;
+  DashboardTab: undefined;
   TripsTab: NavigatorScreenParams<TripsStackParamList>;
   ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
 };

@@ -13,12 +13,24 @@ type Props = {
   testID?: string;
 };
 
-/** 50 pt, the BlackJet main button: solid jet black, or outlined. */
-export function Button({ title, onPress, loading, disabled, variant = 'primary', testID }: Props) {
+/** 52 pt, the main button: solid accent, or outlined. */
+export function Button({
+  title,
+  onPress,
+  loading,
+  disabled,
+  variant = 'primary',
+  testID,
+}: Props) {
   const palette = useBlackJetTheme();
   const styles = useStyles();
   const inactive = disabled || loading;
-  const textColor = variant === 'primary' ? palette.ghostWhite : variant === 'danger' ? palette.error : palette.primaryText;
+  const textColor =
+    variant === 'primary'
+      ? palette.onAccent
+      : variant === 'danger'
+      ? palette.error
+      : palette.primaryText;
 
   return (
     <PressableScale
@@ -42,14 +54,14 @@ export function Button({ title, onPress, loading, disabled, variant = 'primary',
 
 const useStyles = makeStyles(palette => ({
   base: {
-    minHeight: 50,
+    minHeight: 52,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
   },
-  primary: { backgroundColor: palette.jetBlack },
+  primary: { backgroundColor: palette.accent },
   secondary: { borderWidth: 1, borderColor: palette.iron },
   danger: { borderWidth: 1, borderColor: palette.error },
-  inactive: { opacity: 0.5 },
+  inactive: { opacity: 0.45 },
 }));

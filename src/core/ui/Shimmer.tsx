@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View, type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  type DimensionValue,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -27,12 +33,18 @@ export function Shimmer({ width, height, radius = 100, style }: Props) {
 
   useEffect(() => {
     if (barWidth > 0) {
-      sweep.value = withTiming(1, { duration: DURATION, easing: Easing.bezier(...blackJetCurves.easeInOut) });
+      sweep.value = withTiming(1, {
+        duration: DURATION,
+        easing: Easing.bezier(...blackJetCurves.easeInOut),
+      });
     }
   }, [barWidth, sweep]);
 
   const bandStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: -barWidth + sweep.value * barWidth * 2 }, { rotate: ANGLE }],
+    transform: [
+      { translateX: -barWidth + sweep.value * barWidth * 2 },
+      { rotate: ANGLE },
+    ],
   }));
 
   const clear = `${palette.shimmerColour}00`;
@@ -41,7 +53,12 @@ export function Shimmer({ width, height, radius = 100, style }: Props) {
       onLayout={event => setBarWidth(event.nativeEvent.layout.width)}
       style={[
         styles.bar,
-        { width, height, borderRadius: radius, backgroundColor: palette.loadStateColour },
+        {
+          width,
+          height,
+          borderRadius: radius,
+          backgroundColor: palette.loadStateColour,
+        },
         style,
       ]}
     >
@@ -49,7 +66,9 @@ export function Shimmer({ width, height, radius = 100, style }: Props) {
         pointerEvents="none"
         style={[
           styles.band,
-          { backgroundImage: `linear-gradient(90deg, ${clear}, ${palette.shimmerColour}, ${clear})` },
+          {
+            backgroundImage: `linear-gradient(90deg, ${clear}, ${palette.shimmerColour}, ${clear})`,
+          },
           bandStyle,
         ]}
       />

@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { radius, spacing } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { useGetNewsQuery } from '../dashboard-api';
 import { imageFor } from '@/core/ui/images';
@@ -7,17 +8,22 @@ import { NewsSkeleton } from './Skeletons';
 
 const HEIGHT = 220;
 
-/** Darkens towards the top-left corner, behind the title. */
+/** Darkens towards the bottom, behind the title. */
 const OVERLAY =
-  'linear-gradient(200deg, rgba(8, 7, 5, 0.1) 20%, rgba(8, 7, 5, 0.4) 60%, rgba(8, 7, 5, 0.8) 90%)';
+  'linear-gradient(180deg, rgba(8, 7, 5, 0) 35%, rgba(8, 7, 5, 0.75) 100%)';
 
 /** Up to five stories that page sideways (feature-docs/dashboard §2.4); hidden when there are none. */
-export function NewsCarousel({ onOpenNews }: { onOpenNews?: (newsId: string) => void }) {
+export function NewsCarousel({
+  onOpenNews,
+}: {
+  onOpenNews?: (newsId: string) => void;
+}) {
   const { data: posts, isLoading } = useGetNewsQuery();
 
   if (isLoading) {
     return (
       <View style={styles.root}>
+        <BJText size={20}>From the journal</BJText>
         <NewsSkeleton />
       </View>
     );
@@ -26,33 +32,66 @@ export function NewsCarousel({ onOpenNews }: { onOpenNews?: (newsId: string) => 
     return null;
   }
   return (
-    <View testID="news-carousel" style={[styles.root, styles.card]}>
-      <PhotoPager
-        testID="news-pager"
-        photos={posts.map(post => imageFor(post.image))}
-        height={HEIGHT}
-        dotsBottom={12}
-        onPressItem={onOpenNews && (index => onOpenNews(posts[index].id))}
-        renderOverlay={index => (
-          <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundImage: OVERLAY }]}>
-            <View style={styles.text}>
-              <BJText testID={`news-title-${index}`} size={16} tone="white" numberOfLines={2}>
-                {posts[index].title}
-              </BJText>
-              <BJText weight="regular" numberOfLines={2} style={styles.summary}>
-                {posts[index].summary}
-              </BJText>
+    <View style={styles.root}>
+      <BJText size={20}>From the journal</BJText>
+      <View testID="news-carousel" style={styles.card}>
+        <PhotoPager
+          testID="news-pager"
+          photos={posts.map(post => imageFor(post.image))}
+          height={HEIGHT}
+          dotsBottom={12}
+          onPressItem={onOpenNews && (index => onOpenNews(posts[index].id))}
+          renderOverlay={index => (
+            <View
+              pointerEvents="none"
+              style={[StyleSheet.absoluteFill, { backgroundImage: OVERLAY }]}
+            >
+              <View style={styles.text}>
+                <BJText
+                  testID={`news-title-${index}`}
+                  size={20}
+                  tone="white"
+                  numberOfLines={2}
+                >
+                  {posts[index].title}
+                </BJText>
+                <BJText
+                  size={13}
+                  weight="regular"
+                  numberOfLines={2}
+                  style={styles.summary}
+                >
+                  {posts[index].summary}
+                </BJText>
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { marginHorizontal: 12, marginTop: 24 },
-  card: { height: HEIGHT, borderRadius: 16, overflow: 'hidden', backgroundColor: '#191919' },
-  text: { paddingHorizontal: 18, paddingVertical: 12, gap: 8 },
+  root: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xxl,
+    gap: spacing.lg,
+  },
+  card: {
+    height: HEIGHT,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: '#17171A',
+  },
+  text: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    gap: spacing.xs,
+  },
   summary: { color: 'rgba(255, 255, 255, 0.89)' },
 });

@@ -6,7 +6,8 @@ import { SearchPanel } from '@/features/dashboard/presentation/components/Search
 
 function setup() {
   const props = { onSearch: jest.fn(), onInvalid: jest.fn() };
-  const render = () => renderWithStore(<SearchPanel {...props} finding={false} today={TEST_NOW} />);
+  const render = () =>
+    renderWithStore(<SearchPanel {...props} today={TEST_NOW} />);
   return { props, render };
 }
 
@@ -25,19 +26,25 @@ test('names what is missing, then searches once the form is complete', async () 
 
   await pickAirport('outbound-origin', 'GVA');
   await pickAirport('outbound-destination', 'NCE');
-  expect(screen.getByTestId('outbound-origin')).toHaveTextContent('FromGVAGeneva');
+  expect(screen.getByTestId('outbound-origin')).toHaveTextContent(
+    'FromGVAGeneva',
+  );
 
   await fireEvent.press(screen.getByTestId('find-jet'));
   expect(props.onInvalid).toHaveBeenLastCalledWith(DRAFT_MESSAGES.noDate);
 
   await fireEvent.press(screen.getByTestId('outbound-date'));
-  expect(screen.getByTestId(`calendar-${toDayKey(addDays(TEST_NOW, -1))}`)).toBeDisabled();
+  expect(
+    screen.getByTestId(`calendar-${toDayKey(addDays(TEST_NOW, -1))}`),
+  ).toBeDisabled();
   await fireEvent.press(screen.getByTestId(`calendar-${day}`));
 
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
   await fireEvent.press(screen.getByTestId('count-increment'));
   await fireEvent.press(screen.getByTestId('count-done'));
-  expect(screen.getByTestId('outbound-passengers')).toHaveTextContent(/2 Passengers$/);
+  expect(screen.getByTestId('outbound-passengers')).toHaveTextContent(
+    /2 Passengers$/,
+  );
 
   await fireEvent.press(screen.getByTestId('find-jet'));
   expect(props.onSearch).toHaveBeenCalledWith({
@@ -53,7 +60,7 @@ test('asks for the way back on a round trip', async () => {
   expect(screen.queryByTestId('return-date')).toBeNull();
   await fireEvent.press(screen.getByTestId('trip-type-roundTrip'));
 
-  expect(screen.getByTestId('return-date')).toHaveTextContent(/Return Date$/);
+  expect(screen.getByTestId('return-date')).toHaveTextContent(/Return$/);
   expect(screen.getByTestId('trip-type-roundTrip')).toBeChecked();
   expect(props.onInvalid).not.toHaveBeenCalled();
 });

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
-import { FadeUp } from '@/core/ui/FadeUp';
 import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { haptics } from '@/core/ui/haptics';
@@ -18,8 +17,15 @@ type Props = {
   onClose: () => void;
 };
 
-/** − count + and Done, each row fading up after the one before (feature-docs/dashboard §4.2). */
-export function CountSheet({ visible, title, value, max, onDone, onClose }: Props) {
+/** − count + and Done (feature-docs/dashboard §4.2). */
+export function CountSheet({
+  visible,
+  title,
+  value,
+  max,
+  onDone,
+  onClose,
+}: Props) {
   const palette = useBlackJetTheme();
   const [count, setCount] = useState(Math.max(1, value));
 
@@ -35,15 +41,30 @@ export function CountSheet({ visible, title, value, max, onDone, onClose }: Prop
   };
 
   return (
-    <BJSheet visible={visible} title={title} onClose={onClose} testID="count-sheet">
-      <FadeUp index={1} style={styles.row}>
-        <RoundButton icon="minus" testID="count-decrement" disabled={count <= 1} onPress={() => change(count - 1)} />
-        <BJText testID="count-value" size={55} style={styles.value}>
+    <BJSheet
+      visible={visible}
+      title={title}
+      onClose={onClose}
+      testID="count-sheet"
+    >
+      <View style={styles.row}>
+        <RoundButton
+          icon="minus"
+          testID="count-decrement"
+          disabled={count <= 1}
+          onPress={() => change(count - 1)}
+        />
+        <BJText testID="count-value" size={28} style={styles.value}>
           {count}
         </BJText>
-        <RoundButton icon="plus" testID="count-increment" disabled={count >= max} onPress={() => change(count + 1)} />
-      </FadeUp>
-      <FadeUp index={2}>
+        <RoundButton
+          icon="plus"
+          testID="count-increment"
+          disabled={count >= max}
+          onPress={() => change(count + 1)}
+        />
+      </View>
+      <View>
         <PressableScale
           testID="count-done"
           accessibilityRole="button"
@@ -51,18 +72,23 @@ export function CountSheet({ visible, title, value, max, onDone, onClose }: Prop
             haptics.selection();
             onDone(count);
           }}
-          style={[styles.done, { backgroundColor: palette.jetBlack }]}
+          style={[styles.done, { backgroundColor: palette.accent }]}
         >
-          <BJText size={16} tone="inverse">
+          <BJText size={16} tone="onAccent">
             Done
           </BJText>
         </PressableScale>
-      </FadeUp>
+      </View>
     </BJSheet>
   );
 }
 
-type RoundButtonProps = { icon: IconName; testID: string; disabled: boolean; onPress: () => void };
+type RoundButtonProps = {
+  icon: IconName;
+  testID: string;
+  disabled: boolean;
+  onPress: () => void;
+};
 
 function RoundButton({ icon, testID, disabled, onPress }: RoundButtonProps) {
   const palette = useBlackJetTheme();
@@ -74,7 +100,11 @@ function RoundButton({ icon, testID, disabled, onPress }: RoundButtonProps) {
       disabled={disabled}
       onPress={onPress}
       scaleTo={0.94}
-      style={[styles.round, { backgroundColor: palette.iron }, disabled && styles.disabled]}
+      style={[
+        styles.round,
+        { backgroundColor: palette.primaryBackground },
+        disabled && styles.disabled,
+      ]}
     >
       <Icon name={icon} size={18} color={palette.primaryText} />
     </PressableScale>
@@ -82,9 +112,27 @@ function RoundButton({ icon, testID, disabled, onPress }: RoundButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, marginVertical: 12 },
-  value: { minWidth: 80, textAlign: 'center' },
-  round: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    marginVertical: 16,
+  },
+  value: { minWidth: 64, textAlign: 'center' },
+  round: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   disabled: { opacity: 0.4 },
-  done: { height: 50, borderRadius: 100, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
+  done: {
+    height: 52,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
 });

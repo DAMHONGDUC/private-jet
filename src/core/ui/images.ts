@@ -1,4 +1,5 @@
-import type { ImageSourcePropType } from 'react-native';
+import { Platform, type ImageSourcePropType } from 'react-native';
+import type { NativeBottomTabIcon } from '@react-navigation/bottom-tabs/unstable';
 
 /** Bundled photos by the keys the data layer hands out. */
 const IMAGES: Record<string, ImageSourcePropType> = {
@@ -16,9 +17,32 @@ export function imageFor(key: string): ImageSourcePropType {
   return IMAGES[key] ?? IMAGES['jet-1'];
 }
 
+/** The wordmark for each theme: dark ink on light, light ink on dark. */
 export const LOGO = {
   light: require('@/assets/images/logo-light.png') as ImageSourcePropType,
   dark: require('@/assets/images/logo-dark.png') as ImageSourcePropType,
+};
+
+/** Width over height of the wordmark files. */
+export const LOGO_ASPECT = 515 / 144;
+
+const tabIcon = (
+  sfSymbol: 'house.fill' | 'airplane' | 'person.crop.circle',
+  source: ImageSourcePropType,
+) =>
+  Platform.select<NativeBottomTabIcon>({
+    ios: { type: 'sfSymbol', name: sfSymbol },
+    default: { type: 'image', source },
+  });
+
+/** SF Symbols on iOS; tinted PNGs drawn from the app's icon fonts elsewhere. */
+export const TAB_ICONS = {
+  home: tabIcon('house.fill', require('@/assets/images/tab-home.png')),
+  trips: tabIcon('airplane', require('@/assets/images/tab-trips.png')),
+  profile: tabIcon(
+    'person.crop.circle',
+    require('@/assets/images/tab-profile.png'),
+  ),
 };
 
 export const BRAND_ICONS = {

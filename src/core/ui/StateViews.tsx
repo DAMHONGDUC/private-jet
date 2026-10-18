@@ -9,7 +9,7 @@ export function LoadingView() {
   const palette = useBlackJetTheme();
   return (
     <View style={styles.center} testID="loading-view">
-      <ActivityIndicator color={palette.jetBlack} size="large" />
+      <ActivityIndicator color={palette.accent} size="large" />
     </View>
   );
 }
@@ -20,19 +20,33 @@ export function errorMessage(error: unknown): string {
   return typeof message === 'string' ? message : 'Something went wrong.';
 }
 
-export function ErrorView({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+export function ErrorView({
+  error,
+  onRetry,
+}: {
+  error: unknown;
+  onRetry?: () => void;
+}) {
   return (
     <View style={styles.center} testID="error-view">
       <AppText variant="subtitle">Something went wrong</AppText>
       <AppText muted style={styles.message}>
         {errorMessage(error)}
       </AppText>
-      {onRetry ? <Button title="Try again" variant="secondary" onPress={onRetry} /> : null}
+      {onRetry ? (
+        <Button title="Try again" variant="secondary" onPress={onRetry} />
+      ) : null}
     </View>
   );
 }
 
-export function EmptyView({ title, message }: { title: string; message: string }) {
+export function EmptyView({
+  title,
+  message,
+}: {
+  title: string;
+  message: string;
+}) {
   return (
     <View style={styles.center} testID="empty-view">
       <AppText variant="subtitle">{title}</AppText>
@@ -44,6 +58,12 @@ export function EmptyView({ title, message }: { title: string; message: string }
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.md },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    gap: spacing.md,
+  },
   message: { textAlign: 'center' },
 });

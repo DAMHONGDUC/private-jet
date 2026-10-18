@@ -17,6 +17,9 @@ const GLYPHS = {
   clear: { family: 'MaterialIcons-Regular', code: 0xe168 },
   minus: { family: 'MaterialIcons-Regular', code: 0xf00f1 },
   plus: { family: 'MaterialIcons-Regular', code: 0xf537 },
+  chevronLeft: { family: 'MaterialIcons-Regular', code: 0xf570 },
+  chevronRight: { family: 'MaterialIcons-Regular', code: 0xf63b },
+  check: { family: 'MaterialIcons-Regular', code: 0xf636 },
 } as const;
 
 export type IconName = keyof typeof GLYPHS;
@@ -30,7 +33,10 @@ export function Icon({ name, size, color, testID }: Props) {
       testID={testID}
       accessible={false}
       allowFontScaling={false}
-      style={[styles.icon, { fontFamily: glyph.family, fontSize: size, lineHeight: size, color }]}
+      style={[
+        styles.icon,
+        { fontFamily: glyph.family, fontSize: size, lineHeight: size, color },
+      ]}
     >
       {String.fromCodePoint(glyph.code)}
     </Text>

@@ -1,8 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, LinearTransition, ZoomIn, ZoomOut } from 'react-native-reanimated';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TextInput,
+  View,
+} from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { blackJetFonts, makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import {
+  blackJetFonts,
+  makeStyles,
+  useBlackJetTheme,
+} from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { BJText } from '@/core/ui/BJText';
@@ -13,10 +24,19 @@ import { ErrorView, LoadingView, errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
 import { cleanMessage, type ChatMessage } from '../../domain/entities/inbox';
 import { TypingDots } from '../components/TypingDots';
-import { useGetMessagesQuery, useMarkMessagesReadMutation, useSendMessageMutation } from '../inbox-api';
+import {
+  useGetMessagesQuery,
+  useMarkMessagesReadMutation,
+  useSendMessageMutation,
+} from '../inbox-api';
 import { clockTime } from '../inbox-labels';
 
-export const QUICK_REPLIES = ['Arrange catering', 'Book a chauffeur', 'Bring my dog', 'Change a trip'];
+export const QUICK_REPLIES = [
+  'Arrange catering',
+  'Book a chauffeur',
+  'Bring my dog',
+  'Change a trip',
+];
 
 /** The conversation with the member's concierge: bubbles, quick replies, and a reply that is typed for a moment. */
 export function ChatScreen() {
@@ -24,7 +44,8 @@ export function ChatScreen() {
   const palette = useBlackJetTheme();
   const insets = useSafeAreaInsets();
   const { data: messages, error, isLoading, refetch } = useGetMessagesQuery();
-  const [sendMessage, { isLoading: waiting, error: sendError }] = useSendMessageMutation();
+  const [sendMessage, { isLoading: waiting, error: sendError }] =
+    useSendMessageMutation();
   const [markRead] = useMarkMessagesReadMutation();
   const [draft, setDraft] = useState('');
   const list = useRef<FlatList<ChatMessage>>(null);
@@ -37,7 +58,10 @@ export function ChatScreen() {
   }, [hasUnread, markRead]);
 
   // Inverted, so the newest sits at the bottom and the list opens there.
-  const newestFirst = useMemo(() => [...(messages ?? [])].reverse(), [messages]);
+  const newestFirst = useMemo(
+    () => [...(messages ?? [])].reverse(),
+    [messages],
+  );
 
   if (isLoading) {
     return (
@@ -98,9 +122,9 @@ export function ChatScreen() {
             </View>
           }
           ListFooterComponent={
-            <Animated.View entering={FadeInDown.duration(500)} style={styles.intro}>
+            <View style={styles.intro}>
               <View style={styles.conciergeAvatar}>
-                <BJText size={22} weight="bold" tone="white">
+                <BJText size={20} weight="medium" tone="white">
                   S
                 </BJText>
                 <View style={styles.online} />
@@ -109,7 +133,7 @@ export function ChatScreen() {
               <AppText variant="caption" muted>
                 Your BlackJet concierge · usually replies in minutes
               </AppText>
-            </Animated.View>
+            </View>
           }
           renderItem={({ item }) => <Bubble message={item} />}
         />
@@ -138,7 +162,12 @@ export function ChatScreen() {
           ))}
         </ScrollView>
 
-        <View style={[styles.composer, { paddingBottom: insets.bottom + spacing.sm }]}>
+        <View
+          style={[
+            styles.composer,
+            { paddingBottom: insets.bottom + spacing.sm },
+          ]}
+        >
           <TextInput
             testID="chat-input"
             style={styles.input}
@@ -149,7 +178,7 @@ export function ChatScreen() {
             onChangeText={setDraft}
           />
           {canSend ? (
-            <Animated.View entering={ZoomIn.springify().damping(14)} exiting={ZoomOut.duration(150)}>
+            <View>
               <PressableScale
                 testID="chat-send"
                 accessibilityRole="button"
@@ -158,11 +187,11 @@ export function ChatScreen() {
                 onPress={() => send(draft)}
                 style={styles.send}
               >
-                <BJText size={20} weight="bold" tone="inverse">
+                <BJText size={20} weight="medium" tone="inverse">
                   ↑
                 </BJText>
               </PressableScale>
-            </Animated.View>
+            </View>
           ) : null}
         </View>
       </KeyboardAvoidingView>
@@ -177,11 +206,12 @@ function Bubble({ message }: { message: ChatMessage }) {
     <Animated.View
       testID={`message-${message.id}`}
       entering={FadeIn.duration(300)}
-      layout={LinearTransition.duration(250)}
       style={[styles.bubbleRow, mine ? styles.mineRow : styles.theirsRow]}
     >
       <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-        <AppText style={mine ? styles.mineText : undefined}>{message.text}</AppText>
+        <AppText style={mine ? styles.mineText : undefined}>
+          {message.text}
+        </AppText>
       </View>
       <AppText variant="caption" muted style={styles.time}>
         {clockTime(message.sentAt)}
@@ -228,9 +258,17 @@ const useStyles = makeStyles(palette => ({
     borderBottomLeftRadius: 4,
   },
   time: { fontSize: 11, paddingHorizontal: 4 },
-  error: { color: palette.error, textAlign: 'center', paddingBottom: spacing.xs },
+  error: {
+    color: palette.error,
+    textAlign: 'center',
+    paddingBottom: spacing.xs,
+  },
   quickBar: { flexGrow: 0 },
-  quick: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  quick: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',

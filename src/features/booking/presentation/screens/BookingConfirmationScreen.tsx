@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { makeStyles } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -18,7 +17,11 @@ import { departureLabel, kindLabel, routeCodes } from '../trip-labels';
 type Props = { bookingId: string; onViewTrip: () => void; onDone: () => void };
 
 /** The tick, the reference and the trip in one card; then on to the trip or back. */
-export function BookingConfirmationScreen({ bookingId, onViewTrip, onDone }: Props) {
+export function BookingConfirmationScreen({
+  bookingId,
+  onViewTrip,
+  onDone,
+}: Props) {
   const styles = useStyles();
   const { data: booking } = useGetBookingQuery(bookingId);
 
@@ -40,41 +43,59 @@ export function BookingConfirmationScreen({ bookingId, onViewTrip, onDone }: Pro
     <Screen top>
       <View style={styles.content}>
         <SuccessMark />
-        <Animated.View entering={FadeInDown.duration(500).delay(300)} style={styles.center}>
+        <View style={styles.center}>
           <AppText variant="display">You're booked</AppText>
           <AppText muted>Reference</AppText>
-          <AppText variant="title" testID="booking-reference" style={styles.code}>
+          <AppText
+            variant="title"
+            testID="booking-reference"
+            style={styles.code}
+          >
             {booking.reference}
           </AppText>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.duration(500).delay(450)} style={styles.full}>
+        <View style={styles.full}>
           <Card style={styles.card}>
             <AppText variant="label" muted>
               {kindLabel(booking)}
             </AppText>
             <AppText variant="title">{routeCodes(booking)}</AppText>
             <AppText muted>
-              {firstLeg(booking).originCity} → {lastLeg(booking).destinationCity} · {departureLabel(booking)}
+              {firstLeg(booking).originCity} →{' '}
+              {lastLeg(booking).destinationCity} · {departureLabel(booking)}
             </AppText>
             <AppText muted>
-              {booking.passengers.length} passenger{booking.passengers.length > 1 ? 's' : ''} ·{' '}
-              {formatMoney(booking.totalPrice, booking.currency)} · {booking.paymentLabel}
+              {booking.passengers.length} passenger
+              {booking.passengers.length > 1 ? 's' : ''} ·{' '}
+              {formatMoney(booking.totalPrice, booking.currency)} ·{' '}
+              {booking.paymentLabel}
             </AppText>
           </Card>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.duration(500).delay(600)} style={[styles.full, styles.actions]}>
+        <View style={[styles.full, styles.actions]}>
           <Button testID="view-trip" title="View trip" onPress={onViewTrip} />
-          <Button testID="booking-done" title="Done" variant="secondary" onPress={onDone} />
-        </Animated.View>
+          <Button
+            testID="booking-done"
+            title="Done"
+            variant="secondary"
+            onPress={onDone}
+          />
+        </View>
       </View>
     </Screen>
   );
 }
 
 const useStyles = makeStyles(() => ({
-  content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.lg },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    gap: spacing.lg,
+  },
   center: { alignItems: 'center', gap: spacing.xs },
   code: { letterSpacing: 4 },
   full: { alignSelf: 'stretch' },

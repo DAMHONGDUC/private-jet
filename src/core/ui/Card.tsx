@@ -10,9 +10,7 @@ export function Card({ style, ...rest }: ViewProps) {
 const useStyles = makeStyles(palette => ({
   card: {
     backgroundColor: palette.primaryBackground,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: palette.iron,
+    borderRadius: radius.xl,
     padding: spacing.lg,
   },
 }));

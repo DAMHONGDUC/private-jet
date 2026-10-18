@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { RefreshControl, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import { FlatList, RefreshControl, View } from 'react-native';
 import { makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -40,7 +39,9 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
       ? all.filter(booking => isUpcoming(booking, now))
       : all
           .filter(booking => !isUpcoming(booking, now))
-          .sort((a, b) => firstLeg(b).departureAt.localeCompare(firstLeg(a).departureAt));
+          .sort((a, b) =>
+            firstLeg(b).departureAt.localeCompare(firstLeg(a).departureAt),
+          );
   }, [data, now, tab]);
 
   let body;
@@ -50,33 +51,46 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
     body = <ErrorView error={error} onRetry={refetch} />;
   } else {
     body = (
-      <Animated.FlatList
+      <FlatList
         key={tab}
         testID="trip-list"
         data={trips}
         keyExtractor={booking => booking.id}
         contentContainerStyle={styles.list}
-        itemLayoutAnimation={LinearTransition.duration(250)}
         refreshControl={
           <RefreshControl
             refreshing={isFetching && !isLoading}
             onRefresh={() => {
               refetch();
             }}
-            tintColor={palette.jetBlack}
+            tintColor={palette.accent}
           />
         }
         ListEmptyComponent={
           <View style={styles.empty}>
             <EmptyView
               title={tab === 'upcoming' ? 'No upcoming trips' : 'No past trips'}
-              message={tab === 'upcoming' ? 'Plan a charter or join a shared flight.' : 'Flown and cancelled trips show up here.'}
+              message={
+                tab === 'upcoming'
+                  ? 'Plan a charter or join a shared flight.'
+                  : 'Flown and cancelled trips show up here.'
+              }
             />
-            {tab === 'upcoming' ? <Button testID="plan-trip" title="Plan a trip" onPress={onPlanTrip} /> : null}
+            {tab === 'upcoming' ? (
+              <Button
+                testID="plan-trip"
+                title="Plan a trip"
+                onPress={onPlanTrip}
+              />
+            ) : null}
           </View>
         }
-        renderItem={({ item, index }) => (
-          <TripCard booking={item} now={now} index={index} onPress={() => onOpenTrip(item.id)} />
+        renderItem={({ item }) => (
+          <TripCard
+            booking={item}
+            now={now}
+            onPress={() => onOpenTrip(item.id)}
+          />
         )}
       />
     );
@@ -89,7 +103,12 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
           Itinerary
         </AppText>
         <AppText variant="display">My trips</AppText>
-        <SegmentedControl testID="trips-tab" options={TABS} value={tab} onChange={setTab} />
+        <SegmentedControl
+          testID="trips-tab"
+          options={TABS}
+          value={tab}
+          onChange={setTab}
+        />
       </View>
       {body}
     </Screen>
@@ -97,7 +116,11 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
 }
 
 const useStyles = makeStyles(() => ({
-  header: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.sm },
+  header: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    gap: spacing.sm,
+  },
   list: { padding: spacing.lg, gap: spacing.lg, flexGrow: 1 },
   empty: { flex: 1, gap: spacing.lg, paddingBottom: spacing.xxl },
 }));

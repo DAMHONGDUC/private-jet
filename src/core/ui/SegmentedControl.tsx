@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { blackJetCurves, makeStyles } from '@/core/theme/blackjet';
+import { elevation, radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
 import { PressableScale } from './PressableScale';
 import { haptics } from './haptics';
@@ -14,21 +20,39 @@ type Props<T extends string> = {
 };
 
 /** Equal segments with a pill that slides to the chosen one. */
-export function SegmentedControl<T extends string>({ options, value, onChange, testID }: Props<T>) {
+export function SegmentedControl<T extends string>({
+  options,
+  value,
+  onChange,
+  testID,
+}: Props<T>) {
   const styles = useStyles();
   const [width, setWidth] = useState(0);
-  const index = Math.max(0, options.findIndex(option => option.value === value));
+  const index = Math.max(
+    0,
+    options.findIndex(option => option.value === value),
+  );
   const position = useSharedValue(index);
 
   useEffect(() => {
-    position.value = withTiming(index, { duration: 260, easing: Easing.bezier(...blackJetCurves.easeInOut) });
+    position.value = withTiming(index, {
+      duration: 200,
+      easing: Easing.bezier(...blackJetCurves.easeInOut),
+    });
   }, [index, position]);
 
   const segment = width / options.length;
-  const pillStyle = useAnimatedStyle(() => ({ width: segment, transform: [{ translateX: position.value * segment }] }));
+  const pillStyle = useAnimatedStyle(() => ({
+    width: segment,
+    transform: [{ translateX: position.value * segment }],
+  }));
 
   return (
-    <View testID={testID} style={styles.track} onLayout={event => setWidth(event.nativeEvent.layout.width - 8)}>
+    <View
+      testID={testID}
+      style={styles.track}
+      onLayout={event => setWidth(event.nativeEvent.layout.width - 8)}
+    >
       {width > 0 ? <Animated.View style={[styles.pill, pillStyle]} /> : null}
       {options.map(option => {
         const selected = option.value === value;
@@ -47,7 +71,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, t
             }}
             style={styles.segment}
           >
-            <AppText variant="subtitle" muted={!selected} style={selected ? styles.selectedText : undefined}>
+            <AppText variant="subtitle" muted={!selected}>
               {option.label}
             </AppText>
           </PressableScale>
@@ -61,12 +85,22 @@ const useStyles = makeStyles(palette => ({
   track: {
     flexDirection: 'row',
     padding: 4,
-    borderRadius: 14,
+    borderRadius: radius.md,
     backgroundColor: palette.primaryBackground,
-    borderWidth: 1,
-    borderColor: palette.iron,
   },
-  pill: { position: 'absolute', top: 4, bottom: 4, left: 4, borderRadius: 10, backgroundColor: palette.jetBlack },
-  segment: { flex: 1, height: 38, alignItems: 'center', justifyContent: 'center' },
-  selectedText: { color: palette.ghostWhite },
+  pill: {
+    position: 'absolute',
+    top: 4,
+    bottom: 4,
+    left: 4,
+    borderRadius: radius.sm,
+    backgroundColor: palette.scheme === 'dark' ? palette.iron : palette.raised,
+    ...elevation(palette.shadow),
+  },
+  segment: {
+    flex: 1,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 }));

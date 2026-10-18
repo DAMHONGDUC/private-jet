@@ -22,7 +22,10 @@ function Dot({ index }: { index: number }) {
     lift.value = withDelay(
       index * 150,
       withRepeat(
-        withSequence(withTiming(1, { duration: 300, easing: ease }), withTiming(0, { duration: 300, easing: ease })),
+        withSequence(
+          withTiming(1, { duration: 300, easing: ease }),
+          withTiming(0, { duration: 300, easing: ease }),
+        ),
         -1,
       ),
     );
@@ -39,7 +42,11 @@ function Dot({ index }: { index: number }) {
 export function TypingDots({ testID }: { testID?: string }) {
   const styles = useStyles();
   return (
-    <View testID={testID} accessibilityLabel="Concierge is typing" style={styles.bubble}>
+    <View
+      testID={testID}
+      accessibilityLabel="Concierge is typing"
+      style={styles.bubble}
+    >
       {[0, 1, 2].map(index => (
         <Dot key={index} index={index} />
       ))}
@@ -60,5 +67,10 @@ const useStyles = makeStyles(palette => ({
     borderWidth: 1,
     borderColor: palette.iron,
   },
-  dot: { width: DOT, height: DOT, borderRadius: DOT / 2, backgroundColor: palette.secondaryText },
+  dot: {
+    width: DOT,
+    height: DOT,
+    borderRadius: DOT / 2,
+    backgroundColor: palette.secondaryText,
+  },
 }));

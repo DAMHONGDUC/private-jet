@@ -1,10 +1,8 @@
-import { View } from 'react-native';
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { elevation, radius, spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
-import { CountUp } from '@/core/ui/CountUp';
 import { formatMoney } from '@/core/utils/format';
 
 type Props = {
@@ -16,21 +14,25 @@ type Props = {
   onContinue: () => void;
 };
 
-/** Springs up once a jet is chosen: how many legs are covered, the running total, Continue. */
-export function SelectionBar({ chosen, legs, total, currency, complete, onContinue }: Props) {
+/** Shows once a jet is chosen: how many legs are covered, the running total, Continue. */
+export function SelectionBar({
+  chosen,
+  legs,
+  total,
+  currency,
+  complete,
+  onContinue,
+}: Props) {
   const styles = useStyles();
   return (
-    <Animated.View
-      testID="selection-bar"
-      entering={SlideInDown.springify().damping(18)}
-      exiting={SlideOutDown.duration(200)}
-      style={styles.bar}
-    >
+    <View testID="selection-bar" style={styles.bar}>
       <View style={styles.text}>
         <AppText variant="caption" muted>
           {legs > 1 ? `${chosen} of ${legs} legs chosen` : 'Your jet'}
         </AppText>
-        <CountUp testID="selection-total" value={total} format={amount => formatMoney(amount, currency)} variant="title" />
+        <AppText testID="selection-total" variant="title">
+          {formatMoney(total, currency)}
+        </AppText>
       </View>
       <Button
         testID="selection-continue"
@@ -38,29 +40,26 @@ export function SelectionBar({ chosen, legs, total, currency, complete, onContin
         disabled={!complete}
         onPress={onContinue}
       />
-    </Animated.View>
+    </View>
   );
 }
 
 const useStyles = makeStyles(palette => ({
   bar: {
     position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
-    bottom: spacing.md,
+    left: spacing.lg,
+    right: spacing.lg,
+    bottom: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     padding: spacing.md,
-    borderRadius: 20,
-    backgroundColor: palette.secondaryBackground,
-    borderWidth: 1,
+    paddingLeft: spacing.lg,
+    borderRadius: radius.xl,
+    backgroundColor: palette.raised,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: palette.iron,
-    shadowColor: '#000000',
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
+    ...elevation(palette.shadow),
   },
   text: { flex: 1, gap: 2 },
 }));

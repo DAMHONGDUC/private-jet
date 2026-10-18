@@ -1,8 +1,7 @@
-import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   MAX_CHARTER_PASSENGERS,
   MAX_MULTI_CITY_LEGS,
-  checkDraft,
   emptyDraftLeg,
   type CharterDraft,
   type CharterRequest,
@@ -57,17 +56,24 @@ export const charterSearchSlice = createSlice({
         state.selections = {};
       }
     },
-    airportSelected(state, action: PayloadAction<{ target: LegTarget; end: AirportEnd; code: string }>) {
+    airportSelected(
+      state,
+      action: PayloadAction<{
+        target: LegTarget;
+        end: AirportEnd;
+        code: string;
+      }>,
+    ) {
       const { target, end, code } = action.payload;
       const leg = legOf(state.draft, target);
       if (!leg) {
         return;
       }
       leg[end] = code;
-      state.recentAirports = [code, ...state.recentAirports.filter(item => item !== code)].slice(
-        0,
-        MAX_RECENT_AIRPORTS,
-      );
+      state.recentAirports = [
+        code,
+        ...state.recentAirports.filter(item => item !== code),
+      ].slice(0, MAX_RECENT_AIRPORTS);
     },
     airportsSwapped(state, action: PayloadAction<LegTarget>) {
       const leg = legOf(state.draft, action.payload);
@@ -75,7 +81,10 @@ export const charterSearchSlice = createSlice({
         [leg.origin, leg.destination] = [leg.destination, leg.origin];
       }
     },
-    dateSelected(state, action: PayloadAction<{ target: LegTarget; date: string }>) {
+    dateSelected(
+      state,
+      action: PayloadAction<{ target: LegTarget; date: string }>,
+    ) {
       const leg = legOf(state.draft, action.payload.target);
       if (leg) {
         leg.date = action.payload.date;
@@ -84,10 +93,16 @@ export const charterSearchSlice = createSlice({
     returnDateSelected(state, action: PayloadAction<string>) {
       state.draft.returnDate = action.payload;
     },
-    passengersSelected(state, action: PayloadAction<{ target: LegTarget; count: number }>) {
+    passengersSelected(
+      state,
+      action: PayloadAction<{ target: LegTarget; count: number }>,
+    ) {
       const leg = legOf(state.draft, action.payload.target);
       if (leg) {
-        leg.passengers = Math.min(MAX_CHARTER_PASSENGERS, Math.max(1, Math.round(action.payload.count)));
+        leg.passengers = Math.min(
+          MAX_CHARTER_PASSENGERS,
+          Math.max(1, Math.round(action.payload.count)),
+        );
       }
     },
     /** A new leg starts where the last one lands, with the same party. */
@@ -97,7 +112,11 @@ export const charterSearchSlice = createSlice({
         return;
       }
       const last = legs[legs.length - 1];
-      legs.push({ ...emptyDraftLeg(), origin: last?.destination ?? null, passengers: last?.passengers ?? 0 });
+      legs.push({
+        ...emptyDraftLeg(),
+        origin: last?.destination ?? null,
+        passengers: last?.passengers ?? 0,
+      });
     },
     /** The last remaining leg stays. */
     legRemoved(state, action: PayloadAction<number>) {
@@ -111,7 +130,10 @@ export const charterSearchSlice = createSlice({
       state.selections = {};
     },
     /** Choosing the quote already chosen for a leg leaves the leg open again. */
-    quoteToggled(state, action: PayloadAction<{ legIndex: number; quoteId: string }>) {
+    quoteToggled(
+      state,
+      action: PayloadAction<{ legIndex: number; quoteId: string }>,
+    ) {
       const { legIndex, quoteId } = action.payload;
       if (state.selections[legIndex] === quoteId) {
         delete state.selections[legIndex];
@@ -119,7 +141,10 @@ export const charterSearchSlice = createSlice({
         state.selections[legIndex] = quoteId;
       }
     },
-    quoteChosen(state, action: PayloadAction<{ legIndex: number; quoteId: string }>) {
+    quoteChosen(
+      state,
+      action: PayloadAction<{ legIndex: number; quoteId: string }>,
+    ) {
       state.selections[action.payload.legIndex] = action.payload.quoteId;
     },
     /** After booking: the same search stays on screen, nothing chosen. */
@@ -146,15 +171,11 @@ export const {
 
 type WithCharterSearch = { [charterSearchSlice.name]: CharterSearchState };
 
-export const selectCharterSearch = (state: WithCharterSearch) => state.charterSearch;
-export const selectCharterDraft = (state: WithCharterSearch) => state.charterSearch.draft;
-export const selectSubmittedCharter = (state: WithCharterSearch) => state.charterSearch.submitted;
-export const selectQuoteSelections = (state: WithCharterSearch) => state.charterSearch.selections;
-
-/** True when the form no longer matches the results on screen, so searching again would change them. */
-export const selectDraftChanged = createSelector(
-  selectCharterDraft,
-  selectSubmittedCharter,
-  (draft, submitted) =>
-    submitted !== null && JSON.stringify(checkDraft(draft).request ?? null) !== JSON.stringify(submitted),
-);
+export const selectCharterSearch = (state: WithCharterSearch) =>
+  state.charterSearch;
+export const selectCharterDraft = (state: WithCharterSearch) =>
+  state.charterSearch.draft;
+export const selectSubmittedCharter = (state: WithCharterSearch) =>
+  state.charterSearch.submitted;
+export const selectQuoteSelections = (state: WithCharterSearch) =>
+  state.charterSearch.selections;

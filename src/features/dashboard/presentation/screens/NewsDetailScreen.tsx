@@ -1,7 +1,6 @@
 import { Image, StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
-  FadeInDown,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -34,8 +33,22 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
   });
   const heroStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateY: interpolate(scrollY.value, [-HERO, 0, HERO], [-HERO / 2, 0, HERO / 2], Extrapolation.CLAMP) },
-      { scale: interpolate(scrollY.value, [-HERO, 0, HERO], [2, 1, 1], Extrapolation.CLAMP) },
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [-HERO, 0, HERO],
+          [-HERO / 2, 0, HERO / 2],
+          Extrapolation.CLAMP,
+        ),
+      },
+      {
+        scale: interpolate(
+          scrollY.value,
+          [-HERO, 0, HERO],
+          [2, 1, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
     ],
   }));
 
@@ -50,7 +63,10 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
   if (!post) {
     return (
       <Screen top>
-        <EmptyView title="This story is gone" message="It may have been archived." />
+        <EmptyView
+          title="This story is gone"
+          message="It may have been archived."
+        />
         <Button title="Back" variant="secondary" onPress={onBack} />
       </Screen>
     );
@@ -65,11 +81,18 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
       >
         <Animated.View style={[styles.hero, heroStyle]}>
-          <Image source={imageFor(post.image)} resizeMode="cover" style={[StyleSheet.absoluteFill, styles.photo]} />
-          <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundImage: SHADE }]} />
+          <Image
+            source={imageFor(post.image)}
+            resizeMode="cover"
+            style={[StyleSheet.absoluteFill, styles.photo]}
+          />
+          <View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, { backgroundImage: SHADE }]}
+          />
         </Animated.View>
         <View style={styles.sheet}>
-          <Animated.View entering={FadeInDown.duration(450)} style={styles.block}>
+          <View style={styles.block}>
             <AppText variant="label" muted>
               BlackJet news
             </AppText>
@@ -79,16 +102,20 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
             <AppText variant="subtitle" muted>
               {post.summary}
             </AppText>
-          </Animated.View>
+          </View>
           {post.body.split(/\n\s*\n/).map((paragraph, index) => (
-            <Animated.View key={index} entering={FadeInDown.duration(450).delay(80 + index * 70)}>
+            <View key={index}>
               <AppText style={styles.paragraph}>{paragraph}</AppText>
-            </Animated.View>
+            </View>
           ))}
           {onPlanTrip ? (
-            <Animated.View entering={FadeInDown.duration(450).delay(300)}>
-              <Button testID="news-plan-trip" title="Plan a flight" onPress={onPlanTrip} />
-            </Animated.View>
+            <View>
+              <Button
+                testID="news-plan-trip"
+                title="Plan a flight"
+                onPress={onPlanTrip}
+              />
+            </View>
           ) : null}
         </View>
       </Animated.ScrollView>
@@ -105,7 +132,8 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
   );
 }
 
-const SHADE = 'linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 40%)';
+const SHADE =
+  'linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 40%)';
 
 const useStyles = makeStyles(palette => ({
   // Sized explicitly: with only absolute insets, iOS draws the photo at its pixel size.

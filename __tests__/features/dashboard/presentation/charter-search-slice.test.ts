@@ -10,7 +10,6 @@ import {
   quoteChosen,
   quoteToggled,
   searchSubmitted,
-  selectDraftChanged,
   tripTypeSelected,
   type CharterSearchState,
 } from '@/features/dashboard/presentation/charter-search-slice';
@@ -18,7 +17,10 @@ import { checkDraft } from '@/features/dashboard/domain/entities/charter';
 import type { UnknownAction } from '@reduxjs/toolkit';
 
 const reduce = (actions: UnknownAction[], state?: CharterSearchState) =>
-  actions.reduce(charterSearchSlice.reducer, state ?? charterSearchSlice.reducer(undefined, { type: '@@init' }));
+  actions.reduce(
+    charterSearchSlice.reducer,
+    state ?? charterSearchSlice.reducer(undefined, { type: '@@init' }),
+  );
 
 const filled = () =>
   reduce([
@@ -29,21 +31,39 @@ const filled = () =>
   ]);
 
 test('fills the outbound leg, swaps it and keeps the passengers in range', () => {
-  const state = reduce([airportsSwapped('outbound'), passengersSelected({ target: 'outbound', count: 40 })], filled());
+  const state = reduce(
+    [
+      airportsSwapped('outbound'),
+      passengersSelected({ target: 'outbound', count: 40 }),
+    ],
+    filled(),
+  );
 
-  expect(state.draft.outbound).toEqual({ origin: 'NCE', destination: 'GVA', date: '2026-10-20', passengers: 16 });
+  expect(state.draft.outbound).toEqual({
+    origin: 'NCE',
+    destination: 'GVA',
+    date: '2026-10-20',
+    passengers: 16,
+  });
 });
 
 test('remembers recent airports, newest first and without repeats', () => {
   const codes = ['HEL', 'LBG', 'FAB', 'NCE', 'GVA', 'DXB', 'HEL'];
-  const state = reduce(codes.map(code => airportSelected({ target: 'outbound', end: 'origin', code })));
+  const state = reduce(
+    codes.map(code =>
+      airportSelected({ target: 'outbound', end: 'origin', code }),
+    ),
+  );
 
   expect(state.recentAirports).toEqual(['HEL', 'DXB', 'GVA', 'NCE', 'FAB']);
   expect(state.recentAirports).toHaveLength(MAX_RECENT_AIRPORTS);
 });
 
 test('a new trip type starts the form over and drops the results', () => {
-  const searched = reduce([searchSubmitted(checkDraft(filled().draft).request!)], filled());
+  const searched = reduce(
+    [searchSubmitted(checkDraft(filled().draft).request!)],
+    filled(),
+  );
 
   const state = reduce([tripTypeSelected('multiCity')], searched);
 
@@ -59,23 +79,27 @@ test('a multi-city leg starts where the last one lands and the last leg stays', 
     passengersSelected({ target: 0, count: 3 }),
     legAdded(),
   ]);
-  expect(state.draft.legs[1]).toEqual({ origin: 'NCE', destination: null, date: null, passengers: 3 });
+  expect(state.draft.legs[1]).toEqual({
+    origin: 'NCE',
+    destination: null,
+    date: null,
+    passengers: 3,
+  });
 
   state = reduce([legRemoved(0), legRemoved(0)], state);
   expect(state.draft.legs).toHaveLength(1);
 });
 
-test('tells when the form no longer matches the results on screen', () => {
-  const searched = reduce([searchSubmitted(checkDraft(filled().draft).request!)], filled());
-  expect(selectDraftChanged({ charterSearch: searched })).toBe(false);
-
-  const edited = reduce([passengersSelected({ target: 'outbound', count: 3 })], searched);
-  expect(selectDraftChanged({ charterSearch: edited })).toBe(true);
-});
-
 test('remembers one jet per leg, toggles it off, and forgets them on a new search', () => {
   const request = checkDraft(filled().draft).request!;
-  let state = reduce([searchSubmitted(request), quoteToggled({ legIndex: 0, quoteId: 'a' }), quoteChosen({ legIndex: 1, quoteId: 'b' })], filled());
+  let state = reduce(
+    [
+      searchSubmitted(request),
+      quoteToggled({ legIndex: 0, quoteId: 'a' }),
+      quoteChosen({ legIndex: 1, quoteId: 'b' }),
+    ],
+    filled(),
+  );
   expect(state.selections).toEqual({ 0: 'a', 1: 'b' });
 
   state = reduce([quoteToggled({ legIndex: 0, quoteId: 'a' })], state);

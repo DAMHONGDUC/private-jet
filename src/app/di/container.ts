@@ -1,6 +1,11 @@
 import { AuthMockDataSource } from '@/features/auth/data/datasources/auth-mock-data-source';
 import { AuthRepositoryImpl } from '@/features/auth/data/repositories/auth-repository-impl';
-import { RestoreSession, SignIn, SignOut, UpdateProfile } from '@/features/auth/domain/usecases/auth';
+import {
+  RestoreSession,
+  SignIn,
+  SignOut,
+  UpdateProfile,
+} from '@/features/auth/domain/usecases/auth';
 import type { AuthDependencies } from '@/features/auth/presentation/auth-api';
 import {
   BookingMockDataSource,
@@ -13,14 +18,23 @@ import {
 import { BookCharter } from '@/features/booking/domain/usecases/book-charter';
 import { BookFlight } from '@/features/booking/domain/usecases/book-flight';
 import { GetBookings } from '@/features/booking/domain/usecases/get-bookings';
-import { CancelBooking, GetBooking } from '@/features/booking/domain/usecases/manage-bookings';
-import { AddCard, GetPaymentMethods, RemoveCard, SetDefaultPayment } from '@/features/booking/domain/usecases/payments';
+import {
+  CancelBooking,
+  GetBooking,
+} from '@/features/booking/domain/usecases/manage-bookings';
+import {
+  AddCard,
+  GetPaymentMethods,
+  RemoveCard,
+  SetDefaultPayment,
+} from '@/features/booking/domain/usecases/payments';
 import type { BookingDependencies } from '@/features/booking/presentation/booking-api';
 import { CharterMockDataSource } from '@/features/dashboard/data/datasources/charter-mock-data-source';
 import { DashboardMockDataSource } from '@/features/dashboard/data/datasources/dashboard-mock-data-source';
 import { CharterRepositoryImpl } from '@/features/dashboard/data/repositories/charter-repository-impl';
 import { DashboardRepositoryImpl } from '@/features/dashboard/data/repositories/dashboard-repository-impl';
 import { GetNews } from '@/features/dashboard/domain/usecases/get-news';
+import { GetPopularRoutes } from '@/features/dashboard/domain/usecases/get-popular-routes';
 import { SearchCharters } from '@/features/dashboard/domain/usecases/search-charters';
 import type { DashboardDependencies } from '@/features/dashboard/presentation/dashboard-api';
 import { FlightMockDataSource } from '@/features/flights/data/datasources/flight-mock-data-source';
@@ -64,22 +78,44 @@ export function createDependencies({
   now = () => new Date(),
   random,
 }: DependencyOptions = {}): AppDependencies {
-  const flightRepository = new FlightRepositoryImpl(new FlightMockDataSource(latencyMs, now()));
+  const flightRepository = new FlightRepositoryImpl(
+    new FlightMockDataSource(latencyMs, now()),
+  );
   const bookingRepository = new BookingRepositoryImpl(
     new BookingMockDataSource(latencyMs, now, random),
   );
-  const dashboardRepository = new DashboardRepositoryImpl(new DashboardMockDataSource(latencyMs));
-  const charterRepository = new CharterRepositoryImpl(new CharterMockDataSource(latencyMs));
-  const authRepository = new AuthRepositoryImpl(new AuthMockDataSource(latencyMs));
-  const paymentRepository = new PaymentRepositoryImpl(new PaymentMockDataSource(latencyMs));
-  const inboxRepository = new InboxRepositoryImpl(new InboxMockDataSource(latencyMs, now));
+  const dashboardRepository = new DashboardRepositoryImpl(
+    new DashboardMockDataSource(latencyMs),
+  );
+  const charterRepository = new CharterRepositoryImpl(
+    new CharterMockDataSource(latencyMs),
+  );
+  const authRepository = new AuthRepositoryImpl(
+    new AuthMockDataSource(latencyMs),
+  );
+  const paymentRepository = new PaymentRepositoryImpl(
+    new PaymentMockDataSource(latencyMs),
+  );
+  const inboxRepository = new InboxRepositoryImpl(
+    new InboxMockDataSource(latencyMs, now),
+  );
 
   return {
     searchFlights: new SearchFlights(flightRepository, now),
     getFlightById: new GetFlightById(flightRepository),
     getAirports: new GetAirports(flightRepository),
-    bookFlight: new BookFlight(bookingRepository, flightRepository, paymentRepository, now),
-    bookCharter: new BookCharter(bookingRepository, flightRepository, paymentRepository, now),
+    bookFlight: new BookFlight(
+      bookingRepository,
+      flightRepository,
+      paymentRepository,
+      now,
+    ),
+    bookCharter: new BookCharter(
+      bookingRepository,
+      flightRepository,
+      paymentRepository,
+      now,
+    ),
     getBookings: new GetBookings(bookingRepository),
     getBooking: new GetBooking(bookingRepository),
     cancelBooking: new CancelBooking(bookingRepository, now),
@@ -89,6 +125,7 @@ export function createDependencies({
     removeCard: new RemoveCard(paymentRepository),
     searchCharters: new SearchCharters(charterRepository, now),
     getNews: new GetNews(dashboardRepository),
+    getPopularRoutes: new GetPopularRoutes(dashboardRepository),
     restoreSession: new RestoreSession(authRepository),
     signIn: new SignIn(authRepository),
     signOut: new SignOut(authRepository),

@@ -1,24 +1,35 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
+import { radius, spacing } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
+import { LOGO, LOGO_ASPECT } from '@/core/ui/images';
 import { useGetInboxSummaryQuery } from '@/features/inbox/presentation/inbox-api';
-import { LOGO } from '@/core/ui/images';
 
-type AppBarProps = { onOpenMessages?: () => void; onOpenNotifications?: () => void };
+type AppBarProps = {
+  onOpenMessages?: () => void;
+  onOpenNotifications?: () => void;
+};
+
+const LOGO_HEIGHT = 28;
 
 /** Logo on the left; chat and bell with unread badges on the right (feature-docs/dashboard §2.1). */
-export function HomeAppBar({ onOpenMessages, onOpenNotifications }: AppBarProps) {
+export function HomeAppBar({
+  onOpenMessages,
+  onOpenNotifications,
+}: AppBarProps) {
   const palette = useBlackJetTheme();
   const { data: inbox } = useGetInboxSummaryQuery();
 
   return (
-    <View style={[styles.bar, { backgroundColor: palette.secondaryBackground }]}>
+    <View
+      style={[styles.bar, { backgroundColor: palette.secondaryBackground }]}
+    >
       <Image
         testID="home-logo"
         source={LOGO[palette.scheme]}
-        resizeMode="cover"
+        resizeMode="contain"
         accessibilityLabel="BlackJet"
         style={styles.logo}
       />
@@ -42,9 +53,21 @@ export function HomeAppBar({ onOpenMessages, onOpenNotifications }: AppBarProps)
   );
 }
 
-type BadgeButtonProps = { testID: string; icon: IconName; label: string; count: number; onPress?: () => void };
+type BadgeButtonProps = {
+  testID: string;
+  icon: IconName;
+  label: string;
+  count: number;
+  onPress?: () => void;
+};
 
-function BadgeButton({ testID, icon, label, count, onPress }: BadgeButtonProps) {
+function BadgeButton({
+  testID,
+  icon,
+  label,
+  count,
+  onPress,
+}: BadgeButtonProps) {
   const palette = useBlackJetTheme();
   return (
     <PressableScale
@@ -53,12 +76,21 @@ function BadgeButton({ testID, icon, label, count, onPress }: BadgeButtonProps) 
       accessibilityLabel={count > 0 ? `${label}, ${count} unread` : label}
       disabled={!onPress}
       onPress={onPress}
-      style={styles.button}
+      style={[styles.button, { backgroundColor: palette.primaryBackground }]}
     >
-      <Icon name={icon} size={30} color={palette.jetBlack} />
+      <Icon name={icon} size={22} color={palette.jetBlack} />
       {count > 0 ? (
-        <View testID={`${testID}-badge`} style={[styles.badge, { backgroundColor: palette.error }]}>
-          <BJText size={12} tone="white">
+        <View
+          testID={`${testID}-badge`}
+          style={[
+            styles.badge,
+            {
+              backgroundColor: palette.accent,
+              borderColor: palette.secondaryBackground,
+            },
+          ]}
+        >
+          <BJText size={13} tone="onAccent">
             {count > 99 ? '99+' : count}
           </BJText>
         </View>
@@ -67,35 +99,53 @@ function BadgeButton({ testID, icon, label, count, onPress }: BadgeButtonProps) 
   );
 }
 
-/** "Flying Private Made Simple" and its subtitle (feature-docs/dashboard §2.2). */
+/** The greeting above the search. */
 export function HeroText() {
   return (
     <View style={styles.hero}>
-      <BJText size={32} adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={2}>
-        {'Flying Private Made\nSimple'}
-      </BJText>
-      <BJText size={16} tone="secondary">
-        Book Your Private Jet Instantly
+      <BJText size={28}>Where to next?</BJText>
+      <BJText tone="secondary" weight="regular">
+        Charter a private jet in minutes.
       </BJText>
     </View>
   );
 }
 
+const BUTTON = 44;
+
 const styles = StyleSheet.create({
-  bar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, paddingRight: 24 },
-  logo: { width: 128.6, height: 45, borderRadius: 8 },
-  actions: { flexDirection: 'row', gap: 4 },
-  button: { width: 50, height: 50, alignItems: 'center', justifyContent: 'center' },
-  badge: {
-    position: 'absolute',
-    top: 4,
-    right: 2,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    paddingHorizontal: 5,
+  bar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  logo: { height: LOGO_HEIGHT, width: LOGO_HEIGHT * LOGO_ASPECT },
+  actions: { flexDirection: 'row', gap: spacing.sm },
+  button: {
+    width: BUTTON,
+    height: BUTTON,
+    borderRadius: BUTTON / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  hero: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 24, gap: 12 },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    paddingHorizontal: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hero: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    gap: spacing.xs,
+  },
 });

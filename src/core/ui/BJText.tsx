@@ -1,11 +1,23 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
-import { blackJetFonts, useBlackJetTheme, type BlackJetPalette } from '@/core/theme/blackjet';
+import {
+  blackJetFonts,
+  useBlackJetTheme,
+  type BlackJetPalette,
+} from '@/core/theme/blackjet';
+import { typeScale, type TypeSize } from '@/core/theme/theme';
 
-type Weight = 'regular' | 'medium' | 'bold';
-type Tone = 'primary' | 'secondary' | 'inverse' | 'white';
+type Weight = 'regular' | 'medium';
+type Tone =
+  | 'primary'
+  | 'secondary'
+  | 'inverse'
+  | 'white'
+  | 'accent'
+  | 'onAccent';
 
 type Props = TextProps & {
-  size?: number;
+  /** One of the four sizes in `typeScale`. */
+  size?: TypeSize;
   weight?: Weight;
   tone?: Tone;
 };
@@ -16,17 +28,30 @@ const toneColor = (palette: BlackJetPalette, tone: Tone) =>
     secondary: palette.secondaryText,
     inverse: palette.ghostWhite,
     white: '#FFFFFF',
-  })[tone];
+    accent: palette.accent,
+    onAccent: palette.onAccent,
+  }[tone]);
 
 /** Text in KnulTrial; the weight picks the font file, never `fontWeight`. */
-export function BJText({ size = 14, weight = 'medium', tone = 'primary', style, ...rest }: Props) {
+export function BJText({
+  size = typeScale.body,
+  weight = 'medium',
+  tone = 'primary',
+  style,
+  ...rest
+}: Props) {
   const palette = useBlackJetTheme();
   return (
     <Text
       {...rest}
       style={[
         styles.base,
-        { fontSize: size, fontFamily: blackJetFonts[weight], color: toneColor(palette, tone) },
+        {
+          fontSize: size,
+          lineHeight: Math.round(size * 1.3),
+          fontFamily: blackJetFonts[weight],
+          color: toneColor(palette, tone),
+        },
         style,
       ]}
     />

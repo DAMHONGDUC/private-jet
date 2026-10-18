@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { BJText } from '@/core/ui/BJText';
-import { FadeUp } from '@/core/ui/FadeUp';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { addDays, toDayKey } from '@/core/utils/date';
 import { BJSheet } from './BJSheet';
@@ -10,8 +9,18 @@ import { BJSheet } from './BJSheet';
 const WEEKS = 6;
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 type Props = {
@@ -27,26 +36,42 @@ type Props = {
 };
 
 /** Six weeks from this Monday; picking a day closes the sheet (feature-docs/dashboard §4.3). */
-export function CalendarSheet({ visible, title, minDay, today, value, onPick, onClose }: Props) {
+export function CalendarSheet({
+  visible,
+  title,
+  minDay,
+  today,
+  value,
+  onPick,
+  onClose,
+}: Props) {
   const palette = useBlackJetTheme();
   const { days, heading } = useMemo(() => {
     const monday = addDays(today, -((today.getDay() + 6) % 7));
     const all = Array.from({ length: WEEKS * 7 }, (_, i) => addDays(monday, i));
     const first = MONTHS[all[0].getMonth()];
     const last = MONTHS[all[all.length - 1].getMonth()];
-    return { days: all, heading: first === last ? first : `${first} – ${last}` };
+    return {
+      days: all,
+      heading: first === last ? first : `${first} – ${last}`,
+    };
   }, [today]);
 
   return (
-    <BJSheet visible={visible} title={title} onClose={onClose} testID="calendar-sheet">
-      <FadeUp index={1}>
+    <BJSheet
+      visible={visible}
+      title={title}
+      onClose={onClose}
+      testID="calendar-sheet"
+    >
+      <View>
         <BJText tone="secondary" style={styles.month}>
           {heading}
         </BJText>
-      </FadeUp>
-      <FadeUp index={2} style={styles.grid}>
+      </View>
+      <View style={styles.grid}>
         {WEEKDAYS.map(day => (
-          <BJText key={day} size={12} tone="secondary" style={styles.weekday}>
+          <BJText key={day} size={13} tone="secondary" style={styles.weekday}>
             {day}
           </BJText>
         ))}
@@ -62,25 +87,37 @@ export function CalendarSheet({ visible, title, minDay, today, value, onPick, on
                 accessibilityState={{ selected, disabled }}
                 disabled={disabled}
                 onPress={() => onPick(key)}
-                style={[styles.day, selected && { backgroundColor: palette.jetBlack }]}
+                style={[
+                  styles.day,
+                  selected && { backgroundColor: palette.accent },
+                ]}
               >
-                <BJText tone={selected ? 'inverse' : 'primary'} style={disabled && styles.disabled}>
+                <BJText
+                  tone={selected ? 'onAccent' : 'primary'}
+                  weight={selected ? 'medium' : 'regular'}
+                  style={disabled && styles.disabled}
+                >
                   {date.getDate()}
                 </BJText>
               </PressableScale>
             </View>
           );
         })}
-      </FadeUp>
+      </View>
     </BJSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  month: { marginBottom: 8 },
+  month: { marginBottom: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   weekday: { width: `${100 / 7}%`, textAlign: 'center', paddingBottom: 8 },
-  cell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 2 },
-  day: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 100 },
+  cell: { width: `${100 / 7}%`, aspectRatio: 1, padding: 4 },
+  day: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+  },
   disabled: { opacity: 0.3 },
 });

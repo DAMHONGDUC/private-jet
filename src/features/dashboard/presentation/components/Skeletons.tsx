@@ -7,7 +7,10 @@ import { JET_CARD_HEIGHT } from './JetCard';
 export function JetCardSkeleton() {
   const palette = useBlackJetTheme();
   return (
-    <View testID="jet-card-skeleton" style={[styles.jet, { backgroundColor: palette.primaryBackground }]}>
+    <View
+      testID="jet-card-skeleton"
+      style={[styles.jet, { backgroundColor: palette.primaryBackground }]}
+    >
       <View style={styles.bars}>
         <Shimmer width={140} height={10} />
         <Shimmer width={60} height={8} />
@@ -24,7 +27,10 @@ export function JetCardSkeleton() {
 export function NewsSkeleton() {
   const palette = useBlackJetTheme();
   return (
-    <View testID="news-skeleton" style={[styles.news, { backgroundColor: palette.primaryBackground }]}>
+    <View
+      testID="news-skeleton"
+      style={[styles.news, { backgroundColor: palette.primaryBackground }]}
+    >
       <Shimmer width={142} height={8} />
       <Shimmer width={93} height={8} />
     </View>
@@ -32,8 +38,23 @@ export function NewsSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  jet: { height: JET_CARD_HEIGHT, borderRadius: 20, padding: 12, justifyContent: 'space-between' },
+  jet: {
+    height: JET_CARD_HEIGHT,
+    borderRadius: 24,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
   bars: { gap: 8 },
-  bottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  news: { height: 200, borderRadius: 16, padding: 16, justifyContent: 'flex-end', gap: 20 },
+  bottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  news: {
+    height: 220,
+    borderRadius: 24,
+    padding: 16,
+    justifyContent: 'flex-end',
+    gap: 16,
+  },
 });

@@ -6,7 +6,10 @@ import { PressableScale } from '@/core/ui/PressableScale';
 import { Shimmer } from '@/core/ui/Shimmer';
 import { haptics } from '@/core/ui/haptics';
 import { formatMoney } from '@/core/utils/format';
-import { paymentLabel, type PaymentMethod } from '../../domain/entities/payment';
+import {
+  paymentLabel,
+  type PaymentMethod,
+} from '../../domain/entities/payment';
 
 type Props = {
   methods: PaymentMethod[] | undefined;
@@ -19,7 +22,13 @@ type Props = {
 };
 
 /** Cards and the wallet as radio rows; the wallet shows its balance. */
-export function PaymentMethodPicker({ methods, value, onChange, amount, currency }: Props) {
+export function PaymentMethodPicker({
+  methods,
+  value,
+  onChange,
+  amount,
+  currency,
+}: Props) {
   const styles = useStyles();
   if (!methods) {
     return (
@@ -29,13 +38,17 @@ export function PaymentMethodPicker({ methods, value, onChange, amount, currency
       </View>
     );
   }
-  const chosen = value ?? methods.find(method => method.isDefault)?.id ?? methods[0]?.id;
+  const chosen =
+    value ?? methods.find(method => method.isDefault)?.id ?? methods[0]?.id;
 
   return (
     <View style={styles.list} accessibilityRole="radiogroup">
       {methods.map(method => {
         const selected = method.id === chosen;
-        const short = method.kind === 'wallet' && amount !== undefined && (method.balance ?? 0) < amount;
+        const short =
+          method.kind === 'wallet' &&
+          amount !== undefined &&
+          (method.balance ?? 0) < amount;
         return (
           <PressableScale
             key={method.id}
@@ -48,13 +61,24 @@ export function PaymentMethodPicker({ methods, value, onChange, amount, currency
             }}
             style={[styles.row, selected && styles.selected]}
           >
-            <View style={[styles.ring, selected && styles.ringOn]}>{selected ? <View style={styles.dot} /> : null}</View>
+            <View style={[styles.ring, selected && styles.ringOn]}>
+              {selected ? <View style={styles.dot} /> : null}
+            </View>
             <View style={styles.text}>
               <AppText variant="subtitle">{paymentLabel(method)}</AppText>
-              <AppText variant="caption" muted style={short ? styles.short : undefined}>
+              <AppText
+                variant="caption"
+                muted
+                style={short ? styles.short : undefined}
+              >
                 {method.kind === 'wallet'
-                  ? `Balance ${formatMoney(method.balance ?? 0, method.currency ?? currency ?? 'EUR')}${short ? ' · not enough' : ''}`
-                  : `Expires ${method.expiry}${method.isDefault ? ' · Default' : ''}`}
+                  ? `Balance ${formatMoney(
+                      method.balance ?? 0,
+                      method.currency ?? currency ?? 'EUR',
+                    )}${short ? ' · not enough' : ''}`
+                  : `Expires ${method.expiry}${
+                      method.isDefault ? ' · Default' : ''
+                    }`}
               </AppText>
             </View>
           </PressableScale>
@@ -76,7 +100,10 @@ const useStyles = makeStyles(palette => ({
     borderColor: palette.iron,
     backgroundColor: palette.secondaryBackground,
   },
-  selected: { borderColor: palette.jetBlack },
+  selected: {
+    borderColor: palette.accent,
+    backgroundColor: palette.accentSoft,
+  },
   ring: {
     width: 20,
     height: 20,
@@ -86,8 +113,13 @@ const useStyles = makeStyles(palette => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ringOn: { borderColor: palette.jetBlack },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: palette.jetBlack },
+  ringOn: { borderColor: palette.accent },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: palette.accent,
+  },
   text: { flex: 1, gap: 2 },
   short: { color: palette.error },
 }));

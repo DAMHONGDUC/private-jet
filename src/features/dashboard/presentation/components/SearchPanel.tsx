@@ -3,8 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { haptics } from '@/core/ui/haptics';
 import { toDayKey } from '@/core/utils/date';
 import { useGetAirportsQuery } from '@/features/flights/presentation/flights-api';
-import { airportsByCode } from '@/features/flights/presentation/search-summary';
-import { MAX_CHARTER_PASSENGERS, checkDraft, type CharterRequest } from '../../domain/entities/charter';
+import {
+  MAX_CHARTER_PASSENGERS,
+  checkDraft,
+  type CharterRequest,
+} from '../../domain/entities/charter';
 import {
   airportSelected,
   airportsSwapped,
@@ -14,11 +17,11 @@ import {
   passengersSelected,
   returnDateSelected,
   selectCharterSearch,
-  selectDraftChanged,
   tripTypeSelected,
   type AirportEnd,
   type LegTarget,
 } from '../charter-search-slice';
+import { airportsByCode } from '../search-labels';
 import { AirportSheet } from './AirportSheet';
 import { BookingCard } from './BookingCard';
 import { CalendarSheet } from './CalendarSheet';
@@ -38,18 +41,17 @@ type Props = {
   onSearch: (request: CharterRequest) => void;
   /** The first thing missing, in the original app's words. */
   onInvalid: (message: string) => void;
-  finding: boolean;
   /** The first day the calendar allows; tests pin it. */
   today: Date;
 };
 
-const legName = (target: LegTarget) => (target === 'outbound' ? '' : `Leg #${target + 1} · `);
+const legName = (target: LegTarget) =>
+  target === 'outbound' ? '' : `Leg #${target + 1} · `;
 
 /** The booking card wired to the store, with the sheets its fields open. */
-export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
+export function SearchPanel({ onSearch, onInvalid, today }: Props) {
   const dispatch = useDispatch();
   const { draft, recentAirports } = useSelector(selectCharterSearch);
-  const changed = useSelector(selectDraftChanged);
   const { data: airports } = useGetAirportsQuery();
   const byCode = useMemo(() => airportsByCode(airports), [airports]);
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -61,7 +63,8 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
     setSheet(next);
   };
 
-  const legAt = (target: LegTarget) => (target === 'outbound' ? draft.outbound : draft.legs[target]);
+  const legAt = (target: LegTarget) =>
+    target === 'outbound' ? draft.outbound : draft.legs[target];
 
   /** A leg cannot leave before the one it follows; the way back not before the way out. */
   const minDayFor = (target: LegTarget | 'return'): string => {
@@ -84,15 +87,18 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
     }
   };
 
-  const dateTarget = sheet?.kind === 'date' ? sheet.target : sheet?.kind === 'return' ? 'return' : null;
+  const dateTarget =
+    sheet?.kind === 'date'
+      ? sheet.target
+      : sheet?.kind === 'return'
+      ? 'return'
+      : null;
 
   return (
     <>
       <BookingCard
         draft={draft}
         airports={byCode}
-        findLabel={changed ? 'Update Results' : 'Find Your Jet'}
-        finding={finding}
         onTripType={type => dispatch(tripTypeSelected(type))}
         onPickAirport={(target, end) => open({ kind: 'airport', target, end })}
         onSwap={target => dispatch(airportsSwapped(target))}
@@ -106,12 +112,20 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
 
       <AirportSheet
         visible={sheet?.kind === 'airport'}
-        title={sheet?.kind === 'airport' ? `${legName(sheet.target)}${sheet.end === 'origin' ? 'From' : 'To'}` : ''}
+        title={
+          sheet?.kind === 'airport'
+            ? `${legName(sheet.target)}${
+                sheet.end === 'origin' ? 'From' : 'To'
+              }`
+            : ''
+        }
         airports={airports}
         recent={recentAirports}
         onPick={code => {
           if (sheet?.kind === 'airport') {
-            dispatch(airportSelected({ target: sheet.target, end: sheet.end, code }));
+            dispatch(
+              airportSelected({ target: sheet.target, end: sheet.end, code }),
+            );
           }
           close();
         }}
@@ -124,12 +138,18 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
           dateTarget === 'return'
             ? 'Return Date'
             : dateTarget !== null
-              ? `${legName(dateTarget)}Departure Date`
-              : ''
+            ? `${legName(dateTarget)}Departure Date`
+            : ''
         }
         today={today}
         minDay={dateTarget !== null ? minDayFor(dateTarget) : todayKey}
-        value={dateTarget === 'return' ? draft.returnDate : dateTarget !== null ? (legAt(dateTarget)?.date ?? null) : null}
+        value={
+          dateTarget === 'return'
+            ? draft.returnDate
+            : dateTarget !== null
+            ? legAt(dateTarget)?.date ?? null
+            : null
+        }
         onPick={day => {
           haptics.light();
           if (dateTarget === 'return') {
@@ -144,8 +164,16 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
 
       <CountSheet
         visible={sheet?.kind === 'passengers'}
-        title={sheet?.kind === 'passengers' ? `${legName(sheet.target)}Number of Passengers` : ''}
-        value={sheet?.kind === 'passengers' ? (legAt(sheet.target)?.passengers ?? 0) : 0}
+        title={
+          sheet?.kind === 'passengers'
+            ? `${legName(sheet.target)}Number of Passengers`
+            : ''
+        }
+        value={
+          sheet?.kind === 'passengers'
+            ? legAt(sheet.target)?.passengers ?? 0
+            : 0
+        }
         max={MAX_CHARTER_PASSENGERS}
         onDone={count => {
           if (sheet?.kind === 'passengers') {
@@ -158,7 +186,11 @@ export function SearchPanel({ onSearch, onInvalid, finding, today }: Props) {
 
       <ConfirmSheet
         visible={sheet?.kind === 'removeLeg'}
-        title={sheet?.kind === 'removeLeg' ? `Remove Flight Leg #${sheet.index + 1}` : ''}
+        title={
+          sheet?.kind === 'removeLeg'
+            ? `Remove Flight Leg #${sheet.index + 1}`
+            : ''
+        }
         message="This leg and everything chosen for it will be removed from the trip."
         confirmLabel="Remove"
         onConfirm={() => {

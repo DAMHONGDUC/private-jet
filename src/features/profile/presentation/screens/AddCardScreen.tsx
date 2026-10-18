@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
-  FadeInDown,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -19,7 +24,10 @@ import { Screen } from '@/core/ui/Screen';
 import { errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
 import { selectUser } from '@/features/auth/presentation/session-slice';
-import { brandOf, validateNewCard } from '@/features/booking/domain/entities/payment';
+import {
+  brandOf,
+  validateNewCard,
+} from '@/features/booking/domain/entities/payment';
 import { useAddCardMutation } from '@/features/booking/presentation/booking-api';
 import { FormField } from '@/features/booking/presentation/components/FormField';
 import { CARD_RATIO, PaymentCard } from '../components/PaymentCard';
@@ -42,7 +50,9 @@ const groupDigits = (text: string) =>
 /** "1228" → "12/28"; deleting the slash deletes the month's last digit too. */
 const formatExpiry = (text: string) => {
   const digits = text.replace(/\D/g, '').slice(0, 4);
-  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+  return digits.length > 2
+    ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+    : digits;
 };
 
 /**
@@ -62,13 +72,22 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
 
   const turned = useSharedValue(0);
   const turn = (back: boolean) => {
-    turned.value = withTiming(back ? 1 : 0, { duration: 500, easing: FLIP_EASING });
+    turned.value = withTiming(back ? 1 : 0, {
+      duration: 500,
+      easing: FLIP_EASING,
+    });
   };
   const frontStyle = useAnimatedStyle(() => ({
-    transform: [{ perspective: 1000 }, { rotateY: `${interpolate(turned.value, [0, 1], [0, 180])}deg` }],
+    transform: [
+      { perspective: 1000 },
+      { rotateY: `${interpolate(turned.value, [0, 1], [0, 180])}deg` },
+    ],
   }));
   const backStyle = useAnimatedStyle(() => ({
-    transform: [{ perspective: 1000 }, { rotateY: `${interpolate(turned.value, [0, 1], [180, 360])}deg` }],
+    transform: [
+      { perspective: 1000 },
+      { rotateY: `${interpolate(turned.value, [0, 1], [180, 360])}deg` },
+    ],
   }));
 
   const submit = async () => {
@@ -104,28 +123,36 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Animated.View entering={FadeInDown.duration(500)} style={styles.stage}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.stage}>
             <Animated.View style={[styles.face, frontStyle]}>
-              <PaymentCard testID="card-preview" method={preview} number={number} />
+              <PaymentCard
+                testID="card-preview"
+                method={preview}
+                number={number}
+              />
             </Animated.View>
             <Animated.View style={[styles.face, styles.back, backStyle]}>
               <View style={styles.stripe} />
               <View style={styles.signature}>
                 <View style={styles.signatureLines} />
                 <View style={styles.cvcBox}>
-                  <BJText size={15} weight="bold" style={styles.cvcText}>
+                  <BJText size={16} weight="medium" style={styles.cvcText}>
                     {cvc.padEnd(3, '•')}
                   </BJText>
                 </View>
               </View>
-              <BJText size={10} style={styles.backNote}>
-                Issued for the BlackJet demo. Charges are simulated and no money moves.
+              <BJText size={13} style={styles.backNote}>
+                Issued for the BlackJet demo. Charges are simulated and no money
+                moves.
               </BJText>
             </Animated.View>
-          </Animated.View>
+          </View>
 
-          <Animated.View entering={FadeInDown.duration(450).delay(120)} style={styles.form}>
+          <View style={styles.form}>
             <FormField
               testID="card-holder"
               label="Name on card"
@@ -168,9 +195,10 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
               </View>
             </View>
             <AppText variant="caption" muted>
-              Test numbers: 4242 4242 4242 4242 (Visa), 5555 5555 5555 4444 (Mastercard), any future expiry and code.
+              Test numbers: 4242 4242 4242 4242 (Visa), 5555 5555 5555 4444
+              (Mastercard), any future expiry and code.
             </AppText>
-          </Animated.View>
+          </View>
 
           {shownError ? (
             <Animated.View entering={FadeIn}>
@@ -180,7 +208,12 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
             </Animated.View>
           ) : null}
 
-          <Button testID="save-card" title="Save card" loading={isLoading} onPress={submit} />
+          <Button
+            testID="save-card"
+            title="Save card"
+            loading={isLoading}
+            onPress={submit}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -200,7 +233,12 @@ const useStyles = makeStyles(palette => ({
     gap: 18,
   },
   stripe: { height: 42, backgroundColor: '#0A0A0A' },
-  signature: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 10 },
+  signature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    gap: 10,
+  },
   signatureLines: {
     flex: 1,
     height: 36,

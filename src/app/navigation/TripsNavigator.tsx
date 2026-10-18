@@ -1,5 +1,8 @@
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeBottomTabNavigationProp } from '@react-navigation/bottom-tabs/unstable';
+import {
+  useNavigation,
+  type CompositeNavigationProp,
+} from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   type NativeStackNavigationProp,
@@ -8,14 +11,21 @@ import {
 import { blackJetFonts, useBlackJetTheme } from '@/core/theme/blackjet';
 import { TripDetailScreen } from '@/features/booking/presentation/screens/TripDetailScreen';
 import { TripsScreen } from '@/features/booking/presentation/screens/TripsScreen';
-import type { AppStackParamList, RootTabParamList, TripsStackParamList } from './types';
+import type {
+  AppStackParamList,
+  RootTabParamList,
+  TripsStackParamList,
+} from './types';
 
 const Stack = createNativeStackNavigator<TripsStackParamList>();
 
-type Props<T extends keyof TripsStackParamList> = NativeStackScreenProps<TripsStackParamList, T>;
+type Props<T extends keyof TripsStackParamList> = NativeStackScreenProps<
+  TripsStackParamList,
+  T
+>;
 type TabsNavigation = CompositeNavigationProp<
   NativeStackNavigationProp<TripsStackParamList>,
-  BottomTabNavigationProp<RootTabParamList>
+  NativeBottomTabNavigationProp<RootTabParamList>
 >;
 
 function TripListRoute({ navigation }: Props<'TripList'>) {
@@ -23,14 +33,19 @@ function TripListRoute({ navigation }: Props<'TripList'>) {
   return (
     <TripsScreen
       onOpenTrip={bookingId => navigation.navigate('TripDetail', { bookingId })}
-      onPlanTrip={() => tabs.navigate('DashboardTab', { screen: 'Home' })}
+      onPlanTrip={() => tabs.navigate('DashboardTab')}
     />
   );
 }
 
 function TripDetailRoute({ route }: Props<'TripDetail'>) {
   const root = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
-  return <TripDetailScreen bookingId={route.params.bookingId} onContactConcierge={() => root.navigate('Chat')} />;
+  return (
+    <TripDetailScreen
+      bookingId={route.params.bookingId}
+      onContactConcierge={() => root.navigate('Chat')}
+    />
+  );
 }
 
 export function TripsNavigator() {
@@ -40,15 +55,26 @@ export function TripsNavigator() {
       screenOptions={{
         headerStyle: { backgroundColor: palette.secondaryBackground },
         headerTintColor: palette.primaryText,
-        headerTitleStyle: { color: palette.primaryText, fontFamily: blackJetFonts.medium },
+        headerTitleStyle: {
+          color: palette.primaryText,
+          fontFamily: blackJetFonts.medium,
+        },
         headerShadowVisible: false,
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: palette.secondaryBackground },
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="TripList" component={TripListRoute} options={{ headerShown: false }} />
-      <Stack.Screen name="TripDetail" component={TripDetailRoute} options={{ title: 'Trip' }} />
+      <Stack.Screen
+        name="TripList"
+        component={TripListRoute}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TripDetail"
+        component={TripDetailRoute}
+        options={{ title: 'Trip' }}
+      />
     </Stack.Navigator>
   );
 }

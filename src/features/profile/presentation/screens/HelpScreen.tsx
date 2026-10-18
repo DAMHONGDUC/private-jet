@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import Animated, {
   FadeIn,
-  FadeInDown,
   FadeOut,
-  LinearTransition,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
@@ -60,10 +58,10 @@ export function HelpScreen({ onContactConcierge }: Props) {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Animated.View entering={FadeInDown.duration(450)}>
+        <View>
           <AppText variant="title">Frequently asked</AppText>
-        </Animated.View>
-        <Animated.View entering={FadeInDown.duration(450).delay(80)}>
+        </View>
+        <View>
           <Card style={styles.list}>
             {FAQ.map((item, index) => (
               <Question
@@ -80,12 +78,19 @@ export function HelpScreen({ onContactConcierge }: Props) {
               />
             ))}
           </Card>
-        </Animated.View>
+        </View>
         {onContactConcierge ? (
-          <Animated.View entering={FadeInDown.duration(450).delay(160)} style={styles.concierge}>
-            <AppText muted>Something else? Your concierge answers around the clock.</AppText>
-            <Button testID="help-concierge" title="Message the concierge" variant="secondary" onPress={onContactConcierge} />
-          </Animated.View>
+          <View style={styles.concierge}>
+            <AppText muted>
+              Something else? Your concierge answers around the clock.
+            </AppText>
+            <Button
+              testID="help-concierge"
+              title="Message the concierge"
+              variant="secondary"
+              onPress={onContactConcierge}
+            />
+          </View>
         ) : null}
       </ScrollView>
     </Screen>
@@ -101,14 +106,23 @@ type QuestionProps = {
   onPress: () => void;
 };
 
-function Question({ index, question, answer, open, last, onPress }: QuestionProps) {
+function Question({
+  index,
+  question,
+  answer,
+  open,
+  last,
+  onPress,
+}: QuestionProps) {
   const styles = useStyles();
   const chevron = useAnimatedStyle(() => ({
-    transform: [{ rotate: withTiming(open ? '90deg' : '0deg', { duration: 250 }) }],
+    transform: [
+      { rotate: withTiming(open ? '90deg' : '0deg', { duration: 250 }) },
+    ],
   }));
 
   return (
-    <Animated.View layout={LinearTransition.duration(250)} style={[styles.item, !last && styles.divider]}>
+    <View style={[styles.item, !last && styles.divider]}>
       <PressableScale
         testID={`faq-${index}`}
         accessibilityRole="button"
@@ -124,13 +138,16 @@ function Question({ index, question, answer, open, last, onPress }: QuestionProp
         </Animated.View>
       </PressableScale>
       {open ? (
-        <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(150)}>
+        <Animated.View
+          entering={FadeIn.duration(250)}
+          exiting={FadeOut.duration(150)}
+        >
           <AppText testID={`faq-answer-${index}`} muted style={styles.answer}>
             {answer}
           </AppText>
         </Animated.View>
       ) : null}
-    </Animated.View>
+    </View>
   );
 }
 
@@ -151,21 +168,31 @@ const useStyles = makeStyles(palette => ({
 export function LegalScreen() {
   const styles = useStyles();
   const sections = [
-    ['Demo build', 'BlackJet is a demonstration app. Flights, bookings, payments and messages are simulated on the device; nothing is charged and no aircraft is reserved.'],
-    ['Your data', 'The profile, trips and cards you add live in memory for this session only and are reset when the app restarts. Nothing is sent to a server.'],
-    ['Cancellations', 'Bookings cancel free of charge until 24 hours before the first departure. After that the fare is kept.'],
-    ['Contact', 'Questions about this demo go to the developer who shared it with you.'],
+    [
+      'Demo build',
+      'BlackJet is a demonstration app. Flights, bookings, payments and messages are simulated on the device; nothing is charged and no aircraft is reserved.',
+    ],
+    [
+      'Your data',
+      'The profile, trips and cards you add live in memory for this session only and are reset when the app restarts. Nothing is sent to a server.',
+    ],
+    [
+      'Cancellations',
+      'Bookings cancel free of charge until 24 hours before the first departure. After that the fare is kept.',
+    ],
+    [
+      'Contact',
+      'Questions about this demo go to the developer who shared it with you.',
+    ],
   ];
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        {sections.map(([title, body], index) => (
-          <Animated.View key={title} entering={FadeInDown.duration(450).delay(index * 70)}>
-            <View style={styles.legal}>
-              <AppText variant="subtitle">{title}</AppText>
-              <AppText muted>{body}</AppText>
-            </View>
-          </Animated.View>
+        {sections.map(([title, body]) => (
+          <View key={title} style={styles.legal}>
+            <AppText variant="subtitle">{title}</AppText>
+            <AppText muted>{body}</AppText>
+          </View>
         ))}
       </ScrollView>
     </Screen>

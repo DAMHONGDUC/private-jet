@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { makeStyles } from '@/core/theme/blackjet';
 import { spacing } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
@@ -11,7 +10,10 @@ import { Shimmer } from '@/core/ui/Shimmer';
 import { ErrorView, errorMessage } from '@/core/ui/StateViews';
 import { StatusPill } from '@/core/ui/StatusPill';
 import { haptics } from '@/core/ui/haptics';
-import { paymentLabel, type PaymentMethod } from '@/features/booking/domain/entities/payment';
+import {
+  paymentLabel,
+  type PaymentMethod,
+} from '@/features/booking/domain/entities/payment';
 import {
   useGetPaymentMethodsQuery,
   useRemoveCardMutation,
@@ -25,8 +27,10 @@ type Props = { onAddCard: () => void };
 export function PaymentMethodsScreen({ onAddCard }: Props) {
   const styles = useStyles();
   const { data: methods, error, refetch } = useGetPaymentMethodsQuery();
-  const [setDefault, { isLoading: settingDefault }] = useSetDefaultPaymentMutation();
-  const [removeCard, { isLoading: removing, error: removeError, reset }] = useRemoveCardMutation();
+  const [setDefault, { isLoading: settingDefault }] =
+    useSetDefaultPaymentMutation();
+  const [removeCard, { isLoading: removing, error: removeError, reset }] =
+    useRemoveCardMutation();
   const [removing_, setRemoving] = useState<PaymentMethod | null>(null);
 
   if (error) {
@@ -41,14 +45,11 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
         {!methods
-          ? [0, 1].map(index => <Shimmer key={index} width="100%" height={200} radius={18} />)
-          : methods.map((method, index) => (
-              <Animated.View
-                key={method.id}
-                entering={FadeInDown.duration(450).delay(index * 90)}
-                layout={LinearTransition.duration(300)}
-                style={styles.item}
-              >
+          ? [0, 1].map(index => (
+              <Shimmer key={index} width="100%" height={200} radius={18} />
+            ))
+          : methods.map(method => (
+              <View key={method.id} style={styles.item}>
                 <PaymentCard testID={`card-${method.id}`} method={method} />
                 <View style={styles.actions}>
                   {method.isDefault ? (
@@ -77,7 +78,7 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
                     />
                   ) : null}
                 </View>
-              </Animated.View>
+              </View>
             ))}
         <Button testID="add-card" title="Add a card" onPress={onAddCard} />
       </ScrollView>
@@ -89,8 +90,16 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
         testID="remove-card-sheet"
       >
         <View style={styles.sheet}>
-          <AppText muted>{removing_ ? `${paymentLabel(removing_)} will no longer be offered at checkout.` : ''}</AppText>
-          {removeError ? <AppText style={styles.error}>{errorMessage(removeError)}</AppText> : null}
+          <AppText muted>
+            {removing_
+              ? `${paymentLabel(
+                  removing_,
+                )} will no longer be offered at checkout.`
+              : ''}
+          </AppText>
+          {removeError ? (
+            <AppText style={styles.error}>{errorMessage(removeError)}</AppText>
+          ) : null}
           <Button
             testID="confirm-remove-card"
             title="Remove card"

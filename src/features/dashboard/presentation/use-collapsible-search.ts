@@ -12,44 +12,46 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 
-/** Height of the summary bar the search panel collapses into. */
-export const COLLAPSED_HEIGHT = 56;
+/** How far a drag back up must go before the full form comes back. */
+export const EXPAND_DRAG = 24;
+/** The pill fades in over this last stretch of the form leaving the screen. */
+const FADE_BAND = 48;
 
 /**
- * Collapses the search panel as the dashboard scrolls (feature-docs/dashboard §12.4).
+ * Swaps the dashboard's search form for a floating pill as it scrolls away.
  *
- * The hero and the panel stay in the scroll content, so a drag anywhere,
- * the panel included, scrolls the page. Scrolling past the hero fades the
- * form out while the summary bar, pinned above the list, fades in; the
- * panel's last 56 pt sit exactly under the bar when it is fully collapsed.
- * Letting go half way snaps to the nearer end.
+ * The form stays in the scroll content, so it moves with the page. Once it
+ * has nearly left the screen the pill takes its place on top. Dragging back
+ * up by `EXPAND_DRAG` while the pill shows scrolls to the top, so the whole
+ * form returns at once instead of only when the page reaches the top.
+ * Letting go while the form is half hidden settles on the nearer end.
  */
 export function useCollapsibleSearch() {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const y = useSharedValue(0);
-  const heroHeight = useSharedValue(0);
-  const panelHeight = useSharedValue(0);
+  const dragStart = useSharedValue(0);
+  /** A drag back up asked for the form while the page was still gliding. */
+  const expandPending = useSharedValue(false);
+  const formTop = useSharedValue(0);
+  const formBottom = useSharedValue(0);
   const [collapsed, setCollapsed] = useState(false);
-  // Mirrored in state for the content's minimum height.
-  const [sizes, setSizes] = useState({ viewport: 0, hero: 0, panel: 0 });
 
-  const start = () => {
+  /** Scrolled far enough that the form is out of sight. */
+  const threshold = () => {
     'worklet';
-    return heroHeight.value;
+    return Math.max(formBottom.value - FADE_BAND, 1);
   };
-  const end = () => {
+  const isCollapsed = () => {
     'worklet';
-    return heroHeight.value + Math.max(panelHeight.value - COLLAPSED_HEIGHT, 1);
-  };
-  const progress = () => {
-    'worklet';
-    return interpolate(y.value, [start(), end()], [0, 1], Extrapolation.CLAMP);
+    return formBottom.value > 0 && y.value >= threshold();
   };
 
-  const snap = () => {
+  const settle = () => {
     'worklet';
-    if (y.value > start() + 1 && y.value < end() - 1) {
-      scrollTo(scrollRef, 0, progress() < 0.5 ? start() : end(), true);
+    const top = formTop.value;
+    const end = threshold() + FADE_BAND;
+    if (y.value > top + 1 && y.value < end - 1) {
+      scrollTo(scrollRef, 0, y.value - top < (end - top) / 2 ? top : end, true);
     }
   };
 
@@ -57,68 +59,79 @@ export function useCollapsibleSearch() {
     onScroll: event => {
       y.value = event.contentOffset.y;
     },
+    onBeginDrag: event => {
+      dragStart.value = event.contentOffset.y;
+      expandPending.value = false;
+    },
     onEndDrag: event => {
-      if ((event.velocity?.y ?? 0) === 0) {
-        snap();
+      const wentUp = dragStart.value - event.contentOffset.y >= EXPAND_DRAG;
+      const gliding = (event.velocity?.y ?? 0) !== 0;
+      if (wentUp && dragStart.value >= threshold()) {
+        // A glide would cancel the scroll, so it waits for the glide to end.
+        if (gliding) {
+          expandPending.value = true;
+        } else {
+          scrollTo(scrollRef, 0, 0, true);
+        }
+      } else if (!gliding) {
+        settle();
       }
     },
-    onMomentumEnd: () => snap(),
+    onMomentumEnd: () => {
+      if (expandPending.value) {
+        expandPending.value = false;
+        scrollTo(scrollRef, 0, 0, true);
+      } else {
+        settle();
+      }
+    },
   });
 
-  useAnimatedReaction(
-    () => progress() > 0.5,
-    (now, before) => {
-      if (now !== before) {
-        scheduleOnRN(setCollapsed, now);
-      }
-    },
-  );
+  useAnimatedReaction(isCollapsed, (now, before) => {
+    if (now !== before) {
+      scheduleOnRN(setCollapsed, now);
+    }
+  });
 
-  const heroStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(y.value, [0, Math.max(heroHeight.value, 1)], [1, 0], Extrapolation.CLAMP),
-  }));
-  const panelStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress(), [0, 0.6], [1, 0], Extrapolation.CLAMP),
-  }));
-  const summaryStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress(), [0.5, 1], [0, 1], Extrapolation.CLAMP),
-    transform: [{ translateY: interpolate(progress(), [0.5, 1], [8, 0], Extrapolation.CLAMP) }],
-  }));
+  const summaryStyle = useAnimatedStyle(() => {
+    const start = threshold() - FADE_BAND;
+    return {
+      opacity: interpolate(
+        y.value,
+        [start, threshold()],
+        [0, 1],
+        Extrapolation.CLAMP,
+      ),
+      transform: [
+        {
+          translateY: interpolate(
+            y.value,
+            [start, threshold()],
+            [-8, 0],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
+  });
 
   return {
     scrollRef,
     onScroll,
+    /** The pill is showing and takes touches. */
     collapsed,
-    /** Taller than the viewport by the collapse distance, so the panel can always collapse. */
-    minContentHeight: sizes.viewport + sizes.hero + Math.max(sizes.panel - COLLAPSED_HEIGHT, 0),
-    heroStyle,
-    panelStyle,
     summaryStyle,
-    onViewportLayout: (event: LayoutChangeEvent) => {
-      const viewport = event.nativeEvent.layout.height;
-      setSizes(current => ({ ...current, viewport }));
+    /** Where the form sits in the scroll content. */
+    onFormLayout: (event: LayoutChangeEvent) => {
+      const { y: top, height } = event.nativeEvent.layout;
+      formTop.value = top;
+      formBottom.value = top + height;
     },
-    onHeroLayout: (event: LayoutChangeEvent) => {
-      const hero = event.nativeEvent.layout.height;
-      heroHeight.value = hero;
-      setSizes(current => ({ ...current, hero }));
-    },
-    onPanelLayout: (event: LayoutChangeEvent) => {
-      const panel = event.nativeEvent.layout.height;
-      panelHeight.value = panel;
-      setSizes(current => ({ ...current, panel }));
-    },
-    /** Scrolls back to the top, which opens the panel. */
+    /** Scrolls back to the top, which shows the whole form. */
     expand: () =>
       scheduleOnUI(() => {
         'worklet';
         scrollTo(scrollRef, 0, 0, true);
-      }),
-    /** Scrolls until the panel has collapsed into the bar, bringing the results up. */
-    collapse: () =>
-      scheduleOnUI(() => {
-        'worklet';
-        scrollTo(scrollRef, 0, end(), true);
       }),
   };
 }
