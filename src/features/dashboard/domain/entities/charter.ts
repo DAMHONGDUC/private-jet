@@ -45,6 +45,8 @@ export type CharterLeg = {
   destination: string;
   /** Local departure day, `YYYY-MM-DD`. */
   date: string;
+  /** Preferred local departure time, `HH:MM`; absent for any time of day. */
+  time?: string;
   passengers: number;
 };
 
@@ -84,6 +86,8 @@ export type DraftLeg = {
   origin: string | null;
   destination: string | null;
   date: string | null;
+  /** `HH:MM`; null or absent for any time of day. */
+  time?: string | null;
   /** 0 until the traveller picks a count. */
   passengers: number;
 };
@@ -95,6 +99,8 @@ export type CharterDraft = {
   outbound: DraftLeg;
   /** Round Trip only: the day the same party flies back. */
   returnDate: string | null;
+  /** Round Trip only: `HH:MM` of the way back; null or absent for any time. */
+  returnTime?: string | null;
   /** Multi City only. */
   legs: DraftLeg[];
 };
@@ -103,6 +109,7 @@ export const emptyDraftLeg = (): DraftLeg => ({
   origin: null,
   destination: null,
   date: null,
+  time: null,
   passengers: 0,
 });
 
@@ -142,6 +149,7 @@ function checkLeg(leg: DraftLeg, prefix: string): string | CharterLeg {
     origin: leg.origin,
     destination: leg.destination,
     date: leg.date,
+    ...(leg.time ? { time: leg.time } : {}),
     passengers: leg.passengers,
   };
 }
@@ -184,6 +192,7 @@ export function checkDraft(draft: CharterDraft): DraftCheck {
     origin: outbound.destination,
     destination: outbound.origin,
     date: draft.returnDate,
+    ...(draft.returnTime ? { time: draft.returnTime } : {}),
     passengers: outbound.passengers,
   };
   return {

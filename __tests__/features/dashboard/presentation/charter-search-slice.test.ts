@@ -56,6 +56,7 @@ test('fills the outbound leg, swaps it and keeps the passengers in range', () =>
     origin: 'NCE',
     destination: 'GVA',
     date: '2026-10-20',
+    time: null,
     passengers: 16,
   });
 });
@@ -100,6 +101,7 @@ test('a multi-city leg starts where the last one lands and the last leg stays', 
     origin: 'NCE',
     destination: null,
     date: null,
+    time: null,
     passengers: 3,
   });
 

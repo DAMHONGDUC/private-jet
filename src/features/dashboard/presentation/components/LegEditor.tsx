@@ -12,7 +12,7 @@ import {
   draftField,
   type DraftLeg,
 } from '../../domain/entities/charter';
-import { formatDay, passengersLabel } from '../search-labels';
+import { formatDayTime, passengersLabel } from '../search-labels';
 import type {
   BookingCardActions,
   BookingCardErrors,
@@ -81,7 +81,7 @@ export function LegEditor({
           testID={`leg-${index}-date`}
           icon="calendar"
           iconSize={17}
-          text={leg.date ? formatDay(leg.date, t) : t('search.departure')}
+          text={leg.date ? formatDayTime(leg.date, leg.time, t) : t('search.departure')}
           filled={!!leg.date}
           invalid={!!at(DraftPart.Date)}
           onPress={() => actions.onPickDate(index)}

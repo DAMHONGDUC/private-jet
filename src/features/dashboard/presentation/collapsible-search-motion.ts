@@ -32,14 +32,19 @@ export function nextCollapsed(y: number, form: FormBox, wasCollapsed: boolean) {
   return wasCollapsed && y > at - HYSTERESIS;
 }
 
-/** The nearer end when a drag stops with the form half hidden, or null when it is not. */
+/**
+ * Where to settle when a drag stops in the band where the form has faded
+ * but the pill is not fully in, or null anywhere else. Only that band
+ * snaps, to its nearer edge, so a short scroll is never pulled back.
+ */
 export function settleTarget(y: number, form: FormBox): number | null {
   'worklet';
+  const start = collapseAt(form) - FADE_BAND;
   const end = form.bottom;
-  if (y <= form.top + 1 || y >= end - 1) {
+  if (y <= start + 1 || y >= end - 1) {
     return null;
   }
-  return y - form.top < (end - form.top) / 2 ? form.top : end;
+  return y - start < (end - start) / 2 ? start : end;
 }
 
 export type DragEnd = {

@@ -3,6 +3,7 @@ import { TEST_NOW, renderWithStore } from '@test-utils/test-store';
 import { addDays, toDayKey } from '@/core/utils/date';
 import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 import { SearchResultsScreen } from '@/features/dashboard/presentation/screens/SearchResultsScreen';
+import { pickCalendarDay } from '@test-utils/calendar';
 
 async function pickAirport(field: string, code: string) {
   await fireEvent.press(screen.getByTestId(field));
@@ -13,7 +14,7 @@ async function fillOneWay(day: string) {
   await pickAirport('outbound-origin', 'SYD');
   await pickAirport('outbound-destination', 'MEB');
   await fireEvent.press(screen.getByTestId('outbound-date'));
-  await fireEvent.press(screen.getByTestId(`calendar-${day}`));
+  await pickCalendarDay(day);
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
   await fireEvent.press(screen.getByTestId('count-increment'));
   await fireEvent.press(screen.getByTestId('count-done'));
@@ -159,7 +160,7 @@ test('a multi-city leg lists only the jets with room for the whole party', async
   await pickAirport('leg-0-origin', 'SYD');
   await pickAirport('leg-0-destination', 'SIN');
   await fireEvent.press(screen.getByTestId('leg-0-date'));
-  await fireEvent.press(screen.getByTestId(`calendar-${day}`));
+  await pickCalendarDay(day);
   await fireEvent.press(screen.getByTestId('leg-0-passengers'));
   for (let i = 1; i < 16; i++) {
     await fireEvent.press(screen.getByTestId('count-increment'));

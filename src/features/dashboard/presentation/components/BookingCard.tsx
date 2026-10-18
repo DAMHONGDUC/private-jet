@@ -17,7 +17,7 @@ import {
   draftField,
   type CharterDraft,
 } from '../../domain/entities/charter';
-import { formatDay, passengersLabel } from '../search-labels';
+import { formatDayTime, passengersLabel } from '../search-labels';
 import type {
   BookingCardActions,
   BookingCardErrors,
@@ -109,7 +109,7 @@ export function BookingCard(props: Props) {
               iconSize={17}
               text={
                 draft.outbound.date
-                  ? formatDay(draft.outbound.date, t)
+                  ? formatDayTime(draft.outbound.date, draft.outbound.time, t)
                   : t('search.departure')
               }
               filled={!!draft.outbound.date}
@@ -124,7 +124,7 @@ export function BookingCard(props: Props) {
                   iconSize={17}
                   text={
                     draft.returnDate
-                      ? formatDay(draft.returnDate, t)
+                      ? formatDayTime(draft.returnDate, draft.returnTime, t)
                       : t('search.return')
                   }
                   filled={!!draft.returnDate}

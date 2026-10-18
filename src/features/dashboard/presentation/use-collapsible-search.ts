@@ -32,8 +32,9 @@ const PILL_EASING = Easing.out(Easing.cubic);
  * as it leaves. Once it has nearly left the screen the pill eases in on top,
  * on its own clock rather than with the finger, so it never stops half drawn.
  * Dragging back up by `EXPAND_DRAG` while the pill shows scrolls to the top,
- * so the whole form returns at once. Letting go while the form is half
- * hidden settles on the nearer end. Everything runs on the UI thread: the
+ * so the whole form returns at once. A scroll is left where it stops,
+ * except inside the fade band just before the pill, which settles on its
+ * nearer edge. Everything runs on the UI thread: the
  * screen does not re-render while it scrolls.
  *
  * A short page could not scroll the form away, leaving it stuck half faded

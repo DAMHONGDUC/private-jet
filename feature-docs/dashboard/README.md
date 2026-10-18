@@ -747,7 +747,7 @@ y = scrollY
 | 2.4 News carousel | `components/NewsCarousel.tsx`, `components/PhotoPager.tsx` |
 | 2.5 Bottom nav | `src/app/navigation/BlackJetTabBar.tsx`: 3 tab Home / Flights / Trips. Repo chưa có Blog và Profile nên chưa có tab avatar |
 | 3.4 Validation | `domain/entities/charter.ts` → `checkDraft()`, giữ nguyên câu báo lỗi gốc; thêm 2 luật: 2 sân bay phải khác nhau, các leg Multi City phải theo thứ tự ngày |
-| 4.x Sheets | `components/BJSheet.tsx`, `AirportSheet.tsx` (recent ở trên, rồi tất cả sân bay), `CalendarSheet.tsx`, `CountSheet.tsx` (1–16 khách), `ConfirmSheet.tsx` |
+| 4.x Sheets | `components/BJSheet.tsx`, `AirportSheet.tsx` (recent ở trên, rồi tất cả sân bay), `CalendarSheet.tsx` (lật tháng, lưới tháng/năm tới 24 tháng, giờ khởi hành 06:00–22:00 mỗi 30 phút hoặc "Any time", bấm Done để chọn; `MonthDays`, `MonthYearPicker`, `TimeChips`, `calendar-months.ts`), `CountSheet.tsx` (1–16 khách), `ConfirmSheet.tsx` |
 | 5 Haptics | `src/core/ui/haptics.ts` (`react-native-haptic-feedback`) |
 | 6.2 Fade-up, 6.4 Shimmer | `src/core/ui/FadeUp.tsx`, `src/core/ui/Shimmer.tsx` (gradient bằng `backgroundImage` của RN 0.88) |
 | 12.1 Luồng mới | `presentation/charter-search-slice.ts` (form + search đang hiển thị), `dashboard-api.ts` → `searchCharters` |

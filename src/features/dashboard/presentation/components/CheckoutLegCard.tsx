@@ -19,6 +19,12 @@ export const DEPARTURE_TIMES = [
   '20:00',
 ] as const;
 
+/** The fixed times, plus the one asked for in the search when it is not among them. */
+const timeOptions = (searched?: string): string[] =>
+  searched && !(DEPARTURE_TIMES as readonly string[]).includes(searched)
+    ? [...DEPARTURE_TIMES, searched].sort()
+    : [...DEPARTURE_TIMES];
+
 type Props = {
   group: LegQuotes;
   quote: JetQuote;
@@ -66,7 +72,7 @@ export function CheckoutLegCard({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.times}
       >
-        {DEPARTURE_TIMES.map(option => (
+        {timeOptions(group.leg.time).map(option => (
           <Chip
             key={option}
             testID={`leg-${index}-time-${option}`}

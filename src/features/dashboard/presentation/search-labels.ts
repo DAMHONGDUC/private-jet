@@ -33,6 +33,16 @@ export function airportsByCode(
 /** "20 Oct 2026" */
 export const formatDay = (day: string, t: Translate) => formatDayIn(t, day);
 
+/** "20 Oct 2026 · 09:30", or the day alone for any time. */
+export const formatDayTime = (
+  day: string,
+  time: string | null | undefined,
+  t: Translate,
+) =>
+  time
+    ? t('search.dayAndTime', { day: formatDayIn(t, day), time })
+    : formatDayIn(t, day);
+
 /** "20 Oct" */
 export const formatShortDay = (day: string, t: Translate) =>
   formatShortDayIn(t, day);

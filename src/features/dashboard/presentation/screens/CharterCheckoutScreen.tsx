@@ -58,7 +58,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
   const [email, setEmail] = useState(user?.email ?? '');
   const [notes, setNotes] = useState('');
   const [times, setTimes] = useState<string[]>(() =>
-    (request?.legs ?? []).map(() => DEFAULT_TIME),
+    (request?.legs ?? []).map(leg => leg.time ?? DEFAULT_TIME),
   );
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   /** Errors show once Pay was tapped, then follow the typing until fixed. */

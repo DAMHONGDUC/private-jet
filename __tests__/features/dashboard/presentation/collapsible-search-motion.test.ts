@@ -13,6 +13,8 @@ import {
 // A form from 100 to 500 in the scroll content: the pill takes over at 452.
 const FORM: FormBox = { top: 100, bottom: 500 };
 const AT = FORM.bottom - FADE_BAND;
+/** Where the form starts to fade: only from here on does letting go snap. */
+const BAND = AT - FADE_BAND;
 
 const drag = (
   from: number,
@@ -47,14 +49,21 @@ describe('collapsing', () => {
 });
 
 describe('letting go', () => {
-  test('a form left half hidden settles on the nearer end', () => {
-    expect(settleTarget(200, FORM)).toBe(FORM.top);
-    expect(settleTarget(400, FORM)).toBe(FORM.bottom);
-    expect(drag(150, 200)).toEqual({
-      scrollTo: FORM.top,
+  test('a short scroll is left where it is', () => {
+    expect(settleTarget(FORM.top + 1, FORM)).toBeNull();
+    expect(settleTarget(200, FORM)).toBeNull();
+    expect(settleTarget(BAND - 1, FORM)).toBeNull();
+    expect(drag(150, 200)).toEqual({ scrollTo: null, expandAfterGlide: false });
+  });
+
+  test('a form left half faded settles on the nearer edge of the fade', () => {
+    expect(settleTarget(BAND + 10, FORM)).toBe(BAND);
+    expect(settleTarget(FORM.bottom - 10, FORM)).toBe(FORM.bottom);
+    expect(drag(300, BAND + 10)).toEqual({
+      scrollTo: BAND,
       expandAfterGlide: false,
     });
-    expect(drag(300, 400)).toEqual({
+    expect(drag(300, FORM.bottom - 10)).toEqual({
       scrollTo: FORM.bottom,
       expandAfterGlide: false,
     });
@@ -72,7 +81,8 @@ describe('letting go', () => {
       scrollTo: null,
       expandAfterGlide: false,
     });
-    expect(onGlideEnd(400, FORM, false)).toBe(FORM.bottom);
+    expect(onGlideEnd(FORM.bottom - 10, FORM, false)).toBe(FORM.bottom);
+    expect(onGlideEnd(200, FORM, false)).toBeNull();
   });
 });
 
