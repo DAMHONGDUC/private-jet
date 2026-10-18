@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: AppSpacing.spacing16,
+    // A section's gap, so Done reads apart from the times above it.
+    marginTop: AppSpacing.section,
   },
 });
