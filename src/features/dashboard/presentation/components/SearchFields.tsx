@@ -1,6 +1,9 @@
 import { StyleSheet, View } from 'react-native';
+import { useT } from '@/core/i18n/i18n';
+import { ColorScheme } from '@/core/theme/app-colors';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
-import { elevation, radius, spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { elevation, radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon, type IconName } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -13,6 +16,7 @@ type RadioProps = { value: TripType; onChange: (value: TripType) => void };
 /** One Way · Round Trip · Multi City as a segmented control (feature-docs/dashboard §2.3a). */
 export function TripTypeRadio({ value, onChange }: RadioProps) {
   const palette = useBlackJetTheme();
+  const t = useT();
   return (
     <View
       style={[styles.segments, { backgroundColor: palette.primaryBackground }]}
@@ -32,7 +36,9 @@ export function TripTypeRadio({ value, onChange }: RadioProps) {
               styles.segment,
               selected && {
                 backgroundColor:
-                  palette.scheme === 'dark' ? palette.iron : palette.raised,
+                  palette.scheme === ColorScheme.Dark
+                    ? palette.iron
+                    : palette.raised,
                 ...elevation(palette.shadow),
               },
             ]}
@@ -42,7 +48,7 @@ export function TripTypeRadio({ value, onChange }: RadioProps) {
               tone={selected ? 'primary' : 'secondary'}
               weight={selected ? 'medium' : 'regular'}
             >
-              {TRIP_TYPE_LABELS[type]}
+              {t(TRIP_TYPE_LABELS[type])}
             </BJText>
           </PressableScale>
         );
@@ -51,12 +57,20 @@ export function TripTypeRadio({ value, onChange }: RadioProps) {
   );
 }
 
+/** Which side of the route row a box sits on. */
+export enum Align {
+  Start = 'start',
+  End = 'end',
+}
+
 type AirportBoxProps = {
   label: string;
   airport: Airport | undefined;
   code: string | null;
   placeholder: string;
-  align: 'start' | 'end';
+  align: Align;
+  /** Outlined in red while the field has a problem. */
+  invalid?: boolean;
   onPress: () => void;
   testID: string;
 };
@@ -68,20 +82,23 @@ export function AirportBox({
   code,
   placeholder,
   align,
+  invalid,
   onPress,
   testID,
 }: AirportBoxProps) {
   const palette = useBlackJetTheme();
-  const alignItems = align === 'start' ? 'flex-start' : 'flex-end';
+  const t = useT();
+  const alignItems = align === Align.Start ? 'flex-start' : 'flex-end';
   return (
     <PressableScale
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={`${label}, ${airport?.city ?? 'not chosen'}`}
+      accessibilityLabel={`${label}, ${airport?.city ?? t('search.notChosen')}`}
       onPress={onPress}
       style={[
         styles.airport,
         { backgroundColor: palette.primaryBackground, alignItems },
+        invalid && { borderColor: palette.error },
       ]}
     >
       <BJText size={13} tone="secondary" weight="regular">
@@ -91,7 +108,7 @@ export function AirportBox({
         {code ?? placeholder}
       </BJText>
       <BJText size={13} tone="secondary" weight="regular" numberOfLines={1}>
-        {airport?.city ?? 'Select airport'}
+        {airport?.city ?? t('search.selectAirport')}
       </BJText>
     </PressableScale>
   );
@@ -106,37 +123,42 @@ type RouteProps = {
   onPickOrigin: () => void;
   onPickDestination: () => void;
   onSwap: () => void;
+  originInvalid?: boolean;
+  destinationInvalid?: boolean;
   testID: string;
 };
 
 /** From and To side by side with the round swap button between them. */
 export function RouteRow(props: RouteProps) {
   const palette = useBlackJetTheme();
+  const t = useT();
   const { airports, origin, destination, testID } = props;
   return (
     <View style={styles.route}>
       <AirportBox
         testID={`${testID}-origin`}
-        label="From"
+        label={t('search.from')}
         code={origin}
         airport={origin ? airports[origin] : undefined}
         placeholder="—"
-        align="start"
+        align={Align.Start}
+        invalid={props.originInvalid}
         onPress={props.onPickOrigin}
       />
       <AirportBox
         testID={`${testID}-destination`}
-        label="To"
+        label={t('search.to')}
         code={destination}
         airport={destination ? airports[destination] : undefined}
         placeholder="—"
-        align="end"
+        align={Align.End}
+        invalid={props.destinationInvalid}
         onPress={props.onPickDestination}
       />
       <PressableScale
         testID={`${testID}-swap`}
         accessibilityRole="button"
-        accessibilityLabel="Swap departure and arrival"
+        accessibilityLabel={t('search.swap')}
         onPress={props.onSwap}
         scaleTo={0.92}
         style={[
@@ -161,6 +183,8 @@ type FieldProps = {
   text: string;
   /** Muted while the field holds no value yet. */
   filled: boolean;
+  /** Outlined in red while the field has a problem; the card prints why below. */
+  invalid?: boolean;
   onPress: () => void;
   testID: string;
 };
@@ -171,6 +195,7 @@ export function FieldButton({
   iconSize,
   text,
   filled,
+  invalid,
   onPress,
   testID,
 }: FieldProps) {
@@ -180,7 +205,11 @@ export function FieldButton({
       testID={testID}
       accessibilityRole="button"
       onPress={onPress}
-      style={[styles.field, { backgroundColor: palette.primaryBackground }]}
+      style={[
+        styles.field,
+        { backgroundColor: palette.primaryBackground },
+        invalid && { borderColor: palette.error },
+      ]}
     >
       <Icon
         name={icon}
@@ -205,7 +234,7 @@ const styles = StyleSheet.create({
   segments: {
     flexDirection: 'row',
     borderRadius: radius.md,
-    padding: spacing.xs,
+    padding: AppSpacing.xs,
   },
   segment: {
     flex: 1,
@@ -216,15 +245,17 @@ const styles = StyleSheet.create({
   },
   route: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: AppSpacing.sm,
     justifyContent: 'space-between',
   },
   airport: {
     flex: 1,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    paddingHorizontal: AppSpacing.lg,
+    paddingVertical: AppSpacing.md,
+    gap: AppSpacing.xs,
   },
   swap: {
     position: 'absolute',
@@ -243,10 +274,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
+    gap: AppSpacing.md,
+    paddingHorizontal: AppSpacing.lg,
   },
   fieldText: { flex: 1 },
 });

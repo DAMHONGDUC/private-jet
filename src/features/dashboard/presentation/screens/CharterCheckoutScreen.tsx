@@ -4,16 +4,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   View,
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { useT } from '@/core/i18n/i18n';
 import { makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
-import { Button } from '@/core/ui/Button';
+import { ActionsDirection, BottomActions } from '@/core/ui/BottomActions';
+import { Button, ButtonVariant } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Chip } from '@/core/ui/Chip';
 import { Screen } from '@/core/ui/Screen';
@@ -22,7 +22,11 @@ import { haptics } from '@/core/ui/haptics';
 import { imageFor } from '@/core/ui/images';
 import { formatDuration, formatMoney } from '@/core/utils/format';
 import { selectUser } from '@/features/auth/presentation/session-slice';
-import { validateTravellers } from '@/features/booking/domain/entities/booking';
+import {
+  hasTravellerErrors,
+  travellerErrors,
+  type TravellerErrors,
+} from '@/features/booking/domain/entities/booking';
 import {
   useBookCharterMutation,
   useGetPaymentMethodsQuery,
@@ -52,7 +56,7 @@ type Props = { onBooked: (bookingId: string) => void; onBack: () => void };
  */
 export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
   const styles = useStyles();
-  const insets = useSafeAreaInsets();
+  const t = useT();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const { request, results, chosen, complete, total, currency } =
@@ -75,7 +79,8 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
     (request?.legs ?? []).map(() => DEFAULT_TIME),
   );
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
-  const [problem, setProblem] = useState<string | null>(null);
+  /** Errors show once Pay was tapped, then follow the typing until fixed. */
+  const [submitted, setSubmitted] = useState(false);
 
   if (!request || !results || !complete) {
     return (
@@ -87,7 +92,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
         <View style={styles.padded}>
           <Button
             title="Back to results"
-            variant="secondary"
+            variant={ButtonVariant.Secondary}
             onPress={onBack}
           />
         </View>
@@ -99,11 +104,13 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
     ...chosen.map(quote => quote?.aircraft.totalSeats ?? 0),
   );
 
+  const passengers = names.map(fullName => ({ fullName }));
+  const travellers = travellerErrors(passengers, email, seats);
+  const errors: TravellerErrors = submitted ? travellers : { names: [] };
+
   const submit = async () => {
-    const passengers = names.map(fullName => ({ fullName }));
-    const invalid = validateTravellers(passengers, email, seats);
-    setProblem(invalid);
-    if (invalid) {
+    setSubmitted(true);
+    if (hasTravellerErrors(travellers)) {
       haptics.error();
       return;
     }
@@ -128,7 +135,8 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
     }
   };
 
-  const shownError = problem ?? (error ? errorMessage(error) : null);
+  // Field problems sit under their fields; this line is for the rest.
+  const shownError = errors.party ?? (error ? errorMessage(error) : null);
 
   return (
     <Screen>
@@ -153,7 +161,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
                   <View style={styles.flex}>
                     <AppText variant="label" muted>
                       {results.length > 1 ? `Leg ${index + 1} · ` : ''}
-                      {formatDay(group.leg.date)}
+                      {formatDay(group.leg.date, t)}
                     </AppText>
                     <AppText variant="subtitle">
                       {group.leg.origin} → {group.leg.destination}
@@ -194,17 +202,16 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
           })}
 
           <Card style={styles.section}>
-            <AppText variant="subtitle">Passengers · {party}</AppText>
+            <AppText variant="subtitle">Guests · {party}</AppText>
             {names.map((name, index) => (
               <FormField
                 key={index}
                 testID={`charter-passenger-${index}`}
-                label={
-                  index === 0 ? 'Lead passenger' : `Passenger ${index + 1}`
-                }
+                label={index === 0 ? 'Lead guest' : `Guest ${index + 1}`}
                 placeholder="Full name as on passport"
                 autoCapitalize="words"
                 value={name}
+                error={errors.names[index]}
                 onChangeText={text =>
                   setNames(current =>
                     current.map((item, i) => (i === index ? text : item)),
@@ -220,6 +227,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
               autoCorrect={false}
               value={email}
               onChangeText={setEmail}
+              error={errors.contactEmail}
             />
             <FormField
               testID="charter-notes"
@@ -255,12 +263,12 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
           ) : null}
         </ScrollView>
 
-        <View
-          style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}
-        >
+        <BottomActions direction={ActionsDirection.Row}>
           <View style={styles.flex}>
             <AppText variant="caption" muted>
-              Total · {results.length} {results.length === 1 ? 'leg' : 'legs'}
+              {results.length === 1
+                ? t('actions.totalOne')
+                : t('actions.total', { count: results.length })}
             </AppText>
             <AppText testID="charter-total" variant="title">
               {formatMoney(total, currency)}
@@ -268,11 +276,13 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
           </View>
           <Button
             testID="charter-pay"
-            title={isLoading ? 'Processing…' : 'Confirm & Pay'}
+            title={t(
+              isLoading ? 'actions.processing' : 'actions.confirmAndPay',
+            )}
             loading={isLoading}
             onPress={submit}
           />
-        </View>
+        </BottomActions>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -280,22 +290,12 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  padded: { padding: spacing.lg },
-  content: { padding: spacing.lg, gap: spacing.lg },
-  leg: { gap: spacing.sm },
-  legHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  padded: { padding: AppSpacing.lg },
+  content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
+  leg: { gap: AppSpacing.sm },
+  legHead: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
   thumb: { width: 56, height: 56, borderRadius: 12 },
-  times: { gap: spacing.sm },
-  section: { gap: spacing.md },
+  times: { gap: AppSpacing.sm },
+  section: { gap: AppSpacing.md },
   error: { color: palette.error, textAlign: 'center' },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: palette.iron,
-    backgroundColor: palette.secondaryBackground,
-  },
 }));

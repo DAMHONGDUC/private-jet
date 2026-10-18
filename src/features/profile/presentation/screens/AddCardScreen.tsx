@@ -1,3 +1,5 @@
+import { useT } from '@/core/i18n/i18n';
+import { AppColors } from '@/core/theme/app-colors';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -16,17 +18,20 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import { blackJetCurves, makeStyles } from '@/core/theme/blackjet';
-import { spacing } from '@/core/theme/theme';
+import { AppSpacing } from '@/core/theme/app-spacing';
 import { AppText } from '@/core/ui/AppText';
 import { BJText } from '@/core/ui/BJText';
+import { BottomActions } from '@/core/ui/BottomActions';
 import { Button } from '@/core/ui/Button';
 import { Screen } from '@/core/ui/Screen';
 import { errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
+import { hasErrors } from '@/core/validation/field-errors';
 import { selectUser } from '@/features/auth/presentation/session-slice';
 import {
   brandOf,
-  validateNewCard,
+  newCardErrors,
+  PaymentMethodKind,
 } from '@/features/booking/domain/entities/payment';
 import { useAddCardMutation } from '@/features/booking/presentation/booking-api';
 import { FormField } from '@/features/booking/presentation/components/FormField';
@@ -61,14 +66,18 @@ const formatExpiry = (text: string) => {
  */
 export function AddCardScreen({ onAdded, now: nowProp }: Props) {
   const styles = useStyles();
+  const t = useT();
   const user = useSelector(selectUser);
   const [now] = useState(() => nowProp ?? new Date());
   const [holder, setHolder] = useState(user?.fullName ?? '');
   const [number, setNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
-  const [problem, setProblem] = useState<string | null>(null);
+  /** Errors show once Save was tapped, then follow the typing until fixed. */
+  const [submitted, setSubmitted] = useState(false);
   const [addCard, { isLoading, error, reset }] = useAddCardMutation();
+  const card = { holder, number, expiry, cvc };
+  const errors = submitted ? newCardErrors(card, now) : {};
 
   const turned = useSharedValue(0);
   const turn = (back: boolean) => {
@@ -91,10 +100,8 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
   }));
 
   const submit = async () => {
-    const card = { holder, number, expiry, cvc };
-    const invalid = validateNewCard(card, now);
-    setProblem(invalid);
-    if (invalid) {
+    setSubmitted(true);
+    if (hasErrors(newCardErrors(card, now))) {
       haptics.error();
       return;
     }
@@ -108,9 +115,9 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
     }
   };
 
-  const shownError = problem ?? (error ? errorMessage(error) : null);
+  const shownError = error ? errorMessage(error) : null;
   const preview = {
-    kind: 'card' as const,
+    kind: PaymentMethodKind.Card,
     brand: brandOf(number),
     holder: holder.toUpperCase(),
     expiry,
@@ -146,8 +153,8 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
                 </View>
               </View>
               <BJText size={13} style={styles.backNote}>
-                Issued for the BlackJet demo. Charges are simulated and no money
-                moves.
+                Issued for the Sovereign demo. Charges are simulated and no
+                money moves.
               </BJText>
             </Animated.View>
           </View>
@@ -159,6 +166,7 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
               autoCapitalize="characters"
               value={holder}
               onChangeText={setHolder}
+              error={errors.holder}
             />
             <FormField
               testID="card-number"
@@ -167,6 +175,7 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
               placeholder="4242 4242 4242 4242"
               value={number}
               onChangeText={text => setNumber(groupDigits(text))}
+              error={errors.number}
             />
             <View style={styles.row}>
               <View style={styles.flex}>
@@ -177,6 +186,7 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
                   placeholder="MM/YY"
                   value={expiry}
                   onChangeText={text => setExpiry(formatExpiry(text))}
+                  error={errors.expiry}
                 />
               </View>
               <View style={styles.flex}>
@@ -191,6 +201,7 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
                   onFocus={() => turn(true)}
                   onBlur={() => turn(false)}
                   onChangeText={text => setCvc(text.replace(/\D/g, ''))}
+                  error={errors.cvc}
                 />
               </View>
             </View>
@@ -207,14 +218,15 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
               </AppText>
             </Animated.View>
           ) : null}
-
+        </ScrollView>
+        <BottomActions>
           <Button
             testID="save-card"
-            title="Save card"
+            title={t('actions.saveCard')}
             loading={isLoading}
             onPress={submit}
           />
-        </ScrollView>
+        </BottomActions>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -222,7 +234,7 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.xl },
+  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
   stage: { width: '100%', aspectRatio: CARD_RATIO },
   face: { ...StyleSheet.absoluteFill, backfaceVisibility: 'hidden' },
   back: {
@@ -232,7 +244,7 @@ const useStyles = makeStyles(palette => ({
     paddingVertical: 22,
     gap: 18,
   },
-  stripe: { height: 42, backgroundColor: '#0A0A0A' },
+  stripe: { height: 42, backgroundColor: AppColors.fixed.cardStripe },
   signature: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -243,19 +255,19 @@ const useStyles = makeStyles(palette => ({
     flex: 1,
     height: 36,
     borderRadius: 4,
-    backgroundColor: '#E9E6DF',
+    backgroundColor: AppColors.fixed.cardBack,
   },
   cvcBox: {
     width: 64,
     height: 36,
     borderRadius: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: AppColors.fixed.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cvcText: { color: '#111111', letterSpacing: 2 },
+  cvcText: { color: AppColors.fixed.cardInk, letterSpacing: 2 },
   backNote: { color: 'rgba(255, 255, 255, 0.5)', paddingHorizontal: 20 },
-  form: { gap: spacing.md },
-  row: { flexDirection: 'row', gap: spacing.md },
+  form: { gap: AppSpacing.md },
+  row: { flexDirection: 'row', gap: AppSpacing.md },
   error: { color: palette.error, textAlign: 'center' },
 }));

@@ -19,21 +19,22 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { blackJetDark, blackJetFonts } from '@/core/theme/blackjet';
-import { radius, spacing } from '@/core/theme/theme';
+import { AppColors } from '@/core/theme/app-colors';
+import { blackJetFonts } from '@/core/theme/blackjet';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { PressableScale } from '@/core/ui/PressableScale';
 import { errorMessage } from '@/core/ui/StateViews';
 import { haptics } from '@/core/ui/haptics';
-import { BRAND_ICONS, LOGO, LOGO_ASPECT, imageFor } from '@/core/ui/images';
-import {
-  DEMO_CREDENTIALS,
-  validateCredentials,
-} from '../../domain/entities/user';
+import { hasErrors } from '@/core/validation/field-errors';
+import { BRAND_ICONS, imageFor } from '@/core/ui/images';
+import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
+import { DEMO_CREDENTIALS, credentialErrors } from '../../domain/entities/user';
 import { useSignInMutation } from '../auth-api';
 
-const WHITE = '#FFFFFF';
-const MUTED = 'rgba(255, 255, 255, 0.7)';
+const WHITE = AppColors.fixed.white;
+const MUTED = AppColors.fixed.onPhotoMuted;
 const FIELD = 'rgba(255, 255, 255, 0.12)';
 const BORDER = 'rgba(255, 255, 255, 0.22)';
 const ERROR = '#FF6B6B';
@@ -49,14 +50,18 @@ export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [hidden, setHidden] = useState(true);
+  /** A sign-in failure the fields cannot show, such as a wrong password. */
   const [problem, setProblem] = useState<string | null>(null);
+  /** Field errors show once Sign In was tapped, then follow the typing. */
+  const [submitted, setSubmitted] = useState(false);
+  const errors = submitted ? credentialErrors({ email, password }) : {};
 
   const shake = useSharedValue(0);
   const formStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: shake.value }],
   }));
 
-  const fail = (message: string) => {
+  const fail = (message: string | null) => {
     setProblem(message);
     haptics.error();
     shake.value = withSequence(
@@ -68,9 +73,9 @@ export function LoginScreen() {
 
   const submit = async (credentials?: { email: string; password: string }) => {
     if (credentials) {
-      const invalid = validateCredentials(credentials);
-      if (invalid) {
-        fail(invalid);
+      setSubmitted(true);
+      if (hasErrors(credentialErrors(credentials))) {
+        fail(null);
         return;
       }
     }
@@ -88,6 +93,7 @@ export function LoginScreen() {
     setEmail(DEMO_CREDENTIALS.email);
     setPassword(DEMO_CREDENTIALS.password);
     setProblem(null);
+    setSubmitted(false);
   };
 
   return (
@@ -113,12 +119,7 @@ export function LoginScreen() {
             { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 },
           ]}
         >
-          <Image
-            source={LOGO.dark}
-            resizeMode="contain"
-            style={styles.logo}
-            accessibilityLabel="BlackJet"
-          />
+          <Wordmark tone={WordmarkTone.OnPhoto} />
 
           <View style={styles.spacer} />
 
@@ -142,6 +143,7 @@ export function LoginScreen() {
               keyboardType="email-address"
               textContentType="emailAddress"
               placeholder="you@example.com"
+              error={errors.email}
             />
             <View>
               <Field
@@ -153,6 +155,7 @@ export function LoginScreen() {
                 textContentType="password"
                 placeholder="••••••••"
                 onSubmitEditing={() => submit({ email, password })}
+                error={errors.password}
               />
               <PressableScale
                 testID="login-toggle-password"
@@ -187,7 +190,7 @@ export function LoginScreen() {
               onPress={() => submit({ email, password })}
               style={[styles.primary, isLoading && styles.busy]}
             >
-              <BJText tone="onAccent">
+              <BJText style={styles.onPrimary}>
                 {isLoading ? 'Signing in…' : 'Sign In'}
               </BJText>
             </PressableScale>
@@ -251,8 +254,9 @@ export function LoginScreen() {
 function Field({
   label,
   testID,
+  error,
   ...input
-}: TextInputProps & { label: string; testID: string }) {
+}: TextInputProps & { label: string; testID: string; error?: string }) {
   return (
     <View style={styles.field}>
       <BJText size={13} style={styles.muted}>
@@ -261,9 +265,21 @@ function Field({
       <TextInput
         testID={testID}
         placeholderTextColor="rgba(255, 255, 255, 0.4)"
+        accessibilityHint={error}
         {...input}
-        style={styles.input}
+        style={[styles.input, error ? styles.invalid : null]}
       />
+      {error ? (
+        <BJText
+          testID={`${testID}-error`}
+          size={13}
+          weight="regular"
+          accessibilityRole="alert"
+          style={styles.error}
+        >
+          {error}
+        </BJText>
+      ) : null}
     </View>
   );
 }
@@ -293,22 +309,25 @@ function SocialButton({ testID, label, icon, tint, onPress }: SocialProps) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#000000', overflow: 'hidden' },
+  root: { flex: 1, backgroundColor: AppColors.fixed.black, overflow: 'hidden' },
   flex: { flex: 1 },
   shade: {
     backgroundImage:
       'linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.25) 35%, rgba(0, 0, 0, 0.85) 70%, rgba(0, 0, 0, 0.95) 100%)',
   },
   photo: { width: '100%', height: '100%' },
-  content: { flexGrow: 1, paddingHorizontal: spacing.lg, gap: spacing.xl },
-  logo: { height: 28, width: 28 * LOGO_ASPECT },
+  content: {
+    flexGrow: 1,
+    paddingHorizontal: AppSpacing.lg,
+    gap: AppSpacing.xl,
+  },
   spacer: { flex: 1, minHeight: 80 },
-  subtitle: { color: MUTED, marginTop: spacing.sm },
+  subtitle: { color: MUTED, marginTop: AppSpacing.sm },
   form: {
-    gap: spacing.md,
-    padding: spacing.lg,
+    gap: AppSpacing.md,
+    padding: AppSpacing.lg,
     borderRadius: radius.xl,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: AppColors.fixed.photoScrim,
     borderWidth: 1,
     borderColor: BORDER,
   },
@@ -316,7 +335,7 @@ const styles = StyleSheet.create({
   input: {
     height: 52,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: AppSpacing.lg,
     backgroundColor: FIELD,
     color: WHITE,
     fontFamily: blackJetFonts.regular,
@@ -325,14 +344,16 @@ const styles = StyleSheet.create({
   toggle: { position: 'absolute', right: 12, bottom: 15 },
   muted: { color: MUTED },
   error: { color: ERROR },
+  invalid: { borderWidth: 1, borderColor: ERROR },
   primary: {
     height: 52,
     borderRadius: radius.md,
-    backgroundColor: blackJetDark.accent,
+    backgroundColor: AppColors.dark.primaryAction,
     alignItems: 'center',
     justifyContent: 'center',
   },
   busy: { opacity: 0.7 },
+  onPrimary: { color: AppColors.dark.onPrimaryAction },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: BORDER },
   outlined: {

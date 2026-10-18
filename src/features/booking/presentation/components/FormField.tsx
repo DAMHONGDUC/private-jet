@@ -1,9 +1,22 @@
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
-import { radius, spacing } from '@/core/theme/theme';
-import { blackJetFonts, makeStyles, useBlackJetTheme } from '@/core/theme/blackjet';
+import { AppSpacing } from '@/core/theme/app-spacing';
+import { radius } from '@/core/theme/theme';
+import {
+  blackJetFonts,
+  makeStyles,
+  useBlackJetTheme,
+} from '@/core/theme/blackjet';
 import { AppText } from '@/core/ui/AppText';
+import { FieldError } from '@/core/ui/FieldError';
 
-export function FormField({ label, ...input }: TextInputProps & { label: string }) {
+type Props = TextInputProps & {
+  label: string;
+  /** What is wrong with the value, shown under the input; the border turns red too. */
+  error?: string | null;
+};
+
+/** A labelled text input with its problem, if any, right under it. */
+export function FormField({ label, error, ...input }: Props) {
   const styles = useStyles();
   const palette = useBlackJetTheme();
   return (
@@ -11,13 +24,22 @@ export function FormField({ label, ...input }: TextInputProps & { label: string 
       <AppText variant="caption" muted>
         {label}
       </AppText>
-      <TextInput placeholderTextColor={palette.secondaryText} {...input} style={styles.input} />
+      <TextInput
+        placeholderTextColor={palette.secondaryText}
+        accessibilityHint={error ?? undefined}
+        {...input}
+        style={[styles.input, error ? styles.invalid : null]}
+      />
+      <FieldError
+        message={error}
+        testID={input.testID && `${input.testID}-error`}
+      />
     </View>
   );
 }
 
 const useStyles = makeStyles(palette => ({
-  field: { gap: spacing.xs },
+  field: { gap: AppSpacing.xs },
   input: {
     color: palette.primaryText,
     backgroundColor: palette.primaryBackground,
@@ -25,8 +47,9 @@ const useStyles = makeStyles(palette => ({
     borderWidth: StyleSheet.hairlineWidth,
     fontFamily: blackJetFonts.regular,
     borderColor: palette.iron,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingHorizontal: AppSpacing.md,
+    paddingVertical: AppSpacing.md,
     fontSize: 15,
   },
+  invalid: { borderColor: palette.error },
 }));
