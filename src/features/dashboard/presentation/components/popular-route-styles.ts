@@ -9,11 +9,11 @@ export const popularRouteStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.md,
-    padding: AppSpacing.sm,
-    paddingRight: AppSpacing.md,
+    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing8,
+    paddingRight: AppSpacing.spacing12,
     borderRadius: radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
   },
-  text: { flex: 1, gap: AppSpacing.xs },
+  text: { flex: 1, gap: AppSpacing.spacing4 },
 });

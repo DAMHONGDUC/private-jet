@@ -6,8 +6,8 @@ import { radius } from '@/core/theme/theme';
 export const resultsStateStyles = StyleSheet.create({
   empty: {
     alignItems: 'center',
-    gap: AppSpacing.md,
-    paddingVertical: AppSpacing.lg,
+    gap: AppSpacing.spacing12,
+    paddingVertical: AppSpacing.spacing16,
   },
   centered: { textAlign: 'center' },
   button: {
@@ -16,6 +16,6 @@ export const resultsStateStyles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: AppSpacing.sm,
+    marginTop: AppSpacing.spacing8,
   },
 });

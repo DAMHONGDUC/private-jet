@@ -173,15 +173,15 @@ export function BookingCard(props: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: AppSpacing.lg,
+    marginHorizontal: AppSpacing.spacing16,
     borderRadius: radius.xl,
-    padding: AppSpacing.lg,
-    gap: AppSpacing.md,
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing12,
   },
-  section: { gap: AppSpacing.sm },
-  pair: { flexDirection: 'row', gap: AppSpacing.sm },
+  section: { gap: AppSpacing.spacing8 },
+  pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
   flex: { flex: 1 },
-  legs: { gap: AppSpacing.lg },
+  legs: { gap: AppSpacing.spacing16 },
   addLeg: {
     height: 52,
     borderRadius: radius.md,
@@ -190,15 +190,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
   },
   find: {
     height: 52,
     borderRadius: radius.md,
     flexDirection: 'row',
-    gap: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: AppSpacing.xs,
+    marginTop: AppSpacing.spacing4,
   },
 });

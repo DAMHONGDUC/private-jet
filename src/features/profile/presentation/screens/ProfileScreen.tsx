@@ -364,10 +364,10 @@ export function ProfileScreen({
 
 const useStyles = makeStyles(() => ({
   content: {
-    padding: AppSpacing.lg,
+    padding: AppSpacing.spacing16,
     gap: AppSpacing.section,
   },
-  section: { gap: AppSpacing.sm },
-  version: { textAlign: 'center', marginTop: AppSpacing.md },
-  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
+  section: { gap: AppSpacing.spacing8 },
+  version: { textAlign: 'center', marginTop: AppSpacing.spacing12 },
+  sheet: { gap: AppSpacing.spacing12, paddingTop: AppSpacing.spacing8 },
 }));

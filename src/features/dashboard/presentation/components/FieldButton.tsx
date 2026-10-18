@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.md,
-    paddingHorizontal: AppSpacing.lg,
+    gap: AppSpacing.spacing12,
+    paddingHorizontal: AppSpacing.spacing16,
   },
   fieldText: { flex: 1 },
 });

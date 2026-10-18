@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   segments: {
     flexDirection: 'row',
     borderRadius: radius.md,
-    padding: AppSpacing.xs,
+    padding: AppSpacing.spacing4,
   },
   segment: {
     flex: 1,

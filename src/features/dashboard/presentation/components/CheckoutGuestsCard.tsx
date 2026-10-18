@@ -66,5 +66,5 @@ export function CheckoutGuestsCard({
 }
 
 const styles = StyleSheet.create({
-  section: { gap: AppSpacing.md },
+  section: { gap: AppSpacing.spacing12 },
 });

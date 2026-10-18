@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    paddingBottom: AppSpacing.md,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
+    paddingBottom: AppSpacing.spacing12,
   },
 });

@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: AppSpacing.md,
+    gap: AppSpacing.spacing12,
   },
   notes: { gap: 2 },
 });

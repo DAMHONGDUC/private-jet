@@ -107,6 +107,6 @@ export function CardForm({
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  form: { gap: AppSpacing.md },
-  row: { flexDirection: 'row', gap: AppSpacing.md },
+  form: { gap: AppSpacing.spacing12 },
+  row: { flexDirection: 'row', gap: AppSpacing.spacing12 },
 });

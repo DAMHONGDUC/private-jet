@@ -39,5 +39,5 @@ export function TimeChips({ value, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { gap: AppSpacing.sm },
+  row: { gap: AppSpacing.spacing8 },
 });

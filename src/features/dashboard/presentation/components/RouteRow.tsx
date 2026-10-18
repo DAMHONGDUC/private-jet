@@ -76,7 +76,7 @@ const SWAP_SIZE = 40;
 const styles = StyleSheet.create({
   route: {
     flexDirection: 'row',
-    gap: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
     justifyContent: 'space-between',
   },
   swap: {

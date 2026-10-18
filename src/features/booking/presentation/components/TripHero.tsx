@@ -57,7 +57,7 @@ export function TripHero({ booking, state }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  hero: { gap: AppSpacing.lg },
+  hero: { gap: AppSpacing.spacing16 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -66,7 +66,7 @@ const useStyles = makeStyles(palette => ({
   end: { alignItems: 'flex-end' },
   reference: {
     alignItems: 'center',
-    paddingVertical: AppSpacing.md,
+    paddingVertical: AppSpacing.spacing12,
     borderRadius: 12,
     borderWidth: 1,
     borderStyle: 'dashed',

@@ -136,9 +136,13 @@ export function PaymentMethodsScreen({ onAddCard }: Props) {
 }
 
 const useStyles = makeStyles(palette => ({
-  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
-  item: { gap: AppSpacing.md },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
-  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
+  content: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing24 },
+  item: { gap: AppSpacing.spacing12 },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
+  sheet: { gap: AppSpacing.spacing12, paddingTop: AppSpacing.spacing8 },
   error: { color: palette.error },
 }));

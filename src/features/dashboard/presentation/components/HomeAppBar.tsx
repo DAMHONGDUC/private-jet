@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingVertical: AppSpacing.spacing8,
   },
-  actions: { flexDirection: 'row', gap: AppSpacing.sm },
+  actions: { flexDirection: 'row', gap: AppSpacing.spacing8 },
 });

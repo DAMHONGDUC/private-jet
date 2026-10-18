@@ -145,11 +145,11 @@ export function ChatScreen() {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  list: { padding: AppSpacing.lg, gap: AppSpacing.md },
+  list: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing12 },
   footerSlot: { minHeight: 8 },
   error: {
     color: palette.error,
     textAlign: 'center',
-    paddingBottom: AppSpacing.xs,
+    paddingBottom: AppSpacing.spacing4,
   },
 }));

@@ -113,11 +113,11 @@ export function LegEditor({
 }
 
 const styles = StyleSheet.create({
-  leg: { gap: AppSpacing.sm },
+  leg: { gap: AppSpacing.spacing8 },
   legHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  pair: { flexDirection: 'row', gap: AppSpacing.sm },
+  pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
 });

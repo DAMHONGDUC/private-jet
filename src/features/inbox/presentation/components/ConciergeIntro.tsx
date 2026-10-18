@@ -25,7 +25,11 @@ export function ConciergeIntro() {
 }
 
 const useStyles = makeStyles(palette => ({
-  intro: { alignItems: 'center', gap: 4, paddingVertical: AppSpacing.lg },
+  intro: {
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: AppSpacing.spacing16,
+  },
   conciergeAvatar: {
     width: 64,
     height: 64,
@@ -33,7 +37,7 @@ const useStyles = makeStyles(palette => ({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: AppColors.fixed.photoBackdrop,
-    marginBottom: AppSpacing.sm,
+    marginBottom: AppSpacing.spacing8,
   },
   online: {
     position: 'absolute',

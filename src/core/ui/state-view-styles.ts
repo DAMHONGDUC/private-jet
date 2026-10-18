@@ -7,8 +7,8 @@ export const stateViewStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: AppSpacing.xl,
-    gap: AppSpacing.md,
+    padding: AppSpacing.spacing24,
+    gap: AppSpacing.spacing12,
   },
   message: { textAlign: 'center' },
 });

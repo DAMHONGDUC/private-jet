@@ -65,7 +65,7 @@ const useStyles = makeStyles(palette => ({
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: AppSpacing.xl,
+    paddingHorizontal: AppSpacing.spacing24,
   },
   primary: { backgroundColor: palette.primaryAction },
   secondary: { borderWidth: 1, borderColor: palette.iron },

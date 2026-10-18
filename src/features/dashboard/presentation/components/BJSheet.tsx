@@ -55,7 +55,7 @@ export function BJSheet({ visible, title, onClose, children, testID }: Props) {
             styles.sheet,
             {
               backgroundColor: palette.secondaryBackground,
-              paddingBottom: insets.bottom + AppSpacing.lg,
+              paddingBottom: AppSpacing.bottomActionInset(insets.bottom),
             },
           ]}
         >
@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
   sheet: {
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
     maxHeight: '90%',
   },
   handle: {
@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    marginBottom: AppSpacing.md,
+    marginBottom: AppSpacing.spacing12,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: AppSpacing.lg,
-    gap: AppSpacing.md,
+    marginBottom: AppSpacing.spacing16,
+    gap: AppSpacing.spacing12,
   },
   title: { flex: 1 },
   close: {

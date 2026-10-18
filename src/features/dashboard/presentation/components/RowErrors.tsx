@@ -24,5 +24,5 @@ export function RowErrors({
 }
 
 const styles = StyleSheet.create({
-  rowErrors: { gap: 2, marginTop: -AppSpacing.xs },
+  rowErrors: { gap: 2, marginTop: -AppSpacing.spacing4 },
 });

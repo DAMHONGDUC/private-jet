@@ -37,7 +37,7 @@ const useStyles = makeStyles(palette => ({
   stats: {
     flexDirection: 'row',
     paddingHorizontal: 0,
-    paddingVertical: AppSpacing.lg,
+    paddingVertical: AppSpacing.spacing16,
   },
   stat: { flex: 1, alignItems: 'center', gap: 2 },
   statDivider: { borderLeftWidth: 1, borderLeftColor: palette.iron },

@@ -81,7 +81,7 @@ const useStyles = makeStyles(palette => ({
   },
   back: {
     position: 'absolute',
-    left: AppSpacing.md,
+    left: AppSpacing.spacing12,
     width: 44,
     height: 44,
     borderRadius: 22,

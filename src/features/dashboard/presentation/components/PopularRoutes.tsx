@@ -40,9 +40,9 @@ export function PopularRoutes({ onPick }: Props) {
 
 const styles = StyleSheet.create({
   root: {
-    paddingHorizontal: AppSpacing.lg,
+    paddingHorizontal: AppSpacing.spacing16,
     paddingTop: AppSpacing.section,
-    gap: AppSpacing.lg,
+    gap: AppSpacing.spacing16,
   },
-  list: { gap: AppSpacing.md },
+  list: { gap: AppSpacing.spacing12 },
 });

@@ -23,5 +23,5 @@ export function TripSection({
 }
 
 const styles = StyleSheet.create({
-  section: { gap: AppSpacing.md },
+  section: { gap: AppSpacing.spacing12 },
 });

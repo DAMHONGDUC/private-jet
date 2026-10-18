@@ -88,8 +88,12 @@ export function CheckoutLegCard({
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  leg: { gap: AppSpacing.sm },
-  legHead: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
+  leg: { gap: AppSpacing.spacing8 },
+  legHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
   thumb: { width: 56, height: 56, borderRadius: 12 },
-  times: { gap: AppSpacing.sm },
+  times: { gap: AppSpacing.spacing8 },
 });

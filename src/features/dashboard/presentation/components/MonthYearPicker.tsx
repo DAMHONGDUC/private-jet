@@ -89,15 +89,15 @@ export function MonthYearPicker({ cursor, min, max, onYear, onPick }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { gap: AppSpacing.lg },
+  root: { gap: AppSpacing.spacing16 },
   yearRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing8,
   },
   months: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: '33.333%', padding: AppSpacing.xs },
+  cell: { width: '33.333%', padding: AppSpacing.spacing4 },
   month: {
     height: 52,
     borderRadius: radius.md,

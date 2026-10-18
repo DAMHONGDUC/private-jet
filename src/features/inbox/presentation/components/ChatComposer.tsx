@@ -26,7 +26,7 @@ export function ChatComposer({ value, onChangeText, canSend, onSend }: Props) {
     <View
       style={[
         styles.composer,
-        { paddingBottom: insets.bottom + AppSpacing.sm },
+        { paddingBottom: insets.bottom + AppSpacing.spacing8 },
       ]}
     >
       <TextInput
@@ -62,9 +62,9 @@ const useStyles = makeStyles(palette => ({
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
     borderTopWidth: 1,
     borderTopColor: palette.iron,
     backgroundColor: palette.secondaryBackground,
@@ -73,7 +73,7 @@ const useStyles = makeStyles(palette => ({
     flex: 1,
     minHeight: 44,
     maxHeight: 120,
-    paddingHorizontal: AppSpacing.md,
+    paddingHorizontal: AppSpacing.spacing12,
     paddingTop: 12,
     paddingBottom: 12,
     borderRadius: 22,

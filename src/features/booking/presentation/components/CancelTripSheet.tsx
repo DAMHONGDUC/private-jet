@@ -68,6 +68,6 @@ export function CancelTripSheet({
 }
 
 const useStyles = makeStyles(palette => ({
-  sheet: { gap: AppSpacing.md, paddingTop: AppSpacing.sm },
+  sheet: { gap: AppSpacing.spacing12, paddingTop: AppSpacing.spacing8 },
   error: { color: palette.error },
 }));

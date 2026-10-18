@@ -31,7 +31,7 @@ export function TripLegRow({ leg, last }: { leg: BookingLeg; last: boolean }) {
 }
 
 const useStyles = makeStyles(palette => ({
-  leg: { flexDirection: 'row', gap: AppSpacing.md },
+  leg: { flexDirection: 'row', gap: AppSpacing.spacing12 },
   rail: { width: 12, alignItems: 'center', paddingTop: 4 },
   dot: {
     width: 10,
@@ -40,5 +40,5 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.accent,
   },
   connector: { flex: 1, width: 2, backgroundColor: palette.iron, marginTop: 4 },
-  legBody: { flex: 1, gap: 2, paddingBottom: AppSpacing.md },
+  legBody: { flex: 1, gap: 2, paddingBottom: AppSpacing.spacing12 },
 }));

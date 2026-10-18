@@ -39,9 +39,9 @@ export function LegalScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    padding: AppSpacing.lg,
-    gap: AppSpacing.lg,
-    paddingBottom: AppSpacing.xxl,
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
   },
-  legal: { gap: AppSpacing.xs },
+  legal: { gap: AppSpacing.spacing4 },
 });

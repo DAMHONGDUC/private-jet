@@ -81,9 +81,9 @@ export function NewsCarousel({
 
 const styles = StyleSheet.create({
   root: {
-    marginHorizontal: AppSpacing.lg,
+    marginHorizontal: AppSpacing.spacing16,
     marginTop: AppSpacing.section,
-    gap: AppSpacing.lg,
+    gap: AppSpacing.spacing16,
   },
   card: {
     height: HEIGHT,
@@ -96,9 +96,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: AppSpacing.lg,
-    paddingBottom: AppSpacing.xxl,
-    gap: AppSpacing.xs,
+    padding: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
+    gap: AppSpacing.spacing4,
   },
   summary: { color: 'rgba(255, 255, 255, 0.89)' },
 });

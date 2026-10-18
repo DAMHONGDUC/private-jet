@@ -69,11 +69,18 @@ export function FaqQuestion({
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  item: { paddingVertical: AppSpacing.md },
+  item: { paddingVertical: AppSpacing.spacing12 },
   divider: {
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: palette.iron,
   },
-  question: { flexDirection: 'row', alignItems: 'center', gap: AppSpacing.md },
-  answer: { paddingTop: AppSpacing.sm, paddingRight: AppSpacing.xl },
+  question: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: AppSpacing.spacing12,
+  },
+  answer: {
+    paddingTop: AppSpacing.spacing8,
+    paddingRight: AppSpacing.spacing24,
+  },
 }));

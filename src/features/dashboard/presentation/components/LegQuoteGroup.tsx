@@ -49,5 +49,5 @@ export function LegQuoteGroup({
 }
 
 const styles = StyleSheet.create({
-  group: { gap: AppSpacing.md },
+  group: { gap: AppSpacing.spacing12 },
 });

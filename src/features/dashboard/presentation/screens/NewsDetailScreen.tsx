@@ -90,8 +90,8 @@ export function NewsDetailScreen({ newsId, onBack, onPlanTrip }: Props) {
         scrollEventThrottle={16}
         contentContainerStyle={{
           paddingBottom: onPlanTrip
-            ? AppSpacing.xl
-            : insets.bottom + AppSpacing.xxl,
+            ? AppSpacing.spacing24
+            : insets.bottom + AppSpacing.spacing32,
         }}
       >
         <Animated.View style={[styles.hero, heroStyle]}>
@@ -162,16 +162,16 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: AppSpacing.lg,
-    gap: AppSpacing.lg,
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing16,
     marginTop: -24,
     minHeight: 500,
   },
-  block: { gap: AppSpacing.sm },
+  block: { gap: AppSpacing.spacing8 },
   paragraph: { lineHeight: 23 },
   back: {
     position: 'absolute',
-    left: AppSpacing.md,
+    left: AppSpacing.spacing12,
     width: 40,
     height: 40,
     borderRadius: 20,

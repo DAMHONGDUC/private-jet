@@ -113,9 +113,9 @@ export function EditProfileScreen({ onSaved }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
+  content: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing24 },
   avatar: { alignItems: 'center' },
-  form: { gap: AppSpacing.md },
-  readOnly: { gap: AppSpacing.xs, paddingVertical: AppSpacing.sm },
+  form: { gap: AppSpacing.spacing12 },
+  readOnly: { gap: AppSpacing.spacing4, paddingVertical: AppSpacing.spacing8 },
   error: { color: palette.error, textAlign: 'center' },
 }));

@@ -90,12 +90,12 @@ export function PaymentMethodPicker({
 }
 
 const useStyles = makeStyles(palette => ({
-  list: { gap: AppSpacing.sm },
+  list: { gap: AppSpacing.spacing8 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.md,
-    padding: AppSpacing.md,
+    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing12,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: palette.iron,

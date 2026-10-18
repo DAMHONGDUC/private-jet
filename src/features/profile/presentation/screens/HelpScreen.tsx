@@ -97,9 +97,9 @@ export function HelpScreen({ onContactConcierge }: Props) {
 const useStyles = makeStyles(() => ({
   flex: { flex: 1 },
   content: {
-    padding: AppSpacing.lg,
-    gap: AppSpacing.lg,
-    paddingBottom: AppSpacing.xxl,
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
   },
   list: { paddingVertical: 0, overflow: 'hidden' },
   concierge: { textAlign: 'center' },

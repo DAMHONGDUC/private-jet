@@ -42,7 +42,7 @@ export function BottomSheet({
           testID={testID}
           style={[
             styles.sheet,
-            { paddingBottom: insets.bottom + AppSpacing.lg },
+            { paddingBottom: AppSpacing.bottomActionInset(insets.bottom) },
           ]}
         >
           <View style={styles.handle} />
@@ -70,8 +70,8 @@ const useStyles = makeStyles(palette => ({
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
   },
   handle: {
     alignSelf: 'center',
@@ -79,7 +79,7 @@ const useStyles = makeStyles(palette => ({
     height: 4,
     borderRadius: radius.pill,
     backgroundColor: palette.iron,
-    marginBottom: AppSpacing.md,
+    marginBottom: AppSpacing.spacing12,
   },
-  title: { marginBottom: AppSpacing.sm },
+  title: { marginBottom: AppSpacing.spacing8 },
 }));

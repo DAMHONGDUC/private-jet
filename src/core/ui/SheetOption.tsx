@@ -35,7 +35,7 @@ const useStyles = makeStyles(palette => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: AppSpacing.lg,
+    paddingVertical: AppSpacing.spacing16,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: palette.iron,
   },

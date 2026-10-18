@@ -28,9 +28,9 @@ export function HeroText({ now }: { now?: Date }) {
 
 const styles = StyleSheet.create({
   hero: {
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.lg,
-    paddingBottom: AppSpacing.xl,
-    gap: AppSpacing.xs,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing24,
+    gap: AppSpacing.spacing4,
   },
 });

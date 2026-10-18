@@ -45,14 +45,14 @@ export function ProfileHeader({ user, memberSince }: Props) {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    gap: AppSpacing.md,
-    paddingTop: AppSpacing.md,
+    gap: AppSpacing.spacing12,
+    paddingTop: AppSpacing.spacing12,
   },
-  identity: { alignItems: 'center', gap: AppSpacing.xs },
+  identity: { alignItems: 'center', gap: AppSpacing.spacing4 },
   tierRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.sm,
-    marginTop: AppSpacing.xs,
+    gap: AppSpacing.spacing8,
+    marginTop: AppSpacing.spacing4,
   },
 });

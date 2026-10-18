@@ -23,6 +23,6 @@ export function MenuSection({
 }
 
 const styles = StyleSheet.create({
-  section: { gap: AppSpacing.sm },
+  section: { gap: AppSpacing.spacing8 },
   list: { paddingVertical: 0 },
 });

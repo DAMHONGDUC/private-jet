@@ -38,14 +38,14 @@ const useStyles = makeStyles(palette => ({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: AppSpacing.lg,
-    padding: AppSpacing.lg,
+    rowGap: AppSpacing.spacing16,
+    padding: AppSpacing.spacing16,
     borderRadius: radius.lg,
     backgroundColor: palette.primaryBackground,
   },
   fact: {
     width: '33.33%',
-    gap: AppSpacing.xs,
-    paddingRight: AppSpacing.sm,
+    gap: AppSpacing.spacing4,
+    paddingRight: AppSpacing.spacing8,
   },
 }));

@@ -37,8 +37,8 @@ export function QuickReplies({ onPick }: Props) {
 const styles = StyleSheet.create({
   quickBar: { flexGrow: 0 },
   quick: {
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingVertical: AppSpacing.spacing8,
   },
 });

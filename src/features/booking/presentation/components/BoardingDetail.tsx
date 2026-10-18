@@ -23,5 +23,9 @@ export function BoardingDetail({
 }
 
 const styles = StyleSheet.create({
-  detail: { width: '50%', gap: AppSpacing.xs, paddingRight: AppSpacing.sm },
+  detail: {
+    width: '50%',
+    gap: AppSpacing.spacing4,
+    paddingRight: AppSpacing.spacing8,
+  },
 });

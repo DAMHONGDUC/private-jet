@@ -121,8 +121,9 @@ export function SearchResultsScreen({
           keyboardShouldPersistTaps="handled"
           onLayout={collapsible.onViewportLayout}
           contentContainerStyle={{
-            paddingTop: AppSpacing.sm,
-            paddingBottom: insets.bottom + (showBar ? BAR_ROOM : AppSpacing.xl),
+            paddingTop: AppSpacing.spacing8,
+            paddingBottom:
+              insets.bottom + (showBar ? BAR_ROOM : AppSpacing.spacing24),
             minHeight: collapsible.minContentHeight,
           }}
           refreshControl={
@@ -173,7 +174,7 @@ export function SearchResultsScreen({
       <Snackbar
         message={notice}
         onHide={hideNotice}
-        bottom={insets.bottom + (showBar ? BAR_ROOM : AppSpacing.lg)}
+        bottom={insets.bottom + (showBar ? BAR_ROOM : AppSpacing.spacing16)}
       />
     </View>
   );
@@ -188,10 +189,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.sm,
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
-    paddingBottom: AppSpacing.sm,
+    gap: AppSpacing.spacing8,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing8,
+    paddingBottom: AppSpacing.spacing8,
   },
   back: {
     width: 44,

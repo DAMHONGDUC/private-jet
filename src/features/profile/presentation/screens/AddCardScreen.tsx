@@ -131,6 +131,6 @@ export function AddCardScreen({ onAdded, now: nowProp }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  content: { padding: AppSpacing.lg, gap: AppSpacing.xl },
+  content: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing24 },
   error: { color: palette.error, textAlign: 'center' },
 }));

@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: radius.pill,
     borderWidth: 2,
-    paddingHorizontal: AppSpacing.xs,
+    paddingHorizontal: AppSpacing.spacing4,
     alignItems: 'center',
     justifyContent: 'center',
   },

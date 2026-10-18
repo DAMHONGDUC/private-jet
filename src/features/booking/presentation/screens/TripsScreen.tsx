@@ -129,10 +129,18 @@ export function TripsScreen({ onOpenTrip, onPlanTrip, now: nowProp }: Props) {
 
 const useStyles = makeStyles(() => ({
   header: {
-    paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.lg,
-    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingTop: AppSpacing.spacing16,
+    gap: AppSpacing.spacing8,
   },
-  list: { padding: AppSpacing.lg, gap: AppSpacing.lg, flexGrow: 1 },
-  empty: { flex: 1, gap: AppSpacing.lg, paddingBottom: AppSpacing.xxl },
+  list: {
+    padding: AppSpacing.spacing16,
+    gap: AppSpacing.spacing16,
+    flexGrow: 1,
+  },
+  empty: {
+    flex: 1,
+    gap: AppSpacing.spacing16,
+    paddingBottom: AppSpacing.spacing32,
+  },
 }));

@@ -96,18 +96,18 @@ export function JetResults({
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: AppSpacing.lg, gap: AppSpacing.lg },
+  root: { paddingHorizontal: AppSpacing.spacing16, gap: AppSpacing.spacing16 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.sm,
-    paddingTop: AppSpacing.lg,
+    gap: AppSpacing.spacing8,
+    paddingTop: AppSpacing.spacing16,
   },
   count: {
     minWidth: 28,
     height: 24,
     borderRadius: radius.pill,
-    paddingHorizontal: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.spacing8,
     alignItems: 'center',
     justifyContent: 'center',
   },

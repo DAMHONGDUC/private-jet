@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: 'transparent',
-    paddingHorizontal: AppSpacing.lg,
-    paddingVertical: AppSpacing.md,
-    gap: AppSpacing.xs,
+    paddingHorizontal: AppSpacing.spacing16,
+    paddingVertical: AppSpacing.spacing12,
+    gap: AppSpacing.spacing4,
   },
 });

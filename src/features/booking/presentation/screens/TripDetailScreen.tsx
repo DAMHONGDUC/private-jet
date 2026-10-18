@@ -83,7 +83,7 @@ export function TripDetailScreen({
         testID="trip-scroll"
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: AppSpacing.xl },
+          { paddingBottom: AppSpacing.spacing24 },
         ]}
       >
         <TripHero booking={booking} state={state} />
@@ -126,5 +126,5 @@ export function TripDetailScreen({
 }
 
 const useStyles = makeStyles(() => ({
-  content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
+  content: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing16 },
 }));

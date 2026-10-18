@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   input: {
     height: 52,
     borderRadius: radius.md,
-    paddingHorizontal: AppSpacing.lg,
+    paddingHorizontal: AppSpacing.spacing16,
     backgroundColor: FIELD,
     color: WHITE,
     fontFamily: blackJetFonts.regular,

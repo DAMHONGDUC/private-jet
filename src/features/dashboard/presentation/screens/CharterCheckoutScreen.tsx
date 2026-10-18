@@ -203,7 +203,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
 
 const useStyles = makeStyles(palette => ({
   flex: { flex: 1 },
-  padded: { padding: AppSpacing.lg },
-  content: { padding: AppSpacing.lg, gap: AppSpacing.lg },
+  padded: { padding: AppSpacing.spacing16 },
+  content: { padding: AppSpacing.spacing16, gap: AppSpacing.spacing16 },
   error: { color: palette.error, textAlign: 'center' },
 }));
