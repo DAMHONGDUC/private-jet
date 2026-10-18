@@ -12,6 +12,11 @@ export interface InboxDataSource {
     ids: string[] | NotificationScope.All,
   ): Promise<AppNotification[]>;
   getMessages(): Promise<ChatMessage[]>;
+  /**
+   * The thread once the backend has the message. The mock adds the
+   * concierge's reply before it returns; a real backend answers later, and
+   * the open chat polls `getMessages` for it.
+   */
   sendMessage(text: string): Promise<ChatMessage[]>;
   markMessagesRead(): Promise<ChatMessage[]>;
 }

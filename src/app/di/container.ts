@@ -71,18 +71,25 @@ export type DependencyOptions = {
 /**
  * The composition root: the only place that knows which data sources back
  * which repositories. Swap a mock data source for an HTTP one here and
- * nothing above the data layer changes.
+ * nothing above the data layer changes. HTTP data sources share one
+ * `HttpClient` (core/http) built with the API base URL and one `TokenStore`,
+ * which the auth data source fills at sign-in.
  */
 export function createDependencies({
   latencyMs = 700,
   now = () => new Date(),
   random,
 }: DependencyOptions = {}): AppDependencies {
-  const flightRepository = new FlightRepositoryImpl(
-    new FlightMockDataSource(latencyMs, now()),
-  );
+  // One mock backend: placing a booking charges the payment mock and takes
+  // seats from the flight mock, so the app reads what the booking changed.
+  const flightSource = new FlightMockDataSource(latencyMs, now());
+  const paymentSource = new PaymentMockDataSource(latencyMs);
+  const flightRepository = new FlightRepositoryImpl(flightSource);
   const bookingRepository = new BookingRepositoryImpl(
-    new BookingMockDataSource(latencyMs, now, random),
+    new BookingMockDataSource(latencyMs, now, random, {
+      payments: paymentSource,
+      flights: flightSource,
+    }),
   );
   const dashboardRepository = new DashboardRepositoryImpl(
     new DashboardMockDataSource(latencyMs),
@@ -93,9 +100,7 @@ export function createDependencies({
   const authRepository = new AuthRepositoryImpl(
     new AuthMockDataSource(latencyMs),
   );
-  const paymentRepository = new PaymentRepositoryImpl(
-    new PaymentMockDataSource(latencyMs),
-  );
+  const paymentRepository = new PaymentRepositoryImpl(paymentSource);
   const inboxRepository = new InboxRepositoryImpl(
     new InboxMockDataSource(latencyMs, now),
   );

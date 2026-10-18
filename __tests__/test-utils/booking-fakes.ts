@@ -1,7 +1,7 @@
 import {
   BookingStatus,
   type Booking,
-  type NewBooking,
+  type BookingOrder,
 } from '@/features/booking/domain/entities/booking';
 import {
   CardBrand,
@@ -13,7 +13,7 @@ import type {
   PaymentRepository,
 } from '@/features/booking/domain/repositories/booking-repository';
 
-/** Repositories for booking use-case tests: bookings echo what they are given, one Visa card pays. */
+/** Repositories for booking use-case tests: placed bookings echo what they are given, one Visa card pays. */
 const visa: PaymentMethod = {
   id: 'pm-visa',
   kind: PaymentMethodKind.Card,
@@ -30,8 +30,8 @@ export function createBookingRepository(
     getBookings: jest.fn(),
     getBooking: jest.fn(),
     cancelBooking: jest.fn(),
-    createBooking: jest.fn(
-      async (booking: NewBooking): Promise<Booking> => ({
+    placeBooking: jest.fn(
+      async ({ booking }: BookingOrder): Promise<Booking> => ({
         ...booking,
         id: 'b1',
         reference: 'BJAAAA',
@@ -48,6 +48,5 @@ export function createPaymentRepository(): jest.Mocked<PaymentRepository> {
     addCard: jest.fn(),
     setDefault: jest.fn(),
     removeCard: jest.fn(),
-    charge: jest.fn().mockResolvedValue(undefined),
   };
 }

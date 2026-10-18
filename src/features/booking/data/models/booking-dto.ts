@@ -31,3 +31,6 @@ export type CreateBookingDto = Omit<
   BookingDto,
   'id' | 'pnr' | 'status' | 'created_at'
 >;
+
+/** The body of the one call that pays for and records a booking. */
+export type PlaceBookingDto = CreateBookingDto & { payment_method_id: string };

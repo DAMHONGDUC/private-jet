@@ -6,6 +6,7 @@ const request = {
   flightId: 'BJ-101',
   passengers: [{ fullName: 'Alexander Reed' }, { fullName: 'Sophia Reed' }],
   contactEmail: 'demo@blackjet.app',
+  idempotencyKey: 'key-1',
 };
 
 async function settle() {

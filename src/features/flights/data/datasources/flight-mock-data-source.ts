@@ -31,6 +31,7 @@ export class FlightMockDataSource implements FlightDataSource {
     return flight ? { ...flight } : undefined;
   }
 
+  /** The mock backend's own bookkeeping: placing a booking takes seats through here. */
   async updateSeatsLeft(id: string, seatsLeft: number): Promise<FlightDto | undefined> {
     await delay(this.latencyMs);
     this.flights = this.flights.map(item => (item.id === id ? { ...item, seats_left: seatsLeft } : item));

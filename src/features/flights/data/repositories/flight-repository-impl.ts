@@ -50,28 +50,4 @@ export class FlightRepositoryImpl implements FlightRepository {
     }
     return toFlight(dto);
   }
-
-  async reserveSeats(flightId: string, count: number): Promise<Flight> {
-    const flight = await this.getFlightById(flightId);
-    if (flight.seatsAvailable < count) {
-      throw new DomainError(
-        AppErrorCode.SoldOut,
-        flight.seatsAvailable === 0
-          ? 'This flight is sold out.'
-          : `Only ${flight.seatsAvailable} seat(s) left on this flight.`,
-      );
-    }
-
-    const updated = await this.dataSource.updateSeatsLeft(
-      flightId,
-      flight.seatsAvailable - count,
-    );
-    if (!updated) {
-      throw new DomainError(
-        AppErrorCode.NotFound,
-        `Flight ${flightId} was not found.`,
-      );
-    }
-    return toFlight(updated);
-  }
 }
