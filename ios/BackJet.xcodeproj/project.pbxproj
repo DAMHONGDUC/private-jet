@@ -9,35 +9,36 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-BackJet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-BackJet.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		171121AECF21468696CB41DA /* BlackJet_NewIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */; };
+		34A221DFAA2B4087B50C0E73 /* KnulTrial-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */; };
+		4A78A4013F574543B52A2A18 /* BlackJet_Custom_Icons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */; };
+		6BAB5E7EDB734BD6834146A0 /* KnulTrial-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EE2CA45674006654EF /* SceneDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		6BAB5E7EDB734BD6834146A0 /* KnulTrial-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */; };
 		ACAD3F4CD7754DDFA90C5AD6 /* KnulTrial-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 592EE2447E864336A45D6981 /* KnulTrial-Medium.otf */; };
-		34A221DFAA2B4087B50C0E73 /* KnulTrial-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */; };
+		E34CBA5F824FE1854EA1B75A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		F1C6898218F14EC7819E04C9 /* MaterialIcons-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9BCFAEE071C642A5A0685927 /* MaterialIcons-Regular.otf */; };
-		171121AECF21468696CB41DA /* BlackJet_NewIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */; };
-		4A78A4013F574543B52A2A18 /* BlackJet_Custom_Icons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = BlackJet_Custom_Icons.ttf; path = ../src/assets/fonts/BlackJet_Custom_Icons.ttf; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* BackJet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BackJet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BackJet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BackJet/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = BackJet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = "KnulTrial-Regular.otf"; path = "../src/assets/fonts/KnulTrial-Regular.otf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-BackJet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BackJet.debug.xcconfig"; path = "Target Support Files/Pods-BackJet/Pods-BackJet.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-BackJet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BackJet.release.xcconfig"; path = "Target Support Files/Pods-BackJet/Pods-BackJet.release.xcconfig"; sourceTree = "<group>"; };
+		592EE2447E864336A45D6981 /* KnulTrial-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = "KnulTrial-Medium.otf"; path = "../src/assets/fonts/KnulTrial-Medium.otf"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-BackJet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BackJet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = BackJet/AppDelegate.swift; sourceTree = "<group>"; };
 		761780EE2CA45674006654EF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = BackJet/SceneDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BackJet/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9BCFAEE071C642A5A0685927 /* MaterialIcons-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = "MaterialIcons-Regular.otf"; path = "../src/assets/fonts/MaterialIcons-Regular.otf"; sourceTree = "<group>"; };
+		AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = BlackJet_NewIcons.ttf; path = ../src/assets/fonts/BlackJet_NewIcons.ttf; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */ = {isa = PBXFileReference; name = "KnulTrial-Bold.otf"; path = "../src/assets/fonts/KnulTrial-Bold.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		592EE2447E864336A45D6981 /* KnulTrial-Medium.otf */ = {isa = PBXFileReference; name = "KnulTrial-Medium.otf"; path = "../src/assets/fonts/KnulTrial-Medium.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */ = {isa = PBXFileReference; name = "KnulTrial-Regular.otf"; path = "../src/assets/fonts/KnulTrial-Regular.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		9BCFAEE071C642A5A0685927 /* MaterialIcons-Regular.otf */ = {isa = PBXFileReference; name = "MaterialIcons-Regular.otf"; path = "../src/assets/fonts/MaterialIcons-Regular.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */ = {isa = PBXFileReference; name = "BlackJet_NewIcons.ttf"; path = "../src/assets/fonts/BlackJet_NewIcons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */ = {isa = PBXFileReference; name = "BlackJet_Custom_Icons.ttf"; path = "../src/assets/fonts/BlackJet_Custom_Icons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 529749372777; includeInIndex = 0; lastKnownFileType = unknown; name = "KnulTrial-Bold.otf"; path = "../src/assets/fonts/KnulTrial-Bold.otf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +73,19 @@
 				5DCACB8F33CDC322A6C60F78 /* libPods-BackJet.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		46D566A6811549C9A8C4AD18 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */,
+				592EE2447E864336A45D6981 /* KnulTrial-Medium.otf */,
+				2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */,
+				9BCFAEE071C642A5A0685927 /* MaterialIcons-Regular.otf */,
+				AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */,
+				03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -112,20 +126,6 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
-		};
-		46D566A6811549C9A8C4AD18 /* Resources */ = {
-			isa = "PBXGroup";
-			children = (
-				FEBE4171E5E6403EB896D8BE /* KnulTrial-Bold.otf */,
-				592EE2447E864336A45D6981 /* KnulTrial-Medium.otf */,
-				2A9D2E911C0C45F180C01714 /* KnulTrial-Regular.otf */,
-				9BCFAEE071C642A5A0685927 /* MaterialIcons-Regular.otf */,
-				AD260E9CF6CA47A9B14E09BE /* BlackJet_NewIcons.ttf */,
-				03A062138D614CDF8AA75E8A /* BlackJet_Custom_Icons.ttf */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-			path = "";
 		};
 /* End PBXGroup section */
 
@@ -195,6 +195,7 @@
 				F1C6898218F14EC7819E04C9 /* MaterialIcons-Regular.otf in Resources */,
 				171121AECF21468696CB41DA /* BlackJet_NewIcons.ttf in Resources */,
 				4A78A4013F574543B52A2A18 /* BlackJet_Custom_Icons.ttf in Resources */,
+				E34CBA5F824FE1854EA1B75A /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,9 +226,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BackJet/Pods-BackJet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BackJet/Pods-BackJet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -264,9 +269,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BackJet/Pods-BackJet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BackJet/Pods-BackJet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -295,6 +304,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WNG5UWNJ6H;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BackJet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -325,6 +335,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WNG5UWNJ6H;
 				INFOPLIST_FILE = BackJet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -407,6 +418,10 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DFOLLY_NO_CONFIG",
@@ -414,8 +429,13 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
+				PODFILE_DIR = "$(SRCROOT)";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -472,6 +492,10 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DFOLLY_NO_CONFIG",
@@ -479,8 +503,12 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
+				PODFILE_DIR = "$(SRCROOT)";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
