@@ -25,7 +25,7 @@ Branch `feature/flight-booking`. Update this file with every commit, so whoever 
   - `README.md`: demo account, demo script, features, cache table
   - `docs/setup.md`
   - `feature-docs/app/README.md`: navigation, session, booking model, seeds, inbox, motion
-- Screenshots: 12 screens in light and dark, in `docs/screenshots/` and the README (iPhone 17 Pro Max simulator, 660 × 1434).
+- Screenshots: 12 screens in light and dark, in `docs/screenshots/` (iPhone 17 Pro Max simulator, 660 × 1434). The README shows the demo video in `docs/demo/` instead.
 - Trip detail polish: the header fades in, sections slide into place with `LinearTransition` when a trip is cancelled, the status pill cross-fades, and the Trips list reflows with `itemLayoutAnimation`.
 - Fixes found while taking the screenshots:
   - photos in jet cards, the jet quote, the news carousel and the full story were drawn at their pixel size (only absolute insets), leaving a dark strip or a zoomed crop; they are now sized explicitly
