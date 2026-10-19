@@ -10,6 +10,8 @@ import { formatDuration, formatMoney } from '@/core/utils/format';
 import { CATEGORY_LABELS } from '../search-labels';
 import type { JetQuote } from '../../domain/entities/charter';
 import { imageFor } from '@/core/ui/images';
+import type { FlightSchedule } from '@/features/flights/domain/entities/schedule';
+import { formatSchedule } from '@/features/flights/presentation/schedule-labels';
 import { PhotoPager } from './PhotoPager';
 
 export const JET_CARD_HEIGHT = 240;
@@ -20,12 +22,14 @@ const OVERLAY =
 
 type Props = {
   quote: JetQuote;
+  /** Estimated take-off and landing, local at each end. */
+  schedule?: FlightSchedule;
   selected?: boolean;
   onPress?: () => void;
 };
 
 /** One aircraft quote, as the original app's jet card (feature-docs/dashboard §12.3). */
-export function JetCard({ quote, selected = false, onPress }: Props) {
+export function JetCard({ quote, schedule, selected = false, onPress }: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
   return (
@@ -88,7 +92,13 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
                 {formatMoney(quote.price, quote.currency)}
               </BJText>
             </View>
-            <BJText size={13} tone="white">
+            <BJText
+              testID={`jet-card-${quote.id}-schedule`}
+              size={13}
+              tone="white"
+              numberOfLines={1}
+            >
+              {schedule ? `${formatSchedule(schedule)} · ` : ''}
               {formatDuration(quote.durationMinutes)}
             </BJText>
           </View>

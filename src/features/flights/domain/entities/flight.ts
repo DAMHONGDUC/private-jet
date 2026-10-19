@@ -14,6 +14,8 @@ export type Airport = {
   code: string;
   city: string;
   name: string;
+  /** IANA time zone, for local departure and arrival times; absent when unknown. */
+  timeZone?: string;
 };
 
 export type Aircraft = {

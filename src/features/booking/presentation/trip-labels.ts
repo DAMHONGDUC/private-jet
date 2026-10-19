@@ -1,5 +1,6 @@
 import { StatusTone } from '@/core/ui/StatusPill';
-import { formatDate, formatTime } from '@/core/utils/format';
+import { wallClockIn } from '@/core/utils/date';
+import { formatDayKey } from '@/core/utils/format';
 import {
   BookingKind,
   BookingStatus,
@@ -16,10 +17,13 @@ export function routeCodes(booking: Booking): string {
   ].join(' → ');
 }
 
-/** "Fri, 6 Nov · 09:30" */
-export function departureLabel(booking: Booking): string {
-  const at = firstLeg(booking).departureAt;
-  return `${formatDate(at)} · ${formatTime(at)}`;
+/** "Fri, 6 Nov · 09:30", by the clock at the first departure airport (`originZone`, IANA) when known. */
+export function departureLabel(booking: Booking, originZone?: string): string {
+  const { day, time } = wallClockIn(
+    new Date(firstLeg(booking).departureAt),
+    originZone,
+  );
+  return `${formatDayKey(day)} · ${time}`;
 }
 
 export function kindLabel(booking: Booking): string {

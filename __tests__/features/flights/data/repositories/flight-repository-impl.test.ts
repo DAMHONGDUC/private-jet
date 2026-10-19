@@ -87,6 +87,7 @@ describe('FlightRepositoryImpl on the mock data source', () => {
       code: 'BNE',
       city: 'Brisbane',
       name: 'Brisbane Airport',
+      timeZone: 'Australia/Brisbane',
     });
   });
 

@@ -28,8 +28,7 @@ import { CheckoutGuestsCard } from '../components/CheckoutGuestsCard';
 import { CheckoutLegCard } from '../components/CheckoutLegCard';
 import { CheckoutPaymentCard } from '../components/CheckoutPaymentCard';
 import { useCharterSelection } from '../use-charter-selection';
-
-const DEFAULT_TIME = '09:00';
+import { DEFAULT_DEPARTURE_TIME } from '@/features/flights/domain/entities/schedule';
 
 type Props = { onBooked: (bookingId: string) => void; onBack: () => void };
 
@@ -58,7 +57,7 @@ export function CharterCheckoutScreen({ onBooked, onBack }: Props) {
   const [email, setEmail] = useState(user?.email ?? '');
   const [notes, setNotes] = useState('');
   const [times, setTimes] = useState<string[]>(() =>
-    (request?.legs ?? []).map(leg => leg.time ?? DEFAULT_TIME),
+    (request?.legs ?? []).map(leg => leg.time ?? DEFAULT_DEPARTURE_TIME),
   );
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
   /** Errors show once Pay was tapped, then follow the typing until fixed. */

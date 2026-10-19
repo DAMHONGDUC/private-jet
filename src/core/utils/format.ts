@@ -55,6 +55,13 @@ export function formatDate(iso: string): string {
   }`;
 }
 
+/** "Tue, 10 Nov" for a `YYYY-MM-DD` day, whatever the device's time zone. */
+export function formatDayKey(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, date)).getUTCDay();
+  return `${WEEKDAYS[weekday]}, ${date} ${MONTHS[month - 1]}`;
+}
+
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;

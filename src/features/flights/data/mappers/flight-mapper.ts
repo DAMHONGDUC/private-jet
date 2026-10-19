@@ -31,5 +31,5 @@ export function toFlight(dto: FlightDto): Flight {
 }
 
 export function toAirport(dto: AirportDto): Airport {
-  return { code: dto.iata, city: dto.city, name: dto.name };
+  return { code: dto.iata, city: dto.city, name: dto.name, timeZone: dto.tz };
 }

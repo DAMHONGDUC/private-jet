@@ -10,6 +10,8 @@ import { AppSpacing } from '@/core/theme/app-spacing';
 import { BJText } from '@/core/ui/BJText';
 import type { LegQuotes } from '../../domain/entities/charter';
 import { formatShortDay } from '../search-labels';
+import { plannedSchedule } from '@/features/flights/domain/entities/schedule';
+import { useAirportZones } from '@/features/flights/presentation/use-airport-zones';
 import { JetCard } from './JetCard';
 
 type Props = {
@@ -37,6 +39,11 @@ export function LegQuoteGroup({
   const palette = useBlackJetTheme();
   const { leg, quotes } = group;
   const t = useT();
+  const zoneOf = useAirportZones();
+  const zones = {
+    origin: zoneOf(leg.origin),
+    destination: zoneOf(leg.destination),
+  };
   const shown = limit === undefined ? quotes : quotes.slice(0, limit);
   const hidden = quotes.length - shown.length;
   return (
@@ -56,6 +63,12 @@ export function LegQuoteGroup({
           <JetCard
             key={quote.id}
             quote={quote}
+            schedule={plannedSchedule(
+              leg.date,
+              leg.time,
+              quote.durationMinutes,
+              zones,
+            )}
             selected={quote.id === selectedId}
             onPress={onOpenQuote && (() => onOpenQuote(quote.id))}
           />

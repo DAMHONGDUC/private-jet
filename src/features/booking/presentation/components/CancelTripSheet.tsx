@@ -5,7 +5,9 @@ import { errorMessage } from '@/core/error/error-message';
 import { AppText } from '@/core/ui/AppText';
 import { BottomSheet } from '@/core/ui/BottomSheet';
 import { Button, ButtonVariant } from '@/core/ui/Button';
-import { formatDate, formatMoney } from '@/core/utils/format';
+import { wallClockIn } from '@/core/utils/date';
+import { formatDayKey, formatMoney } from '@/core/utils/format';
+import { useAirportZones } from '@/features/flights/presentation/use-airport-zones';
 import { firstLeg, lastLeg, type Booking } from '../../domain/entities/booking';
 
 type Props = {
@@ -30,6 +32,7 @@ export function CancelTripSheet({
   const styles = useStyles();
   const from = firstLeg(booking);
   const to = lastLeg(booking);
+  const zoneOf = useAirportZones();
 
   return (
     <BottomSheet
@@ -41,8 +44,11 @@ export function CancelTripSheet({
       <View style={styles.sheet}>
         <AppText muted>
           {from.originCity} → {to.destinationCity} on{' '}
-          {formatDate(from.departureAt)}. The{' '}
-          {formatMoney(booking.totalPrice, booking.currency)} goes back to{' '}
+          {formatDayKey(
+            wallClockIn(new Date(from.departureAt), zoneOf(from.originCode))
+              .day,
+          )}
+          . The {formatMoney(booking.totalPrice, booking.currency)} goes back to{' '}
           {booking.paymentLabel} within 5 working days.
         </AppText>
         {error ? (
