@@ -178,7 +178,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 0,
   },
-  listWrap: { marginTop: 16, minHeight: 240, maxHeight: 420 },
+  // A fixed height, so the sheet does not jump as results come and go;
+  // flexShrink lets it give way on short screens with the keyboard up.
+  listWrap: { marginTop: 16, height: 420, flexShrink: 1 },
   section: { marginBottom: 16 },
   heading: { marginBottom: 4, letterSpacing: 0.8 },
   row: {
