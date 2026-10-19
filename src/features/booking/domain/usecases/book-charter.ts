@@ -1,5 +1,5 @@
 import { AppErrorCode, DomainError } from '@/core/error/app-error';
-import { fromDayKey } from '@/core/utils/date';
+import { instantAt } from '@/core/utils/date';
 import type {
   CharterLeg,
   JetQuote,
@@ -71,17 +71,22 @@ export class BookCharter {
       throw new DomainError(AppErrorCode.Validation, problem);
     }
 
+    const airports = new Map(
+      (await this.flights.getAirports()).map(airport => [airport.code, airport]),
+    );
+    // Each leg leaves at the chosen time by its own airport's clock.
     const departures = selections.map(({ leg, departureTime }) => {
-      const match = TIME.exec(departureTime);
-      if (!match) {
+      if (!TIME.test(departureTime)) {
         throw new DomainError(
           AppErrorCode.Validation,
           'Choose a departure time for every leg.',
         );
       }
-      const at = fromDayKey(leg.date);
-      at.setHours(Number(match[1]), Number(match[2]), 0, 0);
-      return at;
+      return instantAt(
+        leg.date,
+        departureTime,
+        airports.get(leg.origin)?.timeZone,
+      );
     });
     if (departures.some(at => at.getTime() <= this.now().getTime())) {
       throw new DomainError(
@@ -115,12 +120,6 @@ export class BookCharter {
       0,
     );
     const currency = selections[0].quote.currency;
-    const cities = new Map(
-      (await this.flights.getAirports()).map(airport => [
-        airport.code,
-        airport.city,
-      ]),
-    );
     const payment = await resolvePaymentMethod(
       this.payments,
       request.paymentMethodId,
@@ -130,9 +129,9 @@ export class BookCharter {
       kind: BookingKind.Charter,
       legs: selections.map(({ leg, quote }, index) => ({
         originCode: leg.origin,
-        originCity: cities.get(leg.origin) ?? leg.origin,
+        originCity: airports.get(leg.origin)?.city ?? leg.origin,
         destinationCode: leg.destination,
-        destinationCity: cities.get(leg.destination) ?? leg.destination,
+        destinationCity: airports.get(leg.destination)?.city ?? leg.destination,
         aircraftModel: quote.aircraft.model,
         departureAt: departures[index].toISOString(),
         durationMinutes: quote.durationMinutes,

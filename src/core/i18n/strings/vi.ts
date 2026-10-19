@@ -131,6 +131,10 @@ export const vi: Dictionary = {
     legsOutOfOrder: 'Chặng này phải bay sau chặng trước.',
   },
   results: {
+    departs: 'Khởi hành',
+    lands: 'Hạ cánh',
+    estimatedLocal: 'Dự kiến, theo giờ địa phương',
+    estimatedShort: 'dự kiến',
     title: 'Tìm kiếm của bạn',
     availableJets: 'Chuyên cơ sẵn có',
     outbound: 'Chiều đi',

@@ -13,6 +13,7 @@ import {
   lastLeg,
   type Booking,
 } from '../../domain/entities/booking';
+import { useAirportZones } from '@/features/flights/presentation/use-airport-zones';
 import { departureLabel, kindLabel, tripState } from '../trip-labels';
 
 type Props = { booking: Booking; now: Date; onPress: () => void };
@@ -24,6 +25,7 @@ export function TripCard({ booking, now, onPress }: Props) {
   const styles = useStyles();
   const palette = useBlackJetTheme();
   const from = firstLeg(booking);
+  const zoneOf = useAirportZones();
   const to = lastLeg(booking);
   const state = tripState(booking, now);
   const faded = booking.status === BookingStatus.Cancelled;
@@ -75,7 +77,9 @@ export function TripCard({ booking, now, onPress }: Props) {
           <AppText variant="caption" muted>
             Departure
           </AppText>
-          <AppText variant="subtitle">{departureLabel(booking)}</AppText>
+          <AppText variant="subtitle">
+            {departureLabel(booking, zoneOf(from.originCode))}
+          </AppText>
         </View>
         <View style={styles.cell}>
           <AppText variant="caption" muted>

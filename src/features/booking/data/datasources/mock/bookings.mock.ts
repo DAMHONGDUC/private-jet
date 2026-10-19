@@ -2,6 +2,7 @@ import { BookingKind, BookingStatus } from '../../../domain/entities/booking';
 import { CardBrand, PaymentMethodKind } from '../../../domain/entities/payment';
 import type { BookingDto, BookingLegDto } from '../../models/booking-dto';
 import type { PaymentMethodDto } from '../../models/payment-dto';
+import { instantAt, wallClockIn } from '@/core/utils/date';
 
 const PASSENGER = 'Alexander Reed';
 const EMAIL = 'demo@sovereign.app';
@@ -13,9 +14,12 @@ function at(now: Date, days: number, hour: number, minutes = 0): string {
   return date.toISOString();
 }
 
+/** An airport: IATA code, city, IANA time zone. */
+type Place = [string, string, string];
+
 const leg = (
-  from: [string, string],
-  to: [string, string],
+  from: Place,
+  to: Place,
   aircraft: string,
   departure: string,
   minutes: number,
@@ -27,16 +31,21 @@ const leg = (
   destination_iata: to[0],
   destination_city: to[1],
   aircraft_model: aircraft,
-  departure_time: departure,
+  // `at` reads the device's clock; a leg leaves at that time by its own airport's clock.
+  departure_time: instantAt(
+    wallClockIn(new Date(departure)).day,
+    wallClockIn(new Date(departure)).time,
+    from[2],
+  ).toISOString(),
   duration_minutes: minutes,
 });
 
-const SYD: [string, string] = ['SYD', 'Sydney'];
-const MEB: [string, string] = ['MEB', 'Melbourne'];
-const OOL: [string, string] = ['OOL', 'Gold Coast'];
-const HTI: [string, string] = ['HTI', 'Hamilton Island'];
-const BNE: [string, string] = ['BNE', 'Brisbane'];
-const SIN: [string, string] = ['SIN', 'Singapore'];
+const SYD: Place = ['SYD', 'Sydney', 'Australia/Sydney'];
+const MEB: Place = ['MEB', 'Melbourne', 'Australia/Melbourne'];
+const OOL: Place = ['OOL', 'Gold Coast', 'Australia/Brisbane'];
+const HTI: Place = ['HTI', 'Hamilton Island', 'Australia/Brisbane'];
+const BNE: Place = ['BNE', 'Brisbane', 'Australia/Brisbane'];
+const SIN: Place = ['SIN', 'Singapore', 'Asia/Singapore'];
 
 /** An account with history: two upcoming trips, one flown and one cancelled. */
 export function buildMockBookings(now: Date): BookingDto[] {

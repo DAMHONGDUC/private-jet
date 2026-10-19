@@ -133,6 +133,10 @@ export const en = {
     legsOutOfOrder: 'Depart on or after the leg before.',
   },
   results: {
+    departs: 'Departs',
+    lands: 'Lands',
+    estimatedLocal: 'Estimated, local times',
+    estimatedShort: 'est.',
     title: 'Your search',
     availableJets: 'Available jets',
     outbound: 'Outbound',

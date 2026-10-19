@@ -6,6 +6,9 @@ import { radius } from '@/core/theme/theme';
 import { AppText } from '@/core/ui/AppText';
 import type { JetQuote, LegQuotes } from '../../domain/entities/charter';
 import { CATEGORY_LABELS, formatDay, passengersLabel } from '../search-labels';
+import { plannedSchedule } from '@/features/flights/domain/entities/schedule';
+import { ScheduleStrip } from '@/features/flights/presentation/ScheduleStrip';
+import { useAirportZones } from '@/features/flights/presentation/use-airport-zones';
 import { QuoteFacts } from './QuoteFacts';
 
 type Props = {
@@ -19,6 +22,12 @@ type Props = {
 export function QuoteSheet({ quote, group, legIndex, legs }: Props) {
   const styles = useStyles();
   const t = useT();
+  const zoneOf = useAirportZones();
+  const { leg } = group;
+  const schedule = plannedSchedule(leg.date, leg.time, quote.durationMinutes, {
+    origin: zoneOf(leg.origin),
+    destination: zoneOf(leg.destination),
+  });
 
   return (
     <View style={styles.sheet}>
@@ -36,6 +45,14 @@ export function QuoteSheet({ quote, group, legIndex, legs }: Props) {
           {passengersLabel(group.leg.passengers, t)}
         </AppText>
       </View>
+
+      <ScheduleStrip
+        testID="quote-schedule"
+        schedule={schedule}
+        origin={leg.origin}
+        destination={leg.destination}
+        durationMinutes={quote.durationMinutes}
+      />
 
       <QuoteFacts quote={quote} />
 

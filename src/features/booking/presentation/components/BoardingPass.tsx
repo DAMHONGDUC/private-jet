@@ -10,6 +10,7 @@ import { AppText } from '@/core/ui/AppText';
 import { Icon } from '@/core/ui/Icon';
 import { formatMoney } from '@/core/utils/format';
 import { firstLeg, lastLeg, type Booking } from '../../domain/entities/booking';
+import { useAirportZones } from '@/features/flights/presentation/use-airport-zones';
 import { departureLabel, kindLabel, routeCodes } from '../trip-labels';
 import { BoardingDetail } from './BoardingDetail';
 
@@ -24,6 +25,7 @@ export function BoardingPass({ booking }: { booking: Booking }) {
   const styles = useStyles();
   const palette = useBlackJetTheme();
   const from = firstLeg(booking);
+  const zoneOf = useAirportZones();
   const to = lastLeg(booking);
   const guests = booking.passengers.length;
 
@@ -69,7 +71,10 @@ export function BoardingPass({ booking }: { booking: Booking }) {
 
       <View style={styles.bottom}>
         <View style={styles.grid}>
-          <BoardingDetail label="Departure" value={departureLabel(booking)} />
+          <BoardingDetail
+            label="Departure"
+            value={departureLabel(booking, zoneOf(from.originCode))}
+          />
           <BoardingDetail label="Guests" value={String(guests)} />
           <BoardingDetail label="Paid with" value={booking.paymentLabel} />
           <BoardingDetail
