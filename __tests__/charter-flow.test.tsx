@@ -24,10 +24,16 @@ test('charters a jet from the home search to the new trip', async () => {
   await fireEvent.press(screen.getByTestId('count-done'));
   await fireEvent.press(screen.getByTestId('find-jet'));
 
-  const card = `jet-card-SYD-MEB-${day}-gulfstreamg280`;
-  await fireEvent.press(await screen.findByTestId(card));
+  // The tenth and last jet of the first page; the list ends in the spinner that loads the next.
+  const card = `jet-card-SYD-MEB-${day}-pilatuspc24`;
+  expect(await screen.findByTestId('jet-results-loading')).toBeOnTheScreen();
+  // Taps land on the card's photo pager, which also swipes between photos.
+  await fireEvent(await screen.findByTestId(`${card}-photos`), 'layout', {
+    nativeEvent: { layout: { width: 360, height: 240 } },
+  });
+  await fireEvent.press(screen.getByTestId(`${card}-photos-item-0`));
   expect(await screen.findByTestId('quote-model')).toHaveTextContent(
-    'Gulfstream G280',
+    'Pilatus PC-24',
   );
   await fireEvent.press(screen.getByTestId('quote-choose'));
 

@@ -85,6 +85,10 @@ export function useCollapsibleSearch() {
     scrollRef,
     onScroll,
     progress,
+    /** How far the page has scrolled, on the UI thread. */
+    scrollY: y,
+    /** The scroll view's own height, once laid out. */
+    viewportHeight: viewport,
     formStyle,
     /** For the scroll content: enough to scroll the form out of sight. */
     minContentHeight: viewport > 0 ? formBottom + viewport : undefined,

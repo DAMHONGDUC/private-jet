@@ -26,6 +26,10 @@ type Props = {
   /** The quote chosen per leg. */
   selections?: Record<number, string>;
   onOpenQuote?: (legIndex: number, quoteId: string) => void;
+  /** How many jets each leg shows; every jet when absent. */
+  limits?: number[];
+  /** Where a leg's group ends, from the top of these results, with how many jets it showed then. */
+  onLegEnd?: (legIndex: number, bottom: number, shown: number) => void;
 };
 
 const legTitle = (request: CharterRequest, index: number, t: Translate) => {
@@ -46,6 +50,8 @@ export function JetResults({
   onRetry,
   selections = {},
   onOpenQuote,
+  limits,
+  onLegEnd,
 }: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
@@ -66,6 +72,19 @@ export function JetResults({
             selectedId={selections[index]}
             onOpenQuote={
               onOpenQuote && (quoteId => onOpenQuote(index, quoteId))
+            }
+            testID={`jet-results-leg-${index}`}
+            limit={limits?.[index]}
+            onLayout={
+              onLegEnd &&
+              (event => {
+                const { y, height } = event.nativeEvent.layout;
+                onLegEnd(
+                  index,
+                  y + height,
+                  limits?.[index] ?? group.quotes.length,
+                );
+              })
             }
           />
         ))

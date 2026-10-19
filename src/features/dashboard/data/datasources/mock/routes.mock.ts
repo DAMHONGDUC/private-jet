@@ -22,14 +22,14 @@ const route = (
 /** Airports the airport sheet offers, so a tapped route always fills the form. */
 export function buildMockRoutes(): PopularRouteDto[] {
   return [
-    route('r1', ['SYD', 'Sydney'], ['MEB', 'Melbourne'], 85, 14900, 'jet-1'),
+    route('r1', ['SYD', 'Sydney'], ['MEB', 'Melbourne'], 85, 14900, 'jet-20'),
     route(
       'r2',
       ['BNE', 'Brisbane'],
       ['HTI', 'Hamilton Island'],
       100,
       17800,
-      'jet-2',
+      'jet-24',
     ),
     route(
       'r3',
@@ -37,8 +37,8 @@ export function buildMockRoutes(): PopularRouteDto[] {
       ['OOL', 'Gold Coast'],
       140,
       23600,
-      'jet-3',
+      'jet-7',
     ),
-    route('r4', ['SYD', 'Sydney'], ['SIN', 'Singapore'], 480, 98500, 'jet-4'),
+    route('r4', ['SYD', 'Sydney'], ['SIN', 'Singapore'], 480, 98500, 'jet-18'),
   ];
 }

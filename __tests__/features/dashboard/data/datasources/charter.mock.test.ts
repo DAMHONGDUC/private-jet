@@ -10,15 +10,13 @@ const query = {
 test('prices every jet with room for the party by its flight time', () => {
   const quotes = buildMockQuotes(query);
 
-  expect(quotes).toHaveLength(6);
+  expect(quotes).toHaveLength(46);
   expect(
     quotes.every(quote => quote.non_stop && quote.price_cents % 10_000 === 0),
   ).toBe(true);
-  expect(
-    buildMockQuotes({ ...query, passengers: 10 }).map(
-      quote => quote.aircraft_model,
-    ),
-  ).toEqual(['Dassault Falcon 8X', 'Gulfstream G650ER']);
+  const large = buildMockQuotes({ ...query, passengers: 10 });
+  expect(large).toHaveLength(23);
+  expect(large.every(quote => quote.aircraft_seats >= 10)).toBe(true);
 });
 
 test('adds a fuel stop when the leg is beyond the range', () => {

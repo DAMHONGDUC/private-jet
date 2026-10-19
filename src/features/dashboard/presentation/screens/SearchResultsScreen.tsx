@@ -1,7 +1,11 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  useAnimatedReaction,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { useT } from '@/core/i18n/i18n';
@@ -24,6 +28,7 @@ import { SelectionBar } from '../components/SelectionBar';
 import { useSearchChartersQuery } from '../dashboard-api';
 import { useCharterSelection } from '../use-charter-selection';
 import { useCollapsibleSearch } from '../use-collapsible-search';
+import { useQuotePaging } from '../use-quote-paging';
 
 type Props = {
   /** Back to the dashboard. */
@@ -68,6 +73,72 @@ export function SearchResultsScreen({
     isFetching,
     refetch,
   } = useSearchChartersQuery(request ?? skipToken);
+
+  const paging = useQuotePaging(results, selections);
+  const { limits, loadingLeg, loadMoreLeg } = paging;
+  // Where each leg's group ends in the scroll content, measured with so many jets shown.
+  const [resultsTop, setResultsTop] = useState(0);
+  const [legEnds, setLegEnds] = useState<{
+    results: typeof results;
+    ends: Record<number, { bottom: number; shown: number }>;
+  }>({ results, ends: {} });
+  const onLegEnd = useCallback(
+    (legIndex: number, bottom: number, shown: number) =>
+      setLegEnds(now => ({
+        results,
+        ends: {
+          ...(now.results === results ? now.ends : {}),
+          [legIndex]: { bottom, shown },
+        },
+      })),
+    [results],
+  );
+  /**
+   * A leg's end counts once it was measured for these results with the jets
+   * it shows now; until then it is stale.
+   */
+  const measuredEnd = (legIndex: number) => {
+    const end =
+      legEnds.results === results ? legEnds.ends[legIndex] : undefined;
+    return end && end.shown === limits[legIndex]
+      ? resultsTop + end.bottom
+      : undefined;
+  };
+  const hasMore = (legIndex: number) =>
+    limits[legIndex] < (results?.[legIndex]?.quotes.length ?? 0);
+  // The legs that still hide jets, by where they end; the others never come due.
+  const loadableEnds = useSharedValue<number[]>([]);
+  useEffect(() => {
+    loadableEnds.value = (results ?? []).map((_, index) => {
+      const end = measuredEnd(index);
+      return hasMore(index) && end !== undefined
+        ? end
+        : Number.MAX_SAFE_INTEGER;
+    });
+  });
+  // The first leg whose end has scrolled within reach, watched on the UI thread.
+  const { scrollY, viewportHeight } = collapsible;
+  const [dueLeg, setDueLeg] = useState(-1);
+  useAnimatedReaction(
+    () => {
+      const reach = scrollY.value + viewportHeight + LOAD_AHEAD;
+      return loadableEnds.value.findIndex(end => end <= reach);
+    },
+    (now, before) => {
+      if (now !== before) {
+        scheduleOnRN(setDueLeg, now);
+      }
+    },
+    [viewportHeight],
+  );
+  // That leg loads its next ten by itself, and again while its new end is still within reach.
+  const due =
+    dueLeg >= 0 && hasMore(dueLeg) && measuredEnd(dueLeg) !== undefined;
+  useEffect(() => {
+    if (due && loadingLeg === null) {
+      loadMoreLeg(dueLeg);
+    }
+  }, [due, dueLeg, loadingLeg, loadMoreLeg]);
 
   useEffect(() => {
     if (error) {
@@ -143,17 +214,21 @@ export function SearchResultsScreen({
             <SearchPanel today={today} onSearch={search} />
           </Animated.View>
           {request ? (
-            <JetResults
-              request={request}
-              results={results}
-              error={error}
-              onNewRequest={collapsible.expand}
-              onRetry={() => {
-                refetch();
-              }}
-              selections={selections}
-              onOpenQuote={onOpenQuote}
-            />
+            <View onLayout={event => setResultsTop(event.nativeEvent.layout.y)}>
+              <JetResults
+                request={request}
+                results={results}
+                error={error}
+                onNewRequest={collapsible.expand}
+                onRetry={() => {
+                  refetch();
+                }}
+                selections={selections}
+                onOpenQuote={onOpenQuote}
+                limits={limits}
+                onLegEnd={onLegEnd}
+              />
+            </View>
           ) : null}
         </Animated.ScrollView>
       </View>
@@ -182,6 +257,8 @@ export function SearchResultsScreen({
 
 /** Room under the list for the selection bar. */
 const BAR_ROOM = 112;
+/** How far below the screen, in points, a leg's end starts loading its next jets. */
+const LOAD_AHEAD = 400;
 
 const styles = StyleSheet.create({
   body: { flex: 1 },
