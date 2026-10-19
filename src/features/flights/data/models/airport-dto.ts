@@ -3,4 +3,6 @@ export type AirportDto = {
   iata: string;
   city: string;
   name: string;
+  /** IANA time zone, e.g. "Australia/Sydney". */
+  tz: string;
 };
