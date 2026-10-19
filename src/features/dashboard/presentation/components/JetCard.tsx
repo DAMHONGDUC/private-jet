@@ -5,7 +5,6 @@ import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { Icon } from '@/core/ui/Icon';
-import { PressableScale } from '@/core/ui/PressableScale';
 import { BJText } from '@/core/ui/BJText';
 import { formatDuration, formatMoney } from '@/core/utils/format';
 import { CATEGORY_LABELS } from '../search-labels';
@@ -30,17 +29,19 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
   return (
-    <PressableScale
+    // A plain view, not a pressable: a pressable around the pager turns a sideways swipe into a tap.
+    // Taps reach onPress through the pager's pages, so the photos swipe from anywhere on the card.
+    <View
       testID={`jet-card-${quote.id}`}
+      accessible
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityLabel={`${quote.aircraft.model}, ${formatMoney(
         quote.price,
         quote.currency,
       )}`}
-      disabled={!onPress}
-      onPress={onPress}
-      scaleTo={0.985}
+      accessibilityActions={onPress ? [{ name: 'activate' }] : undefined}
+      onAccessibilityAction={onPress}
       style={[
         styles.card,
         selected && [styles.selected, { borderColor: palette.accent }],
@@ -51,6 +52,7 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
         photos={quote.photos.map(imageFor)}
         height={JET_CARD_HEIGHT}
         dotsBottom={12}
+        onPressItem={onPress && (() => onPress())}
       />
       <View
         pointerEvents="none"
@@ -104,7 +106,7 @@ export function JetCard({ quote, selected = false, onPress }: Props) {
           </BJText>
         </View>
       ) : null}
-    </PressableScale>
+    </View>
   );
 }
 
