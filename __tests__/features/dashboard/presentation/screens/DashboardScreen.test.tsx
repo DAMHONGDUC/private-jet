@@ -1,7 +1,12 @@
-import { fireEvent, screen, within } from '@testing-library/react-native';
+import { act, fireEvent, screen, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import { TEST_NOW, renderWithStore } from '@test-utils/test-store';
 import { addDays, toDayKey } from '@/core/utils/date';
+import { LegSlot, TripType } from '@/features/dashboard/domain/entities/charter';
+import {
+  dateSelected,
+  passengersSelected,
+} from '@/features/dashboard/presentation/charter-search-slice';
 import { DashboardScreen } from '@/features/dashboard/presentation/screens/DashboardScreen';
 import { SearchResultsScreen } from '@/features/dashboard/presentation/screens/SearchResultsScreen';
 import { pickCalendarDay } from '@test-utils/calendar';
@@ -61,13 +66,44 @@ test('marks every missing field under the field, and clears each as it is filled
   expect(screen.queryByTestId('outbound-route-error')).toBeNull();
 });
 
-test('a popular route fills the airports of the form', async () => {
-  await renderWithStore(<DashboardScreen today={TEST_NOW} />);
+test('a popular route searches it for tomorrow and opens the jets', async () => {
+  const onShowResults = jest.fn();
+  const { store } = await renderWithStore(
+    <DashboardScreen today={TEST_NOW} onShowResults={onShowResults} />,
+  );
 
   await fireEvent.press(await screen.findByTestId('popular-route-r2'));
 
+  expect(onShowResults).toHaveBeenCalledTimes(1);
+  expect(store.getState().charterSearch.submitted).toEqual({
+    tripType: TripType.OneWay,
+    legs: [
+      {
+        origin: 'BNE',
+        destination: 'HTI',
+        date: toDayKey(addDays(TEST_NOW, 1)),
+        passengers: 1,
+      },
+    ],
+  });
   expect(screen.getByTestId('outbound-origin')).toHaveTextContent(/BNE/);
   expect(screen.getByTestId('outbound-destination')).toHaveTextContent(/HTI/);
+});
+
+test('a popular route keeps the day and party already on the form', async () => {
+  const day = toDayKey(addDays(TEST_NOW, 5));
+  const { store } = await renderWithStore(<DashboardScreen today={TEST_NOW} />);
+  await act(async () => {
+    store.dispatch(dateSelected({ target: LegSlot.Outbound, date: day }));
+    store.dispatch(passengersSelected({ target: LegSlot.Outbound, count: 4 }));
+  });
+
+  await fireEvent.press(await screen.findByTestId('popular-route-r2'));
+
+  expect(store.getState().charterSearch.submitted?.legs[0]).toMatchObject({
+    date: day,
+    passengers: 4,
+  });
 });
 
 test('searching stores the request and opens the results', async () => {
