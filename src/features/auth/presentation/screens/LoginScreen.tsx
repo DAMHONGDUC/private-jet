@@ -24,7 +24,7 @@ import { PressableScale } from '@/core/ui/PressableScale';
 import { errorMessage } from '@/core/error/error-message';
 import { haptics } from '@/core/ui/haptics';
 import { hasErrors } from '@/core/validation/field-errors';
-import { imageFor } from '@/core/ui/images';
+import { LOGIN_PHOTO } from '@/core/ui/images';
 import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
 import { DEMO_CREDENTIALS, credentialErrors } from '../../domain/entities/user';
 import { useSignInMutation } from '../auth-api';
@@ -93,7 +93,7 @@ export function LoginScreen() {
   return (
     <View testID="login-screen" style={styles.root}>
       <Image
-        source={imageFor('jet-4')}
+        source={LOGIN_PHOTO}
         resizeMode="cover"
         style={[StyleSheet.absoluteFill, styles.photo]}
       />

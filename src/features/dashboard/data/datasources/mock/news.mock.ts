@@ -79,13 +79,13 @@ export function buildMockNews(): NewsPostDto[] {
       'n7',
       'Flying with your pets',
       'Cabins that welcome dogs and cats of every size.',
-      'news-2',
+      'news-5',
     ),
     post(
       'n8',
       'Catering by request',
       'Tell us your menu; the chef meets you on board.',
-      'news-3',
+      'news-6',
     ),
   ];
 }
