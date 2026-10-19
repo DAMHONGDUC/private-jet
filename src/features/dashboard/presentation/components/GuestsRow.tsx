@@ -17,7 +17,7 @@ export function GuestsRow({ count, invalid, onPress, testID }: Props) {
     <FieldButton
       testID={testID}
       icon="family"
-      iconSize={20}
+      iconSize={18}
       text={count > 0 ? passengersLabel(count, t) : t('search.passengers')}
       filled={count > 0}
       invalid={invalid}

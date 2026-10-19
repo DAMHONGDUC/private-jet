@@ -195,7 +195,7 @@ Nội dung (Column, gap 12, đệm trên/dưới 12):
 **a) Trip type radio**: `FlutterFlowRadioButton`, cao 30, `WrapAlignment.spaceBetween`.
 - Options: `One Way`, `Round Trip`, `Multi City`; mặc định `FFAppState.HomeTripType` hoặc `"One Way"`.
 - Active: 14/w700 `jetBlack`; inactive: 14/w500 `ashGrey`.
-- `onChanged`: reset form (xem 3.3) và, nếu chọn Multi City, khởi tạo danh sách leg.
+- `onChanged`: bản gốc reset form (xem 3.3). **[mới]** App giữ thông tin đã nhập: chặng đầu (sân bay, ngày, giờ, khách) mang sang mọi loại chuyến; ngày về và các chặng Multi City sau chặng đầu được giữ chờ loại chuyến dùng tới.
 
 **b) Khối One Way / Round Trip** (ẩn khi Multi City):
 
@@ -610,7 +610,7 @@ Quy tắc:
 - Bấm **Find Your Jet**: validate như 3.4 → `status = loading` (giữ `results` cũ để không nháy) → gọi API → `success`/`empty`/`error`.
 - Khi chuyển sang `loading`, tự cuộn xuống để khu search **thu gọn** và section kết quả hiện ngay dưới thanh tóm tắt (12.4, A17).
 - Sửa form sau khi đã có kết quả thì **giữ kết quả** cho đến khi bấm Find lại. Gợi ý: đổi chữ nút thành **"Update Results"** khi form khác `lastQuery`.
-- Đổi loại chuyến (radio) thì vẫn reset form như 3.3 và đưa `status` về `idle` (xoá kết quả).
+- Đổi loại chuyến (radio) giữ thông tin đã nhập (xem 2.3a) nhưng đưa `status` về `idle` (xoá kết quả, vì kết quả thuộc request cũ).
 - Lỗi: SnackBar như 3.4; nếu đã có kết quả trước đó thì giữ nguyên list.
 - **Pull-to-refresh** **[gốc]**: chỉ bật khi `status ∈ {success, empty}`, chạy lại `lastQuery`. Gốc dùng `RefreshIndicator(displacement 40, strokeWidth 2, triggerMode onEdge)`.
 
@@ -733,6 +733,9 @@ y = scrollY
 | A20 | Ảnh trong JetCard | fade-in ảnh | ảnh tải xong | 2000ms | | 0→1 | [gốc] |
 | A21 | Dot ảnh JetCard | `animateToPage` | tap dot | 500ms | `Curves.ease` | | [gốc] |
 | A22 | Empty state | Lottie | `empty` | 3s, loop | | | [gốc] |
+| A23 | Trip type | pill trượt sang segment được chọn | đổi trip type | 260ms (`switchTiming`) | easeOutCubic | translateX theo index | [mới], thay A1–A3 |
+| A24 | Ô Departure/Return | layout + fade | hiện/ẩn Return | 260ms; Return fade in trễ 80ms | easeOutCubic | Departure co/giãn; Return biến mất ngay (không fade out) | [mới] |
+| A25 | Form một chặng ↔ Multi City | fade in + card đổi chiều cao | đổi trip type | 260ms | easeOutCubic | form mới 0→1; card và nút Search trượt tới vị trí mới | [mới] |
 
 ### 12.6 Test gợi ý
 

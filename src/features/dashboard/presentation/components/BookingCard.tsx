@@ -1,8 +1,13 @@
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
-import { elevation, radius } from '@/core/theme/theme';
+import { elevation, radius, switchTiming } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -35,7 +40,21 @@ type Props = BookingCardActions & {
   errors?: BookingCardErrors;
 };
 
-/** The search form (feature-docs/dashboard §2.3); fields change in place, without animation. */
+const EASE = Easing.out(Easing.cubic);
+/** Fields that stay slide to their new place and size. */
+const MOVE = LinearTransition.duration(switchTiming.duration).easing(EASE);
+/** A field arriving fades in once the others have moved. */
+const ARRIVE = FadeIn.duration(switchTiming.duration).delay(80);
+/** A whole form replacing another fades straight in, so the card never shows empty. */
+const SWAP = FadeIn.duration(switchTiming.duration);
+
+/**
+ * The search form (feature-docs/dashboard §2.3). Changing the trip type
+ * animates in place: the segment slides, the Return date fades in beside
+ * Departure as it narrows (and leaves at once as it widens), and the card
+ * eases to its new height. A leaving field never fades out: it would linger
+ * over the form that replaces it.
+ */
 export function BookingCard(props: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
@@ -45,8 +64,9 @@ export function BookingCard(props: Props) {
     errors[draftField(LegSlot.Outbound, part)];
 
   return (
-    <View
+    <Animated.View
       testID="booking-card"
+      layout={MOVE}
       style={[
         styles.card,
         { backgroundColor: palette.raised },
@@ -56,7 +76,7 @@ export function BookingCard(props: Props) {
       <TripTypeRadio value={draft.tripType} onChange={props.onTripType} />
 
       {draft.tripType === TripType.MultiCity ? (
-        <View style={styles.legs}>
+        <Animated.View key="legs" entering={SWAP} style={styles.legs}>
           {draft.legs.map((leg, index) => (
             <LegEditor
               key={index}
@@ -77,9 +97,9 @@ export function BookingCard(props: Props) {
               <BJText>{t('search.addLeg')}</BJText>
             </PressableScale>
           ) : null}
-        </View>
+        </Animated.View>
       ) : (
-        <View style={styles.section}>
+        <Animated.View key="single" entering={SWAP} style={styles.section}>
           <RouteRow
             testID="outbound"
             airports={props.airports}
@@ -104,25 +124,33 @@ export function BookingCard(props: Props) {
             ]}
           />
           <View style={styles.pair}>
-            <DateBox
-              testID="outbound-date"
-              label={t('search.departure')}
-              day={draft.outbound.date}
-              time={draft.outbound.time}
-              align={Align.Start}
-              invalid={!!outbound(DraftPart.Date)}
-              onPress={() => props.onPickDate(LegSlot.Outbound)}
-            />
-            {roundTrip ? (
+            <Animated.View layout={MOVE} style={styles.slot}>
               <DateBox
-                testID="return-date"
-                label={t('search.return')}
-                day={draft.returnDate}
-                time={draft.returnTime}
-                align={Align.End}
-                invalid={!!errors[RETURN_DATE_FIELD]}
-                onPress={props.onPickReturnDate}
+                testID="outbound-date"
+                label={t('search.departure')}
+                day={draft.outbound.date}
+                time={draft.outbound.time}
+                align={Align.Start}
+                invalid={!!outbound(DraftPart.Date)}
+                onPress={() => props.onPickDate(LegSlot.Outbound)}
               />
+            </Animated.View>
+            {roundTrip ? (
+              <Animated.View
+                entering={ARRIVE}
+                layout={MOVE}
+                style={styles.slot}
+              >
+                <DateBox
+                  testID="return-date"
+                  label={t('search.return')}
+                  day={draft.returnDate}
+                  time={draft.returnTime}
+                  align={Align.End}
+                  invalid={!!errors[RETURN_DATE_FIELD]}
+                  onPress={props.onPickReturnDate}
+                />
+              </Animated.View>
             ) : null}
           </View>
           <RowErrors
@@ -139,19 +167,21 @@ export function BookingCard(props: Props) {
             testID="outbound-passengers-error"
             messages={[outbound(DraftPart.Passengers)]}
           />
-        </View>
+        </Animated.View>
       )}
 
-      <PressableScale
-        testID="find-jet"
-        accessibilityRole="button"
-        onPress={props.onFind}
-        style={[styles.find, { backgroundColor: palette.primaryAction }]}
-      >
-        <Icon name="search" size={20} color={palette.onPrimaryAction} />
-        <BJText tone="onPrimary">{t('search.find')}</BJText>
-      </PressableScale>
-    </View>
+      <Animated.View layout={MOVE}>
+        <PressableScale
+          testID="find-jet"
+          accessibilityRole="button"
+          onPress={props.onFind}
+          style={[styles.find, { backgroundColor: palette.primaryAction }]}
+        >
+          <Icon name="search" size={20} color={palette.onPrimaryAction} />
+          <BJText tone="onPrimary">{t('search.find')}</BJText>
+        </PressableScale>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -159,14 +189,15 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: AppSpacing.spacing16,
     borderRadius: radius.xl,
-    padding: AppSpacing.spacing16,
-    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing12,
+    gap: AppSpacing.spacing8,
   },
   section: { gap: AppSpacing.spacing8 },
   pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
-  legs: { gap: AppSpacing.spacing16 },
+  slot: { flex: 1, flexDirection: 'row' },
+  legs: { gap: AppSpacing.spacing12 },
   addLeg: {
-    height: 52,
+    height: 44,
     borderRadius: radius.md,
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -176,7 +207,7 @@ const styles = StyleSheet.create({
     gap: AppSpacing.spacing8,
   },
   find: {
-    height: 52,
+    height: 44,
     borderRadius: radius.md,
     flexDirection: 'row',
     gap: AppSpacing.spacing8,

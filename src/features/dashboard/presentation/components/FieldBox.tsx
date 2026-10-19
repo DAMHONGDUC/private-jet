@@ -72,7 +72,7 @@ export function FieldBox({
         </BJText>
       </View>
       <BJText
-        size={28}
+        size={20}
         tone={value ? 'primary' : 'secondary'}
         numberOfLines={1}
       >
@@ -86,7 +86,7 @@ export function FieldBox({
 }
 
 /** Sized to the 13 pt label it sits beside. */
-const ICON_SIZE = 16;
+const ICON_SIZE = 14;
 
 const styles = StyleSheet.create({
   box: {
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: 'transparent',
-    paddingHorizontal: AppSpacing.spacing16,
-    paddingVertical: AppSpacing.spacing12,
+    paddingHorizontal: AppSpacing.spacing12,
+    paddingVertical: AppSpacing.spacing8,
     gap: AppSpacing.spacing4,
   },
   labelRow: {

@@ -22,6 +22,9 @@ export type TypeSize = (typeof typeScale)[keyof typeof typeScale];
 /** One timing for every press, so the app moves the same everywhere. */
 export const pressTiming = { duration: 120 } as const;
 
+/** Content changing in place: a segment sliding over, a field arriving or leaving. */
+export const switchTiming = { duration: 260 } as const;
+
 /** Soft, background-tinted lift for floating surfaces. */
 export const elevation = (color: string) =>
   ({

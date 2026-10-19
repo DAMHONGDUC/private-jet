@@ -70,7 +70,7 @@ export function RouteRow(props: Props) {
   );
 }
 
-const SWAP_SIZE = 40;
+const SWAP_SIZE = 36;
 
 const styles = StyleSheet.create({
   route: {
