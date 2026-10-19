@@ -6,9 +6,9 @@ A private jet charter app for iOS and Android: search a route, compare jets, boo
 
 <img src="docs/marketing/sovereign-wallpaper-1000x750.png" width="600" alt="Sovereign: Private Jet">
 
-<a href="docs/demo/sovereign-film.mp4"><img src="docs/marketing/sovereign-youtube-1280x720.png" width="600" alt="Sovereign product film, tap to play"></a>
+<a href="https://www.youtube.com/watch?v=AiZxhg_jcxw"><img src="docs/marketing/sovereign-youtube-1280x720.png" width="600" alt="Sovereign product film, tap to play"></a>
 
-- Product film (52 s, 1920×1080): [docs/demo/sovereign-film.mp4](docs/demo/sovereign-film.mp4)
+- Product film (52 s): [watch on YouTube](https://www.youtube.com/watch?v=AiZxhg_jcxw), or the 1920×1080 file [docs/demo/sovereign-film.mp4](docs/demo/sovereign-film.mp4)
 - Marketing images: [docs/marketing](docs/marketing) (wallpaper 1000×750, YouTube 1280×720, square 1024×1024)
 
 ## Tech Stack
