@@ -16,7 +16,7 @@ test('searches charters, and news through the use cases', async () => {
     store.dispatch(dashboardApi.endpoints.getNews.initiate()),
   ]);
 
-  expect(charters.data?.[0].quotes[0].aircraft.model).toBe('Pilatus PC-24');
+  expect(charters.data?.[0].quotes[0].aircraft.model).toBe('Pilatus PC-12 NGX');
   expect(news.data?.map(post => post.id)).toEqual([
     'n1',
     'n2',

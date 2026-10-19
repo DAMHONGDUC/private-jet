@@ -104,7 +104,7 @@ test('the results screen lists the jets for the search under its form', async ()
   expect(
     await screen.findByTestId(`jet-card-SYD-MEB-${day}-pilatuspc24`),
   ).toBeOnTheScreen();
-  expect(screen.getByTestId('jet-results-count')).toHaveTextContent('6');
+  expect(screen.getByTestId('jet-results-count')).toHaveTextContent('46');
   // The form keeps the search, and the pill waiting above sums it up.
   expect(screen.getByTestId('outbound-origin')).toHaveTextContent(/SYD/);
   expect(screen.getByTestId('search-summary')).toHaveTextContent(
@@ -155,7 +155,7 @@ test('the results screen runs a changed search in place', async () => {
     destination: 'SIN',
   });
   expect(
-    await screen.findByTestId(`jet-card-SYD-SIN-${day}-gulfstreamg650er`),
+    await screen.findByTestId(`jet-card-SYD-SIN-${day}-embraerphenom100ex`),
   ).toBeOnTheScreen();
   expect(screen.getByTestId('search-summary')).toHaveTextContent(/SYD → SIN/);
 });
@@ -207,7 +207,7 @@ test('a multi-city leg lists only the jets with room for the whole party', async
 
   await renderWithStore(<SearchResultsScreen onBack={jest.fn()} />, store);
 
-  expect(await screen.findByTestId('jet-results-count')).toHaveTextContent('1');
+  expect(await screen.findByTestId('jet-results-count')).toHaveTextContent('8');
   expect(screen.getByText(/^Leg #1 · SYD → SIN/)).toBeOnTheScreen();
   expect(
     screen.getByTestId(`jet-card-SYD-SIN-${day}-gulfstreamg650er`),

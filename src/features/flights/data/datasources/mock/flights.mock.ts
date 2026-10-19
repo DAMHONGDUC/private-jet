@@ -14,6 +14,19 @@ const AIRPORTS = {
     city: 'Hamilton Island',
     name: 'Hamilton Island Airport',
   },
+  ADL: { iata: 'ADL', city: 'Adelaide', name: 'Adelaide Airport' },
+  CBR: { iata: 'CBR', city: 'Canberra', name: 'Canberra Airport' },
+  CNS: { iata: 'CNS', city: 'Cairns', name: 'Cairns Airport' },
+  HBA: { iata: 'HBA', city: 'Hobart', name: 'Hobart Airport' },
+  DRW: { iata: 'DRW', city: 'Darwin', name: 'Darwin International' },
+  AYQ: { iata: 'AYQ', city: 'Uluru', name: 'Ayers Rock Airport' },
+  BME: { iata: 'BME', city: 'Broome', name: 'Broome International' },
+  AKL: { iata: 'AKL', city: 'Auckland', name: 'Auckland Airport' },
+  ZQN: { iata: 'ZQN', city: 'Queenstown', name: 'Queenstown Airport' },
+  DPS: { iata: 'DPS', city: 'Bali', name: 'Ngurah Rai International' },
+  NAN: { iata: 'NAN', city: 'Fiji', name: 'Nadi International' },
+  HKG: { iata: 'HKG', city: 'Hong Kong', name: 'Hong Kong International' },
+  HND: { iata: 'HND', city: 'Tokyo', name: 'Tokyo Haneda' },
 } satisfies Record<string, AirportDto>;
 
 export function buildMockAirports(): AirportDto[] {

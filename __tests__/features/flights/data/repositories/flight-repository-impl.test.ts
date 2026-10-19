@@ -62,15 +62,28 @@ describe('FlightRepositoryImpl on the mock data source', () => {
     const airports = await repository().getAirports();
 
     expect(airports.map(airport => airport.code)).toEqual([
+      'ADL',
+      'AKL',
+      'DPS',
       'BNE',
+      'BME',
+      'CNS',
+      'CBR',
+      'DRW',
+      'NAN',
       'OOL',
       'HTI',
+      'HBA',
+      'HKG',
       'MEB',
       'PER',
+      'ZQN',
       'SIN',
       'SYD',
+      'HND',
+      'AYQ',
     ]);
-    expect(airports[0]).toEqual({
+    expect(airports[3]).toEqual({
       code: 'BNE',
       city: 'Brisbane',
       name: 'Brisbane Airport',
