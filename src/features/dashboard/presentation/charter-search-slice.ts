@@ -48,13 +48,26 @@ export const charterSearchSlice = createSlice({
   name: 'charterSearch',
   initialState,
   reducers: {
-    /** Starts the form over, as the original does, and clears the results. */
+    /**
+     * Keeps what the member has entered. The first leg is the same journey
+     * in every trip type, so it carries across; the way back and the later
+     * multi-city legs wait for the type that uses them. Results drop, since
+     * they answered another request.
+     */
     tripTypeSelected(state, action: PayloadAction<TripType>) {
-      if (action.payload !== state.draft.tripType) {
-        state.draft = freshDraft(action.payload);
-        state.submitted = null;
-        state.selections = {};
+      const draft = state.draft;
+      const next = action.payload;
+      if (next === draft.tripType) {
+        return;
       }
+      if (next === TripType.MultiCity) {
+        draft.legs = [{ ...draft.outbound }, ...draft.legs.slice(1)];
+      } else if (draft.tripType === TripType.MultiCity && draft.legs[0]) {
+        draft.outbound = { ...draft.legs[0] };
+      }
+      draft.tripType = next;
+      state.submitted = null;
+      state.selections = {};
     },
     airportSelected(
       state,

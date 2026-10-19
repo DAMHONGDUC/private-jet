@@ -9,6 +9,7 @@ import {
   passengersSelected,
   quoteChosen,
   quoteToggled,
+  returnDateSelected,
   searchSubmitted,
   tripTypeSelected,
   type CharterSearchState,
@@ -77,7 +78,7 @@ test('remembers recent airports, newest first and without repeats', () => {
   expect(state.recentAirports).toHaveLength(MAX_RECENT_AIRPORTS);
 });
 
-test('a new trip type starts the form over and drops the results', () => {
+test('a new trip type keeps the first leg and drops the results', () => {
   const searched = reduce(
     [searchSubmitted(checkDraft(filled().draft).request!)],
     filled(),
@@ -86,8 +87,39 @@ test('a new trip type starts the form over and drops the results', () => {
   const state = reduce([tripTypeSelected(TripType.MultiCity)], searched);
 
   expect(state.submitted).toBeNull();
-  expect(state.draft.outbound.origin).toBeNull();
-  expect(state.draft.legs).toHaveLength(1);
+  expect(state.draft.legs).toEqual([searched.draft.outbound]);
+});
+
+test('switching trip types back and forth loses nothing', () => {
+  const start = filled();
+  let state = reduce(
+    [
+      tripTypeSelected(TripType.RoundTrip),
+      returnDateSelected({ date: '2026-12-24' }),
+      tripTypeSelected(TripType.MultiCity),
+      legAdded(),
+      airportSelected({ target: 1, end: AirportEnd.Destination, code: 'DXB' }),
+      airportSelected({ target: 0, end: AirportEnd.Origin, code: 'HEL' }),
+      tripTypeSelected(TripType.OneWay),
+    ],
+    start,
+  );
+  // The first leg edited in Multi City is the one-way trip now.
+  expect(state.draft.outbound).toEqual({
+    ...start.draft.outbound,
+    origin: 'HEL',
+  });
+
+  state = reduce(
+    [
+      tripTypeSelected(TripType.RoundTrip),
+      tripTypeSelected(TripType.MultiCity),
+    ],
+    state,
+  );
+  expect(state.draft.returnDate).toBe('2026-12-24');
+  expect(state.draft.legs).toHaveLength(2);
+  expect(state.draft.legs[1]?.destination).toBe('DXB');
 });
 
 test('a multi-city leg starts where the last one lands and the last leg stays', () => {
