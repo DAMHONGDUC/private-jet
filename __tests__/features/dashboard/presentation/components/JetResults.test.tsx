@@ -75,3 +75,41 @@ test('offers a new request when no jet is available', async () => {
   await fireEvent.press(screen.getByTestId('new-flight-request'));
   expect(props.onNewRequest).toHaveBeenCalled();
 });
+
+test('shows a page of jets with a spinner where the rest will load', async () => {
+  const quotes = Array.from({ length: 12 }, (_, index) => ({
+    ...quote,
+    id: `q${index}`,
+  }));
+  const onLegEnd = jest.fn();
+  await renderWithStore(
+    <JetResults
+      {...props}
+      results={[{ leg: request.legs[0], quotes }]}
+      limits={[10]}
+      onLegEnd={onLegEnd}
+    />,
+  );
+
+  expect(screen.getByTestId('jet-results-count')).toHaveTextContent('12');
+  expect(screen.getByTestId('jet-card-q9')).toBeOnTheScreen();
+  expect(screen.queryByTestId('jet-card-q10')).toBeNull();
+  expect(screen.getByTestId('jet-results-loading')).toBeOnTheScreen();
+
+  await fireEvent(screen.getByTestId('jet-results-leg-0'), 'layout', {
+    nativeEvent: { layout: { x: 0, y: 40, width: 360, height: 2600 } },
+  });
+  expect(onLegEnd).toHaveBeenCalledWith(0, 2640, 10);
+});
+
+test('a leg with every jet shown has no spinner', async () => {
+  await renderWithStore(
+    <JetResults
+      {...props}
+      results={[{ leg: request.legs[0], quotes: [quote] }]}
+      limits={[1]}
+    />,
+  );
+
+  expect(screen.queryByTestId('jet-results-loading')).toBeNull();
+});
