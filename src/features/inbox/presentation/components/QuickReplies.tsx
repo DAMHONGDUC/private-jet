@@ -35,7 +35,9 @@ export function QuickReplies({ onPick }: Props) {
 }
 
 const styles = StyleSheet.create({
-  quickBar: { flexGrow: 0 },
+  // A ScrollView shrinks by default; with the keyboard up it squashed the
+  // chips below their text. Only the message list gives up height.
+  quickBar: { flexGrow: 0, flexShrink: 0 },
   quick: {
     gap: AppSpacing.spacing8,
     paddingHorizontal: AppSpacing.spacing16,

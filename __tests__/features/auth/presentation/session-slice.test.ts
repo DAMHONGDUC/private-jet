@@ -1,3 +1,4 @@
+import { createDependencies } from '@/app/di/container';
 import { AppErrorCode, DomainError } from '@/core/error/app-error';
 import { baseApi } from '@/core/store/base-api';
 import { runQuery } from '@/core/query/run-query';
@@ -48,5 +49,17 @@ test('a wrong password at sign-in leaves the session alone', async () => {
     }),
   );
 
+  expect(selectSession(store.getState()).status).toBe(SessionStatus.SignedIn);
+});
+
+test('the app gaining focus during the launch check keeps the splash up', async () => {
+  // A slow check, so the focus lands while it still runs.
+  const store = createTestStore(createDependencies({ latencyMs: 50 }));
+
+  const launch = store.dispatch(authApi.endpoints.restoreSession.initiate());
+  store.dispatch(baseApi.internalActions.onFocus());
+
+  expect(selectSession(store.getState()).status).toBe(SessionStatus.Restoring);
+  await launch;
   expect(selectSession(store.getState()).status).toBe(SessionStatus.SignedIn);
 });

@@ -12,12 +12,13 @@ import {
   draftField,
   type DraftLeg,
 } from '../../domain/entities/charter';
-import { formatDayTime, passengersLabel } from '../search-labels';
 import type {
   BookingCardActions,
   BookingCardErrors,
 } from './booking-card-types';
-import { FieldButton } from './FieldButton';
+import { DateBox } from './DateBox';
+import { Align } from './FieldBox';
+import { GuestsRow } from './GuestsRow';
 import { RouteRow } from './RouteRow';
 import { RowErrors } from './RowErrors';
 
@@ -77,33 +78,22 @@ export function LegEditor({
         messages={[at(DraftPart.Origin), at(DraftPart.Destination)]}
       />
       <View style={styles.pair}>
-        <FieldButton
+        <DateBox
           testID={`leg-${index}-date`}
-          icon="calendar"
-          iconSize={17}
-          text={
-            leg.date
-              ? formatDayTime(leg.date, leg.time, t)
-              : t('search.departure')
-          }
-          filled={!!leg.date}
+          label={t('search.departure')}
+          day={leg.date}
+          time={leg.time}
+          align={Align.Start}
           invalid={!!at(DraftPart.Date)}
           onPress={() => actions.onPickDate(index)}
         />
-        <FieldButton
-          testID={`leg-${index}-passengers`}
-          icon="family"
-          iconSize={20}
-          text={
-            leg.passengers > 0
-              ? passengersLabel(leg.passengers, t)
-              : t('search.passengers')
-          }
-          filled={leg.passengers > 0}
-          invalid={!!at(DraftPart.Passengers)}
-          onPress={() => actions.onPickPassengers(index)}
-        />
       </View>
+      <GuestsRow
+        testID={`leg-${index}-passengers`}
+        count={leg.passengers}
+        invalid={!!at(DraftPart.Passengers)}
+        onPress={() => actions.onPickPassengers(index)}
+      />
       <RowErrors
         testID={`leg-${index}-date-error`}
         messages={[at(DraftPart.Date), at(DraftPart.Passengers)]}
@@ -114,10 +104,10 @@ export function LegEditor({
 
 const styles = StyleSheet.create({
   leg: { gap: AppSpacing.spacing8 },
+  pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
   legHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
 });

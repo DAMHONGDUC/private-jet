@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
+import { addDays, toDayKey } from '@/core/utils/date';
 import {
   AirportEnd,
   LegSlot,
@@ -15,9 +16,12 @@ import {
 import type { PopularRoute } from '../../domain/entities/dashboard';
 import {
   airportSelected,
+  dateSelected,
+  passengersSelected,
   searchSubmitted,
   selectCharterDraft,
   selectSubmittedCharter,
+  tripTypeSelected,
 } from '../charter-search-slice';
 import { CollapsedSearchPill } from '../components/CollapsedSearchPill';
 import { HeroText } from '../components/HeroText';
@@ -65,9 +69,25 @@ export function DashboardScreen({
     onShowResults?.();
   };
 
-  /** A suggested route fills the first leg's airports; the rest of the form stays. */
+  /**
+   * A popular route searches it straight away as a one-way charter: on the
+   * form's day if it has one still ahead, else tomorrow, for the form's party
+   * or one guest. The form takes the same values, so it matches on the way back.
+   */
   const pickRoute = (route: PopularRoute) => {
-    const target = draft.tripType === TripType.MultiCity ? 0 : LegSlot.Outbound;
+    const todayKey = toDayKey(today);
+    const formDate = draft.outbound.date;
+    const date =
+      draft.tripType !== TripType.MultiCity && formDate && formDate >= todayKey
+        ? formDate
+        : toDayKey(addDays(today, 1));
+    const passengers =
+      draft.tripType !== TripType.MultiCity && draft.outbound.passengers > 0
+        ? draft.outbound.passengers
+        : 1;
+
+    dispatch(tripTypeSelected(TripType.OneWay));
+    const target = LegSlot.Outbound;
     dispatch(
       airportSelected({ target, end: AirportEnd.Origin, code: route.origin }),
     );
@@ -78,7 +98,20 @@ export function DashboardScreen({
         code: route.destination,
       }),
     );
-    collapsible.expand();
+    dispatch(dateSelected({ target, date }));
+    dispatch(passengersSelected({ target, count: passengers }));
+
+    search({
+      tripType: TripType.OneWay,
+      legs: [
+        {
+          origin: route.origin,
+          destination: route.destination,
+          date,
+          passengers,
+        },
+      ],
+    });
   };
 
   return (

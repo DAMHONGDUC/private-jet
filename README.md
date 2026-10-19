@@ -23,19 +23,17 @@ Everything runs on in-memory mock data, so the app works offline with no backend
 - The native project and module keep the old internal name `BackJet` (Xcode target, `app.json` `name`, the Kotlin package `com.backjet`). Users never see it, and renaming it would break the build for nothing.
 - The logo images in `src/assets/images` still show the old BlackJet wordmark and need a new design.
 
-## Screenshots
+## Demo
 
-iPhone 17 Pro Max simulator. Full set, including the news story and payment cards: [docs/screenshots](docs/screenshots).
+<img src="docs/marketing/sovereign-wallpaper.png" width="600" alt="Sovereign: Private Jet">
 
-| | Home | Jets | Jet quote | Checkout | Booked |
-|---|---|---|---|---|---|
-| Light | <img src="docs/screenshots/home-light.png" width="160"> | <img src="docs/screenshots/results-light.png" width="160"> | <img src="docs/screenshots/quote-light.png" width="160"> | <img src="docs/screenshots/checkout-light.png" width="160"> | <img src="docs/screenshots/confirmation-light.png" width="160"> |
-| Dark | <img src="docs/screenshots/home-dark.png" width="160"> | <img src="docs/screenshots/results-dark.png" width="160"> | <img src="docs/screenshots/quote-dark.png" width="160"> | <img src="docs/screenshots/checkout-dark.png" width="160"> | <img src="docs/screenshots/confirmation-dark.png" width="160"> |
+**The film** (52 s, 1920 × 1080, 60 fps, with music): an Apple-style product film of the Release build on an iPhone 17 Pro Max, made with Remotion: launch, planning a charter, a popular route straight to the jets, switching trip types without losing details, a quote, checkout, the concierge, payment cards, and light and dark mode. Tap the poster to play it.
 
-| | Trips | Trip | Concierge | Profile | Add card |
-|---|---|---|---|---|---|
-| Light | <img src="docs/screenshots/trips-light.png" width="160"> | <img src="docs/screenshots/trip-detail-light.png" width="160"> | <img src="docs/screenshots/chat-light.png" width="160"> | <img src="docs/screenshots/profile-light.png" width="160"> | <img src="docs/screenshots/add-card-light.png" width="160"> |
-| Dark | <img src="docs/screenshots/trips-dark.png" width="160"> | <img src="docs/screenshots/trip-detail-dark.png" width="160"> | <img src="docs/screenshots/chat-dark.png" width="160"> | <img src="docs/screenshots/profile-dark.png" width="160"> | <img src="docs/screenshots/add-card-dark.png" width="160"> |
+<a href="docs/demo/sovereign-film.mp4"><img src="docs/demo/sovereign-film-poster.jpg" width="560" alt="Sovereign film, tap to play"></a>
+
+**The tour** (49 s, 1080 × 1920): a vertical walkthrough of the home screen and journal, a Sydney to Bali charter, the fleet, the quote, checkout and the booking confirmation.
+
+<a href="docs/demo/sovereign-demo.mp4"><img src="docs/demo/sovereign-demo-poster.jpg" width="200" alt="Sovereign app tour, tap to play"></a>
 
 ## Demo account
 

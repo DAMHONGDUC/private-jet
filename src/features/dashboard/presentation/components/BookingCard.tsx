@@ -1,8 +1,13 @@
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
-import { elevation, radius } from '@/core/theme/theme';
+import { elevation, radius, switchTiming } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
@@ -17,12 +22,13 @@ import {
   draftField,
   type CharterDraft,
 } from '../../domain/entities/charter';
-import { formatDayTime, passengersLabel } from '../search-labels';
 import type {
   BookingCardActions,
   BookingCardErrors,
 } from './booking-card-types';
-import { FieldButton } from './FieldButton';
+import { DateBox } from './DateBox';
+import { Align } from './FieldBox';
+import { GuestsRow } from './GuestsRow';
 import { LegEditor } from './LegEditor';
 import { RouteRow } from './RouteRow';
 import { RowErrors } from './RowErrors';
@@ -34,7 +40,21 @@ type Props = BookingCardActions & {
   errors?: BookingCardErrors;
 };
 
-/** The search form (feature-docs/dashboard §2.3); fields change in place, without animation. */
+const EASE = Easing.out(Easing.cubic);
+/** Fields that stay slide to their new place and size. */
+const MOVE = LinearTransition.duration(switchTiming.duration).easing(EASE);
+/** A field arriving fades in once the others have moved. */
+const ARRIVE = FadeIn.duration(switchTiming.duration).delay(80);
+/** A whole form replacing another fades straight in, so the card never shows empty. */
+const SWAP = FadeIn.duration(switchTiming.duration);
+
+/**
+ * The search form (feature-docs/dashboard §2.3). Changing the trip type
+ * animates in place: the segment slides, the Return date fades in beside
+ * Departure as it narrows (and leaves at once as it widens), and the card
+ * eases to its new height. A leaving field never fades out: it would linger
+ * over the form that replaces it.
+ */
 export function BookingCard(props: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
@@ -44,8 +64,9 @@ export function BookingCard(props: Props) {
     errors[draftField(LegSlot.Outbound, part)];
 
   return (
-    <View
+    <Animated.View
       testID="booking-card"
+      layout={MOVE}
       style={[
         styles.card,
         { backgroundColor: palette.raised },
@@ -55,7 +76,7 @@ export function BookingCard(props: Props) {
       <TripTypeRadio value={draft.tripType} onChange={props.onTripType} />
 
       {draft.tripType === TripType.MultiCity ? (
-        <View style={styles.legs}>
+        <Animated.View key="legs" entering={SWAP} style={styles.legs}>
           {draft.legs.map((leg, index) => (
             <LegEditor
               key={index}
@@ -76,9 +97,9 @@ export function BookingCard(props: Props) {
               <BJText>{t('search.addLeg')}</BJText>
             </PressableScale>
           ) : null}
-        </View>
+        </Animated.View>
       ) : (
-        <View style={styles.section}>
+        <Animated.View key="single" entering={SWAP} style={styles.section}>
           <RouteRow
             testID="outbound"
             airports={props.airports}
@@ -103,51 +124,42 @@ export function BookingCard(props: Props) {
             ]}
           />
           <View style={styles.pair}>
-            <FieldButton
-              testID="outbound-date"
-              icon="calendar"
-              iconSize={17}
-              text={
-                draft.outbound.date
-                  ? formatDayTime(draft.outbound.date, draft.outbound.time, t)
-                  : t('search.departure')
-              }
-              filled={!!draft.outbound.date}
-              invalid={!!outbound(DraftPart.Date)}
-              onPress={() => props.onPickDate(LegSlot.Outbound)}
-            />
+            <Animated.View layout={MOVE} style={styles.slot}>
+              <DateBox
+                testID="outbound-date"
+                label={t('search.departure')}
+                day={draft.outbound.date}
+                time={draft.outbound.time}
+                align={Align.Start}
+                invalid={!!outbound(DraftPart.Date)}
+                onPress={() => props.onPickDate(LegSlot.Outbound)}
+              />
+            </Animated.View>
             {roundTrip ? (
-              <View style={styles.flex}>
-                <FieldButton
+              <Animated.View
+                entering={ARRIVE}
+                layout={MOVE}
+                style={styles.slot}
+              >
+                <DateBox
                   testID="return-date"
-                  icon="calendar"
-                  iconSize={17}
-                  text={
-                    draft.returnDate
-                      ? formatDayTime(draft.returnDate, draft.returnTime, t)
-                      : t('search.return')
-                  }
-                  filled={!!draft.returnDate}
+                  label={t('search.return')}
+                  day={draft.returnDate}
+                  time={draft.returnTime}
+                  align={Align.End}
                   invalid={!!errors[RETURN_DATE_FIELD]}
                   onPress={props.onPickReturnDate}
                 />
-              </View>
+              </Animated.View>
             ) : null}
           </View>
           <RowErrors
             testID="outbound-date-error"
             messages={[outbound(DraftPart.Date), errors[RETURN_DATE_FIELD]]}
           />
-          <FieldButton
+          <GuestsRow
             testID="outbound-passengers"
-            icon="family"
-            iconSize={20}
-            text={
-              draft.outbound.passengers > 0
-                ? passengersLabel(draft.outbound.passengers, t)
-                : t('search.passengers')
-            }
-            filled={draft.outbound.passengers > 0}
+            count={draft.outbound.passengers}
             invalid={!!outbound(DraftPart.Passengers)}
             onPress={() => props.onPickPassengers(LegSlot.Outbound)}
           />
@@ -155,19 +167,21 @@ export function BookingCard(props: Props) {
             testID="outbound-passengers-error"
             messages={[outbound(DraftPart.Passengers)]}
           />
-        </View>
+        </Animated.View>
       )}
 
-      <PressableScale
-        testID="find-jet"
-        accessibilityRole="button"
-        onPress={props.onFind}
-        style={[styles.find, { backgroundColor: palette.primaryAction }]}
-      >
-        <Icon name="search" size={20} color={palette.onPrimaryAction} />
-        <BJText tone="onPrimary">{t('search.find')}</BJText>
-      </PressableScale>
-    </View>
+      <Animated.View layout={MOVE}>
+        <PressableScale
+          testID="find-jet"
+          accessibilityRole="button"
+          onPress={props.onFind}
+          style={[styles.find, { backgroundColor: palette.primaryAction }]}
+        >
+          <Icon name="search" size={20} color={palette.onPrimaryAction} />
+          <BJText tone="onPrimary">{t('search.find')}</BJText>
+        </PressableScale>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -175,15 +189,15 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: AppSpacing.spacing16,
     borderRadius: radius.xl,
-    padding: AppSpacing.spacing16,
-    gap: AppSpacing.spacing12,
+    padding: AppSpacing.spacing12,
+    gap: AppSpacing.spacing8,
   },
   section: { gap: AppSpacing.spacing8 },
   pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
-  flex: { flex: 1 },
-  legs: { gap: AppSpacing.spacing16 },
+  slot: { flex: 1, flexDirection: 'row' },
+  legs: { gap: AppSpacing.spacing12 },
   addLeg: {
-    height: 52,
+    height: 44,
     borderRadius: radius.md,
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -193,7 +207,7 @@ const styles = StyleSheet.create({
     gap: AppSpacing.spacing8,
   },
   find: {
-    height: 52,
+    height: 44,
     borderRadius: radius.md,
     flexDirection: 'row',
     gap: AppSpacing.spacing8,

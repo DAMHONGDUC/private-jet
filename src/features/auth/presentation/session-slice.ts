@@ -58,9 +58,18 @@ export const sessionSlice = createSlice({
             : SessionStatus.SignedOut;
         },
       )
-      .addMatcher(authApi.endpoints.restoreSession.matchRejected, state => {
-        state.status = SessionStatus.SignedOut;
-      })
+      // Only a failed launch check signs out. A refetch skipped because the
+      // check is still running (the app gaining focus at launch) also lands
+      // here, with `meta.condition`; acting on it flashed the login screen.
+      .addMatcher(
+        authApi.endpoints.restoreSession.matchRejected,
+        (state, { meta }) => {
+          if (meta.condition || state.status !== SessionStatus.Restoring) {
+            return;
+          }
+          state.status = SessionStatus.SignedOut;
+        },
+      )
       .addMatcher(
         authApi.endpoints.signIn.matchFulfilled,
         (state, { payload }) => {

@@ -6,7 +6,8 @@ import { elevation } from '@/core/theme/theme';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
 import type { Airport } from '@/features/flights/domain/entities/flight';
-import { AirportBox, Align } from './AirportBox';
+import { AirportBox } from './AirportBox';
+import { Align } from './FieldBox';
 
 type Props = {
   airports: Record<string, Airport | undefined>;
@@ -34,7 +35,6 @@ export function RouteRow(props: Props) {
         label={t('search.from')}
         code={origin}
         airport={origin ? airports[origin] : undefined}
-        placeholder="—"
         align={Align.Start}
         invalid={props.originInvalid}
         onPress={props.onPickOrigin}
@@ -44,7 +44,6 @@ export function RouteRow(props: Props) {
         label={t('search.to')}
         code={destination}
         airport={destination ? airports[destination] : undefined}
-        placeholder="—"
         align={Align.End}
         invalid={props.destinationInvalid}
         onPress={props.onPickDestination}
@@ -71,7 +70,7 @@ export function RouteRow(props: Props) {
   );
 }
 
-const SWAP_SIZE = 40;
+const SWAP_SIZE = 36;
 
 const styles = StyleSheet.create({
   route: {

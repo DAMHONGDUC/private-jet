@@ -88,6 +88,7 @@ export const en = {
     passengers: 'Guests',
     passengerCount: '{count} guest',
     passengerCountMany: '{count} guests',
+    selectDate: 'Select date',
     addLeg: 'Add a leg',
     legLabel: 'LEG {number}',
     upToSeats: 'Up to {count} seats',

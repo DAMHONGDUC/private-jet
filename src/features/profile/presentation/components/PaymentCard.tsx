@@ -2,6 +2,7 @@ import { AppColors } from '@/core/theme/app-colors';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { BJText } from '@/core/ui/BJText';
+import { Wordmark, WordmarkTone } from '@/core/ui/Wordmark';
 import { formatMoney } from '@/core/utils/format';
 import {
   CardBrand,
@@ -56,9 +57,7 @@ export function PaymentCard({ method, number, style, testID }: Props) {
       style={[styles.card, { backgroundImage: face }, style]}
     >
       <View style={styles.row}>
-        <BJText size={13} weight="medium" tone="white" style={styles.spaced}>
-          BLACKJET
-        </BJText>
+        <Wordmark tone={WordmarkTone.OnPhoto} />
         <BJText size={16} weight="medium" tone="white">
           {wallet ? 'WALLET' : BRAND_NAMES[method.brand ?? 'visa']}
         </BJText>
@@ -122,7 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-  spaced: { letterSpacing: 3 },
   chip: {
     width: 42,
     height: 30,

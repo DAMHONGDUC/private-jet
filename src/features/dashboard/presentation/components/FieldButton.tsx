@@ -60,14 +60,14 @@ export function FieldButton({
 const styles = StyleSheet.create({
   field: {
     flex: 1,
-    height: 52,
+    height: 44,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: AppSpacing.spacing12,
-    paddingHorizontal: AppSpacing.spacing16,
+    gap: AppSpacing.spacing8,
+    paddingHorizontal: AppSpacing.spacing12,
   },
   fieldText: { flex: 1 },
 });
