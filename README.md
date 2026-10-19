@@ -27,7 +27,7 @@ Everything runs on in-memory mock data, so the app works offline with no backend
 
 <img src="docs/marketing/sovereign-wallpaper.png" width="600" alt="Sovereign: Private Jet">
 
-**The film** (49 s, 1920 × 1080, 60 fps, with music): an Apple-style product film of the Release build on an iPhone 17 Pro Max, made with Remotion: launch, planning a charter, a popular route straight to the jets, a quote, checkout, the concierge, payment cards, and light and dark mode. Tap the poster to play it.
+**The film** (51 s, 1920 × 1080, 60 fps, with music): an Apple-style product film of the Release build on an iPhone 17 Pro Max, made with Remotion: launch, planning a charter, a popular route straight to the jets, switching trip types without losing details, a quote, checkout, the concierge, payment cards, and light and dark mode. Tap the poster to play it.
 
 <a href="docs/demo/sovereign-film.mp4"><img src="docs/demo/sovereign-film-poster.jpg" width="560" alt="Sovereign film, tap to play"></a>
 
