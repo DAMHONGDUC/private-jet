@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 import { Modal, Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { makeStyles } from '@/core/theme/blackjet';
 import { AppSpacing } from '@/core/theme/app-spacing';
 import { radius } from '@/core/theme/theme';
 import { AppText } from './AppText';
+import { useSheetMotion } from './use-sheet-motion';
 
 type Props = {
   visible: boolean;
@@ -14,7 +16,7 @@ type Props = {
   testID?: string;
 };
 
-/** A panel that slides up from the bottom; tapping outside closes it. */
+/** A panel that slides up from the bottom over a fading scrim; tapping outside closes it. */
 export function BottomSheet({
   visible,
   title,
@@ -24,25 +26,33 @@ export function BottomSheet({
 }: Props) {
   const insets = useSafeAreaInsets();
   const styles = useStyles();
+  const motion = useSheetMotion(visible);
 
   return (
     <Modal
-      visible={visible}
+      visible={motion.mounted}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
       <View style={styles.root}>
-        <Pressable
-          testID={testID && `${testID}-backdrop`}
-          style={styles.backdrop}
-          onPress={onClose}
-        />
-        <View
+        <Animated.View
+          pointerEvents={visible ? 'auto' : 'none'}
+          style={[styles.backdrop, motion.backdropStyle]}
+        >
+          <Pressable
+            testID={testID && `${testID}-backdrop`}
+            style={styles.fill}
+            onPress={onClose}
+          />
+        </Animated.View>
+        <Animated.View
           testID={testID}
+          onLayout={motion.onSheetLayout}
           style={[
             styles.sheet,
             { paddingBottom: AppSpacing.bottomActionInset(insets.bottom) },
+            motion.sheetStyle,
           ]}
         >
           <View style={styles.handle} />
@@ -50,7 +60,7 @@ export function BottomSheet({
             {title}
           </AppText>
           {children}
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -66,6 +76,7 @@ const useStyles = makeStyles(palette => ({
     left: 0,
     backgroundColor: palette.scrim,
   },
+  fill: { flex: 1 },
   sheet: {
     backgroundColor: palette.secondaryBackground,
     borderTopLeftRadius: 24,

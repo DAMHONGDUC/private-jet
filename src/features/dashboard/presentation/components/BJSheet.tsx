@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useT } from '@/core/i18n/i18n';
 import { useBlackJetTheme } from '@/core/theme/blackjet';
@@ -15,6 +16,7 @@ import { radius } from '@/core/theme/theme';
 import { BJText } from '@/core/ui/BJText';
 import { Icon } from '@/core/ui/Icon';
 import { PressableScale } from '@/core/ui/PressableScale';
+import { useSheetMotion } from '@/core/ui/use-sheet-motion';
 
 type Props = {
   visible: boolean;
@@ -26,37 +28,50 @@ type Props = {
 
 /**
  * The dashboard's bottom sheet: a handle, a title with a close button, and
- * the content. Only the sheet itself slides up; what is inside appears at once.
+ * the content. Only the sheet slides up, while the scrim behind it fades in;
+ * what is inside appears at once.
  */
 export function BJSheet({ visible, title, onClose, children, testID }: Props) {
   const palette = useBlackJetTheme();
   const t = useT();
   const insets = useSafeAreaInsets();
+  const motion = useSheetMotion(visible);
 
   return (
     <Modal
-      visible={visible}
+      visible={motion.mounted}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
       <KeyboardAvoidingView
         style={styles.root}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Pressable
-          testID={`${testID}-backdrop`}
-          style={[styles.backdrop, { backgroundColor: palette.scrim }]}
-          onPress={onClose}
-        />
-        <View
+        <Animated.View
+          pointerEvents={visible ? 'auto' : 'none'}
+          style={[
+            styles.backdrop,
+            { backgroundColor: palette.scrim },
+            motion.backdropStyle,
+          ]}
+        >
+          <Pressable
+            testID={`${testID}-backdrop`}
+            style={styles.backdrop}
+            onPress={onClose}
+          />
+        </Animated.View>
+        <Animated.View
           testID={testID}
+          onLayout={motion.onSheetLayout}
           style={[
             styles.sheet,
             {
               backgroundColor: palette.secondaryBackground,
               paddingBottom: AppSpacing.bottomActionInset(insets.bottom),
             },
+            motion.sheetStyle,
           ]}
         >
           <View style={[styles.handle, { backgroundColor: palette.iron }]} />
@@ -79,7 +94,7 @@ export function BJSheet({ visible, title, onClose, children, testID }: Props) {
             </PressableScale>
           </View>
           {children}
-        </View>
+        </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
