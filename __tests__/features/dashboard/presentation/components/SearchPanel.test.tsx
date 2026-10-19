@@ -64,7 +64,9 @@ test('asks for the way back on a round trip', async () => {
   expect(screen.queryByTestId('return-date')).toBeNull();
   await fireEvent.press(screen.getByTestId('trip-type-roundTrip'));
 
-  expect(screen.getByTestId('return-date')).toHaveTextContent(/Return$/);
+  expect(screen.getByTestId('return-date')).toHaveTextContent(
+    /Return—Select date$/,
+  );
   expect(screen.getByTestId('trip-type-roundTrip')).toBeChecked();
   expect(props.onInvalid).not.toHaveBeenCalled();
 });
@@ -125,7 +127,7 @@ test('picks a day months ahead through the month and year grid, with a time', as
 
   await pickCalendarDay('2027-03-10', { time: '14:30' });
   expect(screen.getByTestId('outbound-date')).toHaveTextContent(
-    /10 Mar 2027 · 14:30$/,
+    /Departure10 Mar2027 · 14:30$/,
   );
 
   await fireEvent.press(screen.getByTestId('outbound-passengers'));
@@ -153,5 +155,7 @@ test('closing the calendar without Done keeps the field as it was', async () => 
   await pickCalendarDay(toDayKey(addDays(TEST_NOW, 2)), { confirm: false });
   await fireEvent.press(screen.getByTestId('calendar-sheet-close'));
 
-  expect(screen.getByTestId('outbound-date')).toHaveTextContent(/Departure$/);
+  expect(screen.getByTestId('outbound-date')).toHaveTextContent(
+    /Departure—Select date$/,
+  );
 });

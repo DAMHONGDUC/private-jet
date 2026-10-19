@@ -86,6 +86,7 @@ export const vi: Dictionary = {
     passengers: 'Khách',
     passengerCount: '{count} khách',
     passengerCountMany: '{count} khách',
+    selectDate: 'Chọn ngày',
     addLeg: 'Thêm chặng bay',
     legLabel: 'CHẶNG {number}',
     upToSeats: 'Tối đa {count} ghế',

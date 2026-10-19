@@ -749,7 +749,7 @@ y = scrollY
 |---|---|
 | 1.1–1.4 Token, font, icon | `src/core/theme/blackjet.ts`, `src/core/ui/BJText.tsx`, `src/core/ui/Icon.tsx`; font trong `src/assets/fonts` (link bằng `npx react-native-asset`) |
 | 2.1–2.2 App bar, hero | `presentation/components/HomeAppBar.tsx` + `BadgeButton.tsx` (badge lấy từ `getInbox`), `HeroText.tsx` |
-| 2.3 Booking card | `components/BookingCard.tsx`, `LegEditor.tsx`, `RowErrors.tsx`, `TripTypeRadio.tsx`, `RouteRow.tsx`, `AirportBox.tsx`, `FieldButton.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
+| 2.3 Booking card | `components/BookingCard.tsx`, `LegEditor.tsx`, `RowErrors.tsx`, `TripTypeRadio.tsx`, `RouteRow.tsx`, `FieldBox.tsx`, `AirportBox.tsx`, `DateBox.tsx`, `FieldButton.tsx`, `GuestsRow.tsx`, `components/SearchPanel.tsx` (nối store và sheet) |
 | 2.4 News carousel | `components/NewsCarousel.tsx`, `components/PhotoPager.tsx` |
 | 2.5 Bottom nav | `src/app/navigation/BlackJetTabBar.tsx`: 3 tab Home / Flights / Trips. Repo chưa có Blog và Profile nên chưa có tab avatar |
 | 3.4 Validation | `domain/entities/charter.ts` → `checkDraft()`, giữ nguyên câu báo lỗi gốc; thêm 2 luật: 2 sân bay phải khác nhau, các leg Multi City phải theo thứ tự ngày |

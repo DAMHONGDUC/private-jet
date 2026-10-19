@@ -17,12 +17,13 @@ import {
   draftField,
   type CharterDraft,
 } from '../../domain/entities/charter';
-import { formatDayTime, passengersLabel } from '../search-labels';
 import type {
   BookingCardActions,
   BookingCardErrors,
 } from './booking-card-types';
-import { FieldButton } from './FieldButton';
+import { DateBox } from './DateBox';
+import { Align } from './FieldBox';
+import { GuestsRow } from './GuestsRow';
 import { LegEditor } from './LegEditor';
 import { RouteRow } from './RouteRow';
 import { RowErrors } from './RowErrors';
@@ -103,51 +104,34 @@ export function BookingCard(props: Props) {
             ]}
           />
           <View style={styles.pair}>
-            <FieldButton
+            <DateBox
               testID="outbound-date"
-              icon="calendar"
-              iconSize={17}
-              text={
-                draft.outbound.date
-                  ? formatDayTime(draft.outbound.date, draft.outbound.time, t)
-                  : t('search.departure')
-              }
-              filled={!!draft.outbound.date}
+              label={t('search.departure')}
+              day={draft.outbound.date}
+              time={draft.outbound.time}
+              align={Align.Start}
               invalid={!!outbound(DraftPart.Date)}
               onPress={() => props.onPickDate(LegSlot.Outbound)}
             />
             {roundTrip ? (
-              <View style={styles.flex}>
-                <FieldButton
-                  testID="return-date"
-                  icon="calendar"
-                  iconSize={17}
-                  text={
-                    draft.returnDate
-                      ? formatDayTime(draft.returnDate, draft.returnTime, t)
-                      : t('search.return')
-                  }
-                  filled={!!draft.returnDate}
-                  invalid={!!errors[RETURN_DATE_FIELD]}
-                  onPress={props.onPickReturnDate}
-                />
-              </View>
+              <DateBox
+                testID="return-date"
+                label={t('search.return')}
+                day={draft.returnDate}
+                time={draft.returnTime}
+                align={Align.End}
+                invalid={!!errors[RETURN_DATE_FIELD]}
+                onPress={props.onPickReturnDate}
+              />
             ) : null}
           </View>
           <RowErrors
             testID="outbound-date-error"
             messages={[outbound(DraftPart.Date), errors[RETURN_DATE_FIELD]]}
           />
-          <FieldButton
+          <GuestsRow
             testID="outbound-passengers"
-            icon="family"
-            iconSize={20}
-            text={
-              draft.outbound.passengers > 0
-                ? passengersLabel(draft.outbound.passengers, t)
-                : t('search.passengers')
-            }
-            filled={draft.outbound.passengers > 0}
+            count={draft.outbound.passengers}
             invalid={!!outbound(DraftPart.Passengers)}
             onPress={() => props.onPickPassengers(LegSlot.Outbound)}
           />
@@ -180,7 +164,6 @@ const styles = StyleSheet.create({
   },
   section: { gap: AppSpacing.spacing8 },
   pair: { flexDirection: 'row', gap: AppSpacing.spacing8 },
-  flex: { flex: 1 },
   legs: { gap: AppSpacing.spacing16 },
   addLeg: {
     height: 52,
